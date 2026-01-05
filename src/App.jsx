@@ -10,6 +10,7 @@ import { importLagosStationsV3, enrichStationData } from './services/osmService'
 import { subscribeToAuth, logout } from './services/authService';
 import AuthModal from './components/AuthModal';
 import AddStationModal from './components/AddStationModal';
+import StationDetailsModal from './components/StationDetailsModal';
 
 // Temporary Initial Data for Seeding
 const INITIAL_DATA_SEED = [
@@ -205,6 +206,10 @@ function App() {
     setSelectedStation(station);
   };
 
+  const handleViewDetails = (station) => {
+    setViewingStation(station);
+  };
+
   const handleReportClick = (station) => {
     setReportModalData({ isOpen: true, station });
   };
@@ -228,10 +233,11 @@ function App() {
   const activeSelectedStation = stations.find(s => s.id === selectedStation?.id) || selectedStation;
 
   return (
-    <div style={{ display: 'flex', height: '100vh', width: '100vw', background: 'var(--bg-primary)' }}>
+    <div className="app-container">
       <StationList
         stations={stations}
         onSelect={handleStationSelect}
+        onViewDetails={handleViewDetails}
         selectedStationId={activeSelectedStation?.id}
         onImport={handleImportOSM}
         onFixAddresses={handleFixAddresses}
@@ -243,7 +249,7 @@ function App() {
         onAddStation={() => setIsAddStationModalOpen(true)}
       />
 
-      <div style={{ flex: 1, position: 'relative' }}>
+      <div className="map-container-wrapper">
         {isLoading && (
           <div style={{
             position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
@@ -256,10 +262,20 @@ function App() {
         <MapComponent
           stations={stations}
           onStationSelect={handleStationSelect}
+          onViewDetails={handleViewDetails}
           selectedStation={activeSelectedStation}
           onReportClick={handleReportClick}
         />
       </div>
+
+      {/* Details Modal with Reviews */}
+      <StationDetailsModal
+        isOpen={!!viewingStation}
+        onClose={() => setViewingStation(null)}
+        station={viewingStation}
+        user={user}
+        onLoginRequest={() => setIsAuthModalOpen(true)}
+      />
 
       <ReportModal
         isOpen={reportModalData.isOpen}

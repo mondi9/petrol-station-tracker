@@ -54,7 +54,7 @@ const MapController = ({ selectedStation }) => {
     return null;
 };
 
-const MapComponent = ({ stations, onStationSelect, selectedStation, onReportClick }) => {
+const MapComponent = ({ stations, onStationSelect, onViewDetails, selectedStation, onReportClick }) => {
     const position = [6.5244, 3.3792]; // Default Lagos center
 
     return (
@@ -103,13 +103,25 @@ const MapComponent = ({ stations, onStationSelect, selectedStation, onReportClic
                                     </span>
                                 </div>
 
-                                <button
-                                    className="btn btn-primary"
-                                    style={{ width: '100%', padding: '8px', fontSize: '0.8rem' }}
-                                    onClick={() => onReportClick(station)}
-                                >
-                                    Report Status
-                                </button>
+                                <div style={{ display: 'grid', gap: '8px', gridTemplateColumns: '1fr 1fr' }}>
+                                    <button
+                                        className="btn btn-primary"
+                                        style={{ width: '100%', padding: '8px', fontSize: '0.75rem', justifyContent: 'center' }}
+                                        onClick={() => onReportClick(station)}
+                                    >
+                                        Report Status
+                                    </button>
+                                    <button
+                                        className="btn"
+                                        style={{ width: '100%', padding: '8px', fontSize: '0.75rem', justifyContent: 'center', background: 'var(--bg-secondary)', border: '1px solid var(--glass-border)' }}
+                                        onClick={(e) => {
+                                            e.stopPropagation();
+                                            onViewDetails(station);
+                                        }}
+                                    >
+                                        Reviews & Info
+                                    </button>
+                                </div>
                             </div>
                         </Popup>
                     </Marker>

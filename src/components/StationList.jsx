@@ -2,7 +2,7 @@ import React from 'react';
 import { MapPin, Fuel, Clock, Activity } from 'lucide-react';
 import { formatTimeAgo } from '../services/stationService';
 
-const StationList = ({ stations, onSelect, selectedStationId, onImport, onFixAddresses, onRestore, onAddStation, importStatus, user, onLogin, onLogout }) => {
+const StationList = ({ stations, onSelect, onViewDetails, selectedStationId, onImport, onFixAddresses, onRestore, onAddStation, importStatus, user, onLogin, onLogout }) => {
     // ... matching existing code ...
     const [filter, setFilter] = React.useState('all'); // 'all', 'active', 'inactive'
     const [searchQuery, setSearchQuery] = React.useState('');
@@ -18,17 +18,7 @@ const StationList = ({ stations, onSelect, selectedStationId, onImport, onFixAdd
     });
 
     return (
-        <div className="sidebar" style={{
-            width: '380px',
-            height: '100%',
-            display: 'flex',
-            flexDirection: 'column',
-            background: 'var(--bg-secondary)',
-            borderRight: '1px solid var(--glass-border)',
-            position: 'relative',
-            zIndex: 500,
-            boxShadow: '4px 0 24px rgba(0,0,0,0.4)',
-        }}>
+        <div className="sidebar">
             {/* ... Header and List sections remain roughly same, only Footer changes ... */}
 
             {/* Header */}
@@ -141,6 +131,16 @@ const StationList = ({ stations, onSelect, selectedStationId, onImport, onFixAdd
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', opacity: 0.5, fontSize: '0.8rem' }}>
                                 <Clock size={12} />
                                 Updated {formatTimeAgo(station.lastUpdated)}
+                            </div>
+
+                            <div
+                                style={{ marginTop: '8px', fontSize: '0.8rem', color: 'var(--color-active)', textDecoration: 'underline', cursor: 'pointer' }}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    onViewDetails(station);
+                                }}
+                            >
+                                View Reviews & Details
                             </div>
                         </div>
                     ))}

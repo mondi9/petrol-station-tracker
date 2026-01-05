@@ -16,6 +16,13 @@ service cloud.firestore {
       
       // Allow admins to delete? (For now, let's restrict delete to auth as well)
       allow delete: if request.auth != null;
+
+      // Reviews Subcollection
+      match /reviews/{reviewId} {
+        allow read: if true;
+        allow create: if request.auth != null;
+        allow delete: if request.auth != null && request.auth.uid == resource.data.userId;
+      }
     }
   }
 }
