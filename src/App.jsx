@@ -31,6 +31,7 @@ const INITIAL_DATA_SEED = [
 function App() {
   const [stations, setStations] = useState([]);
   const [selectedStation, setSelectedStation] = useState(null);
+  const [viewingStation, setViewingStation] = useState(null);
   const [reportModalData, setReportModalData] = useState({ isOpen: false, station: null });
   const [isLoading, setIsLoading] = useState(true);
 
