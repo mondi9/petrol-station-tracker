@@ -10,7 +10,7 @@ export default defineConfig({
       registerType: 'autoUpdate',
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'mask-icon.svg'],
       manifest: {
-        name: 'Petrol Pulse',
+        name: 'Lagos Petrol Pulse',
         short_name: 'PetrolPulse',
         description: 'Real-time petrol station status tracker',
         theme_color: '#0a0a0a',

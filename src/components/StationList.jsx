@@ -32,7 +32,7 @@ const StationList = ({ stations, onSelect, onViewDetails, selectedStationId, onI
                     }}>
                         <Fuel size={20} color="#000" />
                     </div>
-                    <h1 style={{ fontSize: '1.5rem', fontWeight: '800', letterSpacing: '-0.02em' }}>Petrol Pulse</h1>
+                    <h1 style={{ fontSize: '1.5rem', fontWeight: '800', letterSpacing: '-0.02em' }}>Lagos Petrol Pulse</h1>
                 </div>
                 <p style={{ opacity: 0.6, fontSize: '0.9rem' }}>
                     Real-time crowd-sourced fuel availability.
