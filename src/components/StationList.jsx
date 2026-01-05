@@ -1,14 +1,20 @@
 import React from 'react';
 import { MapPin, Fuel, Clock, Activity } from 'lucide-react';
-import { formatTimeAgo } from '../services/mockData';
+import { formatTimeAgo } from '../services/stationService';
 
-const StationList = ({ stations, onSelect, selectedStationId }) => {
+const StationList = ({ stations, onSelect, selectedStationId, onImport, onFixAddresses, onRestore, onAddStation, importStatus, user, onLogin, onLogout }) => {
+    // ... matching existing code ...
     const [filter, setFilter] = React.useState('all'); // 'all', 'active', 'inactive'
+    const [searchQuery, setSearchQuery] = React.useState('');
     const activeCount = stations.filter(s => s.status === 'active').length;
 
     const filteredStations = stations.filter(s => {
-        if (filter === 'all') return true;
-        return s.status === filter;
+        const matchesFilter = filter === 'all' || s.status === filter;
+        const name = s.name || '';
+        const address = s.address || '';
+        const matchesSearch = name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            address.toLowerCase().includes(searchQuery.toLowerCase());
+        return matchesFilter && matchesSearch;
     });
 
     return (
@@ -23,6 +29,8 @@ const StationList = ({ stations, onSelect, selectedStationId }) => {
             zIndex: 500,
             boxShadow: '4px 0 24px rgba(0,0,0,0.4)',
         }}>
+            {/* ... Header and List sections remain roughly same, only Footer changes ... */}
+
             {/* Header */}
             <div style={{ padding: '24px', borderBottom: '1px solid var(--glass-border)' }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
@@ -39,6 +47,23 @@ const StationList = ({ stations, onSelect, selectedStationId }) => {
                 <p style={{ opacity: 0.6, fontSize: '0.9rem' }}>
                     Real-time crowd-sourced fuel availability.
                 </p>
+
+                <input
+                    type="text"
+                    placeholder="Search stations or addresses..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    style={{
+                        width: '100%',
+                        padding: '10px',
+                        marginTop: '15px',
+                        borderRadius: 'var(--radius-sm)',
+                        border: '1px solid var(--glass-border)',
+                        background: 'rgba(0,0,0,0.2)',
+                        color: 'white',
+                        outline: 'none'
+                    }}
+                />
 
                 <div style={{ marginTop: '20px', display: 'flex', gap: '8px', background: 'var(--bg-primary)', padding: '4px', borderRadius: 'var(--radius-md)' }}>
                     <button
@@ -127,9 +152,104 @@ const StationList = ({ stations, onSelect, selectedStationId }) => {
                 </div>
             </div>
 
-            {/* Footer / User Info Placeholder */}
-            <div style={{ padding: '16px', borderTop: '1px solid var(--glass-border)', fontSize: '0.8rem', opacity: 0.5, textAlign: 'center' }}>
-                <p>Displaying demo data for Lagos, Nigeria area.</p>
+            {/* Footer Actions */}
+            <div style={{ padding: '16px', borderTop: '1px solid var(--glass-border)', display: 'flex', flexDirection: 'column', gap: '8px' }}>
+
+                {!user ? (
+                    <button
+                        onClick={onLogin}
+                        className="btn btn-primary"
+                        style={{ width: '100%', justifyContent: 'center' }}
+                    >
+                        Sign In / Sign Up
+                    </button>
+                ) : (
+                    <>
+                        <div style={{ marginBottom: '4px', fontSize: '0.75rem', opacity: 0.7, textAlign: 'center', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                            <span>{user.email}</span>
+                            <button
+                                onClick={onLogout}
+                                style={{
+                                    background: 'transparent',
+                                    border: 'none',
+                                    color: 'var(--color-inactive)',
+                                    cursor: 'pointer',
+                                    fontSize: '0.75rem',
+                                    textDecoration: 'underline',
+                                    padding: '0'
+                                }}
+                            >
+                                Log Out
+                            </button>
+                        </div>
+
+                        {stations.length < 50 && (
+                            <button
+                                onClick={onImport}
+                                className="btn btn-primary"
+                                disabled={!!importStatus}
+                                style={{ width: '100%', justifyContent: 'center', fontSize: '0.85rem', padding: '8px' }}
+                            >
+                                {importStatus && importStatus.includes("Fetching") ? importStatus : "Import Data (v3)"}
+                            </button>
+                        )}
+
+                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                            <button
+                                onClick={onAddStation}
+                                className="btn btn-primary"
+                                style={{
+                                    justifyContent: 'center',
+                                    background: 'var(--color-active)',
+                                    color: 'black',
+                                    fontSize: '0.8rem',
+                                    padding: '8px',
+                                    whiteSpace: 'nowrap'
+                                }}
+                            >
+                                + Add Station
+                            </button>
+
+                            <button
+                                onClick={onFixAddresses}
+                                className="btn btn-secondary"
+                                disabled={importStatus && importStatus.includes("...")}
+                                style={{
+                                    background: '#f59e0b',
+                                    color: 'black',
+                                    justifyContent: 'center',
+                                    opacity: (importStatus && importStatus.includes("...")) ? 0.7 : 1,
+                                    cursor: (importStatus && importStatus.includes("...")) ? 'wait' : 'pointer',
+                                    fontSize: '0.8rem',
+                                    padding: '8px',
+                                    whiteSpace: 'nowrap'
+                                }}
+                            >
+                                Fix Addresses
+                            </button>
+                        </div>
+
+                        {onRestore && (
+                            <button
+                                onClick={onRestore}
+                                className="btn"
+                                style={{
+                                    background: 'transparent',
+                                    color: 'var(--text-secondary)',
+                                    width: '100%',
+                                    marginTop: '4px',
+                                    border: '1px solid var(--glass-border)',
+                                    fontSize: '0.75rem',
+                                    padding: '6px',
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                Restore Missing Stations
+                            </button>
+                        )}
+                    </>
+                )}
+
             </div>
         </div>
     );

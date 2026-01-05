@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { getStatusColor, formatTimeAgo } from '../services/mockData';
+import { getStatusColor, formatTimeAgo } from '../services/stationService';
 import { Fuel, Navigation, Clock } from 'lucide-react';
 
 // Fix for default Leaflet icon issues in React
@@ -19,19 +19,24 @@ const DefaultIcon = L.icon({
 // Custom marker generator
 const createCustomIcon = (status) => {
     const color = getStatusColor(status);
+
+    // SVG Pin with "Fuel" context
+    // Outer pin, Inner white circle
+    const svgContent = `
+        <div style="color: ${color}; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); transform: translateY(-5px);">
+            <svg width="32" height="42" viewBox="0 0 24 30" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 0C7.58172 0 4 3.58172 4 8C4 13.25 11.25 21.625 11.6641 22.0938C11.8477 22.3047 12.1523 22.3047 12.3359 22.0938C12.75 21.625 20 13.25 20 8C20 3.58172 16.4183 0 12 0Z" fill="currentColor"/>
+                <circle cx="12" cy="8" r="3.5" fill="white"/>
+            </svg>
+        </div>
+    `;
+
     return L.divIcon({
-        className: 'custom-marker',
-        html: `<div style="
-      background-color: ${color};
-      width: 14px;
-      height: 14px;
-      border-radius: 50%;
-      border: 2px solid white;
-      box-shadow: 0 0 10px ${color};
-      "></div>`,
-        iconSize: [14, 14],
-        iconAnchor: [7, 7],
-        popupAnchor: [0, -10]
+        className: 'custom-marker-pin',
+        html: svgContent,
+        iconSize: [32, 42],
+        iconAnchor: [16, 42], // Tip at bottom center
+        popupAnchor: [0, -38]
     });
 };
 

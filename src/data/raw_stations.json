@@ -1,0 +1,6274 @@
+{
+  "version": 0.6,
+  "generator": "Overpass API 0.7.62.8 e802775f",
+  "osm3s": {
+    "timestamp_osm_base": "2026-01-04T22:31:30Z",
+    "timestamp_areas_base": "2026-01-04T15:35:53Z",
+    "copyright": "The data included in this document is from www.openstreetmap.org. The data is made available under ODbL."
+  },
+  "elements": [
+
+{
+  "type": "node",
+  "id": 93683512,
+  "lat": 6.6476848,
+  "lon": 3.3065629,
+  "tags": {
+    "amenity": "fuel",
+    "name": "So Fine Petrol Station"
+  }
+},
+{
+  "type": "node",
+  "id": 93683519,
+  "lat": 6.6504026,
+  "lon": 3.3034303,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Mobil Petrol Station"
+  }
+},
+{
+  "type": "node",
+  "id": 93683528,
+  "lat": 6.6486974,
+  "lon": 3.3069600,
+  "tags": {
+    "amenity": "fuel",
+    "name": "xx"
+  }
+},
+{
+  "type": "node",
+  "id": 199687250,
+  "lat": 37.1099533,
+  "lon": -8.6766709,
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Cepsa",
+    "brand:wikidata": "Q608819",
+    "brand:wikipedia": "pt:Compañía Española de Petróleos",
+    "check_date": "2025-02-08",
+    "check_date:compressed_air": "2025-02-08",
+    "compressed_air": "yes",
+    "name": "Cepsa",
+    "official_name": "Compañía Española de Petróleos, S.A.U.",
+    "valves": "schrader",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 199687256,
+  "lat": 37.1112096,
+  "lon": -8.6796260,
+  "tags": {
+    "addr:city": "Lagos",
+    "addr:milestone": "174",
+    "addr:postcode": "8600-324",
+    "addr:street": "EN 120",
+    "amenity": "fuel",
+    "brand": "Galp",
+    "brand:wikidata": "Q1492739",
+    "brand:wikipedia": "en:Galp Energia",
+    "check_date": "2025-02-08",
+    "check_date:compressed_air": "2025-02-08",
+    "compressed_air": "yes",
+    "fuel:diesel": "yes",
+    "fuel:octane_95": "yes",
+    "name": "Galp",
+    "operator": "Galp",
+    "ref:PT:dgeg": "13155",
+    "ref:inspire": "IDDGEG_PACVR_224",
+    "ref_name:PT:dgeg:precos-combustiveis": "ARM II – Soc.Algarvia de Comb.lda",
+    "valves": "schrader",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 199687261,
+  "lat": 37.1108385,
+  "lon": -8.6797559,
+  "tags": {
+    "addr:city": "Lagos",
+    "addr:milestone": "174",
+    "addr:postcode": "8600-773",
+    "addr:street": "EN 120",
+    "amenity": "fuel",
+    "brand": "Galp",
+    "brand:wikidata": "Q1492739",
+    "brand:wikipedia": "en:Galp Energia",
+    "check_date": "2025-02-08",
+    "check_date:compressed_air": "2025-02-08",
+    "compressed_air": "yes",
+    "fuel:diesel": "yes",
+    "fuel:octane_95": "yes",
+    "name": "Galp",
+    "operator": "Galp",
+    "ref:PT:dgeg": "13156",
+    "ref:inspire": "IDDGEG_PACVR_225",
+    "ref_name:PT:dgeg:precos-combustiveis": "ARM I – Soc.Algarvia de Comb.lda",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 203707731,
+  "lat": 37.1004817,
+  "lon": -8.6695007,
+  "tags": {
+    "amenity": "fuel",
+    "brand": "BP",
+    "brand:official_name": "British Petroleum",
+    "brand:wikidata": "Q152057",
+    "brand:wikipedia": "pt:BP",
+    "check_date": "2025-02-08",
+    "compressed_air": "no",
+    "name": "BP",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 256074120,
+  "lat": 37.1110549,
+  "lon": -8.6626205,
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Shell",
+    "brand:official_name": "Royal Dutch Shell",
+    "brand:wikidata": "Q110716465",
+    "brand:wikipedia": "en:Royal Dutch Shell",
+    "check_date": "2024-09-05",
+    "internet_access": "wlan",
+    "name": "Shell"
+  }
+},
+{
+  "type": "node",
+  "id": 268848124,
+  "lat": 37.1199409,
+  "lon": -8.6729920,
+  "tags": {
+    "addr:city": "Telheiro",
+    "addr:postcode": "8600-327",
+    "addr:street": "EN 125",
+    "amenity": "fuel",
+    "brand": "BP",
+    "brand:official_name": "British Petroleum",
+    "brand:wikidata": "Q152057",
+    "brand:wikipedia": "pt:BP",
+    "check_date": "2025-02-08",
+    "check_date:compressed_air": "2025-02-08",
+    "compressed_air": "yes",
+    "fuel:diesel": "yes",
+    "fuel:octane_95": "yes",
+    "fuel:octane_98": "yes",
+    "name": "BP",
+    "operator": "BP",
+    "ref:PT:dgeg": "27018",
+    "ref:inspire": "IDDGEG_PACVR_1605",
+    "ref_name:PT:dgeg:precos-combustiveis": "BP Lagos 1",
+    "valves": "schrader",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 269332534,
+  "lat": 37.1197796,
+  "lon": -8.6733911,
+  "tags": {
+    "addr:city": "Telheiro",
+    "addr:postcode": "8600-327",
+    "addr:street": "EN 125",
+    "amenity": "fuel",
+    "branch": "Lagos - E. N. 125 (Oeste)",
+    "brand": "BP",
+    "brand:official_name": "British Petroleum",
+    "brand:wikidata": "Q152057",
+    "brand:wikipedia": "pt:BP",
+    "check_date": "2025-08-25",
+    "compressed_air": "yes",
+    "fuel:diesel": "yes",
+    "fuel:lpg": "yes",
+    "fuel:octane_95": "yes",
+    "fuel:octane_98": "yes",
+    "name": "BP",
+    "operator": "BP",
+    "ref:PT:dgeg": "27019",
+    "ref:inspire": "IDDGEG_PACVR_1608",
+    "ref_name:PT:dgeg:precos-combustiveis": "Lagos - E. N. 125 (Oeste)",
+    "source": "Direção-Geral de Energia e Geologia",
+    "source:url": "https://precoscombustiveis.dgeg.gov.pt/",
+    "valves": "schrader",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 889256386,
+  "lat": 6.4945750,
+  "lon": 3.1442090,
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "node",
+  "id": 889265494,
+  "lat": 6.4841702,
+  "lon": 3.0497728,
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "node",
+  "id": 889265842,
+  "lat": 6.4827049,
+  "lon": 3.0319076,
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "node",
+  "id": 889340506,
+  "lat": 6.4123960,
+  "lon": 2.9522705,
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "node",
+  "id": 889387443,
+  "lat": 6.4278711,
+  "lon": 2.8933518,
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "node",
+  "id": 889417284,
+  "lat": 6.4586881,
+  "lon": 3.1636705,
+  "tags": {
+    "amenity": "fuel",
+    "operator": "Total"
+  }
+},
+{
+  "type": "node",
+  "id": 1454962517,
+  "lat": 37.1018071,
+  "lon": -8.6928756,
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Cepsa",
+    "brand:wikidata": "Q608819",
+    "brand:wikipedia": "pt:Compañía Española de Petróleos",
+    "name": "Cepsa"
+  }
+},
+{
+  "type": "node",
+  "id": 1489587715,
+  "lat": 6.6267295,
+  "lon": 3.3343822,
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "node",
+  "id": 2325129711,
+  "lat": 6.5853878,
+  "lon": 3.3901520,
+  "tags": {
+    "amenity": "fuel",
+    "operator": "MRS",
+    "source:operator": "survey"
+  }
+},
+{
+  "type": "node",
+  "id": 2325130549,
+  "lat": 6.6095103,
+  "lon": 3.3700009,
+  "tags": {
+    "amenity": "fuel",
+    "operator": "Conoil",
+    "source:operator": "survey"
+  }
+},
+{
+  "type": "node",
+  "id": 2325971951,
+  "lat": 6.6076353,
+  "lon": 3.3691439,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Oando",
+    "operator": "Oando"
+  }
+},
+{
+  "type": "node",
+  "id": 2331519048,
+  "lat": 6.5815761,
+  "lon": 3.3934106,
+  "tags": {
+    "amenity": "fuel",
+    "operator": "Oando",
+    "source:operator": "survey"
+  }
+},
+{
+  "type": "node",
+  "id": 2331519712,
+  "lat": 6.5845036,
+  "lon": 3.3897769,
+  "tags": {
+    "amenity": "fuel",
+    "operator": "Total",
+    "source:operator": "survey"
+  }
+},
+{
+  "type": "node",
+  "id": 2331521416,
+  "lat": 6.6111549,
+  "lon": 3.3687601,
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Total",
+    "brand:wikidata": "Q154037",
+    "brand:wikipedia": "fr:Total (entreprise)",
+    "name": "Total",
+    "operator": "Total",
+    "source:operator": "survey"
+  }
+},
+{
+  "type": "node",
+  "id": 2331521834,
+  "lat": 6.6232566,
+  "lon": 3.3643296,
+  "tags": {
+    "amenity": "fuel",
+    "operator": "Mobil",
+    "source:operator": "survey"
+  }
+},
+{
+  "type": "node",
+  "id": 2331986067,
+  "lat": 6.6208582,
+  "lon": 3.3530777,
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Mobil",
+    "brand:wikidata": "Q3088656",
+    "brand:wikipedia": "en:Mobil",
+    "name": "Mobil",
+    "operator": "Mobil",
+    "source:operator": "survey"
+  }
+},
+{
+  "type": "node",
+  "id": 2334172588,
+  "lat": 6.5810502,
+  "lon": 3.3928851,
+  "tags": {
+    "amenity": "fuel",
+    "operator": "MRS",
+    "source:operator": "survey"
+  }
+},
+{
+  "type": "node",
+  "id": 2987177196,
+  "lat": 6.4713433,
+  "lon": 3.3087395,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Total"
+  }
+},
+{
+  "type": "node",
+  "id": 3011768311,
+  "lat": 6.4706725,
+  "lon": 3.3070614,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Mobil"
+  }
+},
+{
+  "type": "node",
+  "id": 3011774528,
+  "lat": 6.4701325,
+  "lon": 3.3221809,
+  "tags": {
+    "amenity": "fuel",
+    "name": "NNPC"
+  }
+},
+{
+  "type": "node",
+  "id": 3904757585,
+  "lat": 6.6691102,
+  "lon": 3.9881966,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Darayo"
+  }
+},
+{
+  "type": "node",
+  "id": 4193738457,
+  "lat": 6.4480234,
+  "lon": 3.4705923,
+  "tags": {
+    "amenity": "fuel",
+    "fuel:diesel": "yes",
+    "fuel:octane_100": "yes",
+    "fuel:octane_92": "yes",
+    "fuel:octane_98": "yes",
+    "name": "Forte oil",
+    "operator": "Forte oil group"
+  }
+},
+{
+  "type": "node",
+  "id": 4552942490,
+  "lat": 6.6128073,
+  "lon": 3.2964895,
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Mobil",
+    "brand:wikidata": "Q3088656",
+    "brand:wikipedia": "en:Mobil",
+    "name": "Mobil"
+  }
+},
+{
+  "type": "node",
+  "id": 4557350700,
+  "lat": 6.5618084,
+  "lon": 3.3218642,
+  "tags": {
+    "amenity": "fuel",
+    "fuel:diesel": "yes",
+    "fuel:octane_95": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 4701822801,
+  "lat": 6.5863146,
+  "lon": 3.9512083,
+  "tags": {
+    "amenity": "fuel",
+    "highway": "mini_roundabout",
+    "name": "Lekki-Epe Express"
+  }
+},
+{
+  "type": "node",
+  "id": 4721730952,
+  "lat": 6.4509366,
+  "lon": 3.4011958,
+  "tags": {
+    "addr:street": "Lewis Street",
+    "amenity": "fuel",
+    "brand": "Total",
+    "brand:wikidata": "Q154037",
+    "brand:wikipedia": "fr:Total (entreprise)",
+    "name": "Total"
+  }
+},
+{
+  "type": "node",
+  "id": 4722585932,
+  "lat": 6.4345895,
+  "lon": 3.4556197,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Forte Oil"
+  }
+},
+{
+  "type": "node",
+  "id": 4749638931,
+  "lat": 6.5037194,
+  "lon": 3.1995048,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Forte Oil"
+  }
+},
+{
+  "type": "node",
+  "id": 5206471426,
+  "lat": 6.5543468,
+  "lon": 3.3242262,
+  "tags": {
+    "addr:street": "International Airport Road",
+    "amenity": "fuel",
+    "name": "CONOIL"
+  }
+},
+{
+  "type": "node",
+  "id": 5652608477,
+  "lat": 6.4482134,
+  "lon": 3.4051122,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Forte Oil"
+  }
+},
+{
+  "type": "node",
+  "id": 5652608478,
+  "lat": 6.4524343,
+  "lon": 3.4198490,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Forte Oil"
+  }
+},
+{
+  "type": "node",
+  "id": 5665680023,
+  "lat": 6.5393880,
+  "lon": 3.3073124,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Forte Oil"
+  }
+},
+{
+  "type": "node",
+  "id": 5665680245,
+  "lat": 6.5406303,
+  "lon": 3.2944041,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Petrocam"
+  }
+},
+{
+  "type": "node",
+  "id": 5665680246,
+  "lat": 6.5400402,
+  "lon": 3.2942781,
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "node",
+  "id": 5665683278,
+  "lat": 6.5405031,
+  "lon": 3.3185333,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Petrocam"
+  }
+},
+{
+  "type": "node",
+  "id": 5665683281,
+  "lat": 6.5398473,
+  "lon": 3.2839479,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Lado Oil"
+  }
+},
+{
+  "type": "node",
+  "id": 5665683285,
+  "lat": 6.5464690,
+  "lon": 3.2648080,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Hansreal"
+  }
+},
+{
+  "type": "node",
+  "id": 5665683727,
+  "lat": 6.5373007,
+  "lon": 3.3049653,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Nationwide"
+  }
+},
+{
+  "type": "node",
+  "id": 5665683728,
+  "lat": 6.5392384,
+  "lon": 3.3023658,
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "node",
+  "id": 5665782122,
+  "lat": 6.5421143,
+  "lon": 3.2810002,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Mobil"
+  }
+},
+{
+  "type": "node",
+  "id": 5665787423,
+  "lat": 6.5448963,
+  "lon": 3.2738438,
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "node",
+  "id": 5665787424,
+  "lat": 6.5503480,
+  "lon": 3.2411737,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Mobil"
+  }
+},
+{
+  "type": "node",
+  "id": 5665788721,
+  "lat": 6.5511327,
+  "lon": 3.2564363,
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "node",
+  "id": 5665788722,
+  "lat": 6.5526291,
+  "lon": 3.2445651,
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "node",
+  "id": 5665789521,
+  "lat": 6.5503749,
+  "lon": 3.2396869,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Enyo"
+  }
+},
+{
+  "type": "node",
+  "id": 5665789522,
+  "lat": 6.4824569,
+  "lon": 3.1739829,
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "node",
+  "id": 5665789821,
+  "lat": 6.5501449,
+  "lon": 3.2384359,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Oando"
+  }
+},
+{
+  "type": "node",
+  "id": 5665789822,
+  "lat": 6.4779656,
+  "lon": 3.1864169,
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "node",
+  "id": 5665790121,
+  "lat": 6.4856401,
+  "lon": 3.1880670,
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "node",
+  "id": 5665790421,
+  "lat": 6.4824466,
+  "lon": 3.1880827,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Mobil"
+  }
+},
+{
+  "type": "node",
+  "id": 5678239331,
+  "lat": 6.4933165,
+  "lon": 3.1511125,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Total"
+  }
+},
+{
+  "type": "node",
+  "id": 5678239332,
+  "lat": 6.4892130,
+  "lon": 3.1601088,
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "node",
+  "id": 5678239333,
+  "lat": 6.4855035,
+  "lon": 3.1667623,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Bovag"
+  }
+},
+{
+  "type": "node",
+  "id": 5678239334,
+  "lat": 6.4838370,
+  "lon": 3.1708356,
+  "tags": {
+    "amenity": "fuel",
+    "name": "J. Atofolaki"
+  }
+},
+{
+  "type": "node",
+  "id": 5678239335,
+  "lat": 6.4770030,
+  "lon": 3.1858030,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Luri"
+  }
+},
+{
+  "type": "node",
+  "id": 5678239336,
+  "lat": 6.5488805,
+  "lon": 3.2378187,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Best Option"
+  }
+},
+{
+  "type": "node",
+  "id": 5678239338,
+  "lat": 6.5455710,
+  "lon": 3.2768554,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Wamo"
+  }
+},
+{
+  "type": "node",
+  "id": 5678239340,
+  "lat": 6.5423502,
+  "lon": 3.2811916,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Sadesh"
+  }
+},
+{
+  "type": "node",
+  "id": 5678239341,
+  "lat": 6.5386706,
+  "lon": 3.2909120,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Omolad"
+  }
+},
+{
+  "type": "node",
+  "id": 5678239429,
+  "lat": 6.4982796,
+  "lon": 3.0906189,
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "node",
+  "id": 5678239431,
+  "lat": 6.4835014,
+  "lon": 3.1715895,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Bimppi Oil"
+  }
+},
+{
+  "type": "node",
+  "id": 5678239432,
+  "lat": 6.4800273,
+  "lon": 3.1775486,
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "node",
+  "id": 5678239434,
+  "lat": 6.5404350,
+  "lon": 3.2962445,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Forte Oil"
+  }
+},
+{
+  "type": "node",
+  "id": 5678239530,
+  "lat": 6.4843739,
+  "lon": 3.1701845,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Emmanoil"
+  }
+},
+{
+  "type": "node",
+  "id": 5678239531,
+  "lat": 6.4736629,
+  "lon": 3.1846309,
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "node",
+  "id": 5678239532,
+  "lat": 6.5410670,
+  "lon": 3.2992112,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Mosad"
+  }
+},
+{
+  "type": "node",
+  "id": 5678239533,
+  "lat": 6.5415461,
+  "lon": 3.3080571,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Mubostic"
+  }
+},
+{
+  "type": "node",
+  "id": 5678246022,
+  "lat": 6.4937777,
+  "lon": 3.1472443,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Conoil"
+  }
+},
+{
+  "type": "node",
+  "id": 5678246024,
+  "lat": 6.5393566,
+  "lon": 3.3114677,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Destiny"
+  }
+},
+{
+  "type": "node",
+  "id": 6137347152,
+  "lat": 6.5370212,
+  "lon": 3.2604958,
+  "tags": {
+    "amenity": "fuel",
+    "name": "EverJoy Gas Station"
+  }
+},
+{
+  "type": "node",
+  "id": 6371454801,
+  "lat": 6.6045954,
+  "lon": 3.4941855,
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Mobil",
+    "brand:wikidata": "Q3088656",
+    "brand:wikipedia": "en:Mobil",
+    "name": "Mobil",
+    "operator": "Mobil"
+  }
+},
+{
+  "type": "node",
+  "id": 6934060324,
+  "lat": 6.4541021,
+  "lon": 3.4027421,
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Total",
+    "brand:wikidata": "Q154037",
+    "brand:wikipedia": "fr:Total (entreprise)",
+    "name": "Total"
+  }
+},
+{
+  "type": "node",
+  "id": 6939011092,
+  "lat": 6.4884539,
+  "lon": 3.3001919,
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "node",
+  "id": 6940430231,
+  "lat": 6.5588514,
+  "lon": 3.3640983,
+  "tags": {
+    "addr:street": "Apapa-Oworonshoki Expressway",
+    "amenity": "fuel",
+    "brand": "Total",
+    "brand:wikidata": "Q154037",
+    "brand:wikipedia": "fr:Total (entreprise)",
+    "name": "Total Oshodi"
+  }
+},
+{
+  "type": "node",
+  "id": 6946503974,
+  "lat": 6.6203661,
+  "lon": 3.5038574,
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "node",
+  "id": 6966741813,
+  "lat": 6.4647172,
+  "lon": 3.3175165,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Fatgbems",
+    "website": "https://www.fatgbemspetroleum.com/"
+  }
+},
+{
+  "type": "node",
+  "id": 6966763175,
+  "lat": 6.4719302,
+  "lon": 3.3241010,
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Forte Oil",
+    "name": "Forte Oil"
+  }
+},
+{
+  "type": "node",
+  "id": 6966811840,
+  "lat": 6.5057279,
+  "lon": 3.3230026,
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Conoil",
+    "name": "Conoil"
+  }
+},
+{
+  "type": "node",
+  "id": 6966811962,
+  "lat": 6.4889228,
+  "lon": 3.3252490,
+  "tags": {
+    "amenity": "fuel",
+    "brand": "MRS",
+    "brand:wikidata": "Q56274919",
+    "brand:wikipedia": "en:MRS Oil Nigeria Plc",
+    "name": "MRS"
+  }
+},
+{
+  "type": "node",
+  "id": 6967180488,
+  "lat": 6.5531341,
+  "lon": 3.3673677,
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Mobil",
+    "brand:wikidata": "Q3088656",
+    "brand:wikipedia": "en:Mobil",
+    "name": "Mobil"
+  }
+},
+{
+  "type": "node",
+  "id": 6967294250,
+  "lat": 6.5720715,
+  "lon": 3.3672259,
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Mobil",
+    "brand:wikidata": "Q3088656",
+    "brand:wikipedia": "en:Mobil",
+    "name": "Mobil"
+  }
+},
+{
+  "type": "node",
+  "id": 6967376086,
+  "lat": 6.5713954,
+  "lon": 3.3672174,
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Oando",
+    "name": "Oando"
+  }
+},
+{
+  "type": "node",
+  "id": 6967652920,
+  "lat": 6.5519457,
+  "lon": 3.3414844,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Adonai"
+  }
+},
+{
+  "type": "node",
+  "id": 6967861026,
+  "lat": 6.4903644,
+  "lon": 3.1593129,
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "node",
+  "id": 6967861031,
+  "lat": 6.4853922,
+  "lon": 3.1683485,
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "node",
+  "id": 6967861135,
+  "lat": 6.4910767,
+  "lon": 3.1993668,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Eterna"
+  }
+},
+{
+  "type": "node",
+  "id": 6967861145,
+  "lat": 6.4926768,
+  "lon": 3.1993091,
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Total",
+    "brand:wikidata": "Q154037",
+    "brand:wikipedia": "fr:Total (entreprise)",
+    "name": "Total"
+  }
+},
+{
+  "type": "node",
+  "id": 6967861166,
+  "lat": 6.5325601,
+  "lon": 3.2183248,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Sungaz"
+  }
+},
+{
+  "type": "node",
+  "id": 6969738685,
+  "lat": 6.5265556,
+  "lon": 3.2578468,
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "node",
+  "id": 6969738694,
+  "lat": 6.5294238,
+  "lon": 3.2588544,
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "node",
+  "id": 6969738703,
+  "lat": 6.5351725,
+  "lon": 3.2603575,
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "node",
+  "id": 6969738738,
+  "lat": 6.5396588,
+  "lon": 3.2613745,
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "node",
+  "id": 6969738780,
+  "lat": 6.5445416,
+  "lon": 3.2642072,
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "node",
+  "id": 6969738837,
+  "lat": 6.5386086,
+  "lon": 3.2546590,
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "node",
+  "id": 6969797967,
+  "lat": 6.5766593,
+  "lon": 3.2715845,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Al-Moruf Oil"
+  }
+},
+{
+  "type": "node",
+  "id": 6969797976,
+  "lat": 6.5767468,
+  "lon": 3.2731072,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Jonas Petroleum"
+  }
+},
+{
+  "type": "node",
+  "id": 6969836693,
+  "lat": 6.5818113,
+  "lon": 3.2837375,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Afro-American Wealth Oil and Gaz"
+  }
+},
+{
+  "type": "node",
+  "id": 6969836753,
+  "lat": 6.5837644,
+  "lon": 3.2838778,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Forte Oil"
+  }
+},
+{
+  "type": "node",
+  "id": 6977490304,
+  "lat": 6.6024725,
+  "lon": 3.6219369,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Sezbaman Nigeria"
+  }
+},
+{
+  "type": "node",
+  "id": 6978046261,
+  "lat": 6.6205617,
+  "lon": 3.5567192,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Nipco"
+  }
+},
+{
+  "type": "node",
+  "id": 6980276903,
+  "lat": 6.6273975,
+  "lon": 3.5070246,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Petrolec"
+  }
+},
+{
+  "type": "node",
+  "id": 6985981696,
+  "lat": 6.6025358,
+  "lon": 3.3315049,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Heyden"
+  }
+},
+{
+  "type": "node",
+  "id": 6991204479,
+  "lat": 6.6051969,
+  "lon": 3.3984717,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Forte Oil"
+  }
+},
+{
+  "type": "node",
+  "id": 6992408897,
+  "lat": 6.6210255,
+  "lon": 3.3550873,
+  "tags": {
+    "amenity": "fuel",
+    "name": "IP"
+  }
+},
+{
+  "type": "node",
+  "id": 6992566449,
+  "lat": 6.6255280,
+  "lon": 3.3441569,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Oando"
+  }
+},
+{
+  "type": "node",
+  "id": 6993969288,
+  "lat": 6.6327466,
+  "lon": 3.3662493,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Capital"
+  }
+},
+{
+  "type": "node",
+  "id": 6993969296,
+  "lat": 6.6353876,
+  "lon": 3.3665532,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Fatgbems"
+  }
+},
+{
+  "type": "node",
+  "id": 6993969349,
+  "lat": 6.6380372,
+  "lon": 3.3697833,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Oando"
+  }
+},
+{
+  "type": "node",
+  "id": 6997535232,
+  "lat": 6.6114670,
+  "lon": 3.2955918,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Ultimate"
+  }
+},
+{
+  "type": "node",
+  "id": 6997541293,
+  "lat": 6.6111861,
+  "lon": 3.3013644,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Mao"
+  }
+},
+{
+  "type": "node",
+  "id": 6997541369,
+  "lat": 6.6019197,
+  "lon": 3.3045634,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Crystal"
+  }
+},
+{
+  "type": "node",
+  "id": 7001048230,
+  "lat": 6.6090478,
+  "lon": 3.3090821,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Oando"
+  }
+},
+{
+  "type": "node",
+  "id": 7001088760,
+  "lat": 6.6103874,
+  "lon": 3.3107077,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Teteregun"
+  }
+},
+{
+  "type": "node",
+  "id": 7001111597,
+  "lat": 6.6118265,
+  "lon": 3.3121772,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Nipco"
+  }
+},
+{
+  "type": "node",
+  "id": 7001111626,
+  "lat": 6.6262833,
+  "lon": 3.3099599,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Nipco"
+  }
+},
+{
+  "type": "node",
+  "id": 7001111640,
+  "lat": 6.6262029,
+  "lon": 3.3088332,
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "node",
+  "id": 7250386243,
+  "lat": 6.6697032,
+  "lon": 3.6709818,
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "node",
+  "id": 7274712104,
+  "lat": 6.6434128,
+  "lon": 3.4803564,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Mejabot Oil"
+  }
+},
+{
+  "type": "node",
+  "id": 7281004000,
+  "lat": 6.6274345,
+  "lon": 3.4835387,
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "node",
+  "id": 7281004014,
+  "lat": 6.6306750,
+  "lon": 3.4829403,
+  "tags": {
+    "amenity": "fuel",
+    "name": "NNPC"
+  }
+},
+{
+  "type": "node",
+  "id": 7486414886,
+  "lat": 6.4618159,
+  "lon": 3.1669196,
+  "tags": {
+    "addr:city": "Lagos",
+    "addr:street": "Ojo Igbede Road, Ajangbadi Last Bus Stop",
+    "amenity": "fuel",
+    "name": "Energium filling station"
+  }
+},
+{
+  "type": "node",
+  "id": 7633416929,
+  "lat": 6.3939242,
+  "lon": 2.8264636,
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "node",
+  "id": 9127712613,
+  "lat": 6.6072531,
+  "lon": 3.3308201,
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Total"
+  }
+},
+{
+  "type": "node",
+  "id": 9586058629,
+  "lat": 37.1049007,
+  "lon": -8.6735264,
+  "tags": {
+    "addr:city": "Sagres",
+    "addr:postcode": "8650-355",
+    "addr:street": "ESTRADA NACIONAL 268",
+    "amenity": "fuel",
+    "brand": "Repsol",
+    "brand:wikidata": "Q174747",
+    "brand:wikipedia": "pt:Repsol",
+    "capacity": "4",
+    "compressed_air": "yes",
+    "fuel:diesel": "yes",
+    "fuel:octane_95": "yes",
+    "fuel:octane_98": "yes",
+    "name": "Repsol",
+    "opening_hours": "Mo-Su,PH 08:00-23:00",
+    "valves": "schrader",
+    "wheelchair": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 9932504117,
+  "lat": 6.4920986,
+  "lon": 3.3757771,
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "node",
+  "id": 10243246432,
+  "lat": 37.0999718,
+  "lon": -8.6821407,
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Intermarché",
+    "brand:wikidata": "Q3153200",
+    "brand:wikipedia": "pt:Intermarché",
+    "compressed_air": "yes",
+    "name": "Intermarché"
+  }
+},
+{
+  "type": "node",
+  "id": 11121944341,
+  "lat": 6.4733468,
+  "lon": 3.6248251,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Total Filling Station"
+  }
+},
+{
+  "type": "node",
+  "id": 11121944342,
+  "lat": 6.4735218,
+  "lon": 3.6255523,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Soralom"
+  }
+},
+{
+  "type": "node",
+  "id": 12281544448,
+  "lat": 6.6091200,
+  "lon": 3.4232380,
+  "tags": {
+    "amenity": "fuel",
+    "facility_manager": "private/individual",
+    "name": "Filling Station",
+    "operator": "private/individual",
+    "source:position": "gps",
+    "status": "functional",
+    "users_PLWD": "yes",
+    "users_boy": "yes",
+    "users_elderly": "yes",
+    "users_female": "yes",
+    "users_girl": "yes",
+    "users_men": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 12287862270,
+  "lat": 6.5279046,
+  "lon": 3.2358994,
+  "tags": {
+    "amenity": "fuel",
+    "name": "TFK filling station",
+    "operator": "private/ individual",
+    "source": "survey",
+    "status": "functional",
+    "users_PLWD": "no",
+    "users_boy": "yes",
+    "users_elderly": "yes",
+    "users_female": "yes",
+    "users_girl": "yes",
+    "users_men": "yes"
+  }
+},
+{
+  "type": "node",
+  "id": 12287862273,
+  "lat": 6.5283952,
+  "lon": 3.2377272,
+  "tags": {
+    "amenity": "fuel",
+    "name": "Fidelity filling station",
+    "operator": "private/ individual",
+    "source": "survey",
+    "status": "functional",
+    "users_PLWD": "yes",
+    "users_boy": "yes",
+    "users_elderly": "yes",
+    "users_female": "yes",
+    "users_girl": "yes",
+    "users_men": "yes"
+  }
+},
+{
+  "type": "way",
+  "id": 10223023,
+  "center": {
+    "lat": 6.5121130,
+    "lon": 3.3587105
+  },
+  "nodes": [
+    84697329,
+    84697369,
+    84697401,
+    84697426,
+    84697467,
+    84697494,
+    7443645092,
+    7443645093,
+    84697505,
+    84697329
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "Total Filling Station"
+  }
+},
+{
+  "type": "way",
+  "id": 158957942,
+  "center": {
+    "lat": 37.1491172,
+    "lon": -8.7036594
+  },
+  "nodes": [
+    1710694400,
+    5002369133,
+    5002369137,
+    1710694433,
+    1710694427,
+    1710694323,
+    5002369136,
+    1710694485,
+    5002369132,
+    1710694397,
+    1710694400
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Galp",
+    "brand:wikidata": "Q1492739",
+    "brand:wikipedia": "en:Galp Energia",
+    "building": "roof",
+    "fuel:diesel": "yes",
+    "fuel:octane_95": "yes",
+    "fuel:octane_98": "yes",
+    "layer": "1",
+    "name": "Galp",
+    "opening_hours": "24/7",
+    "operator": "Galp",
+    "payment:cash": "yes",
+    "payment:visa": "yes",
+    "toilets": "yes"
+  }
+},
+{
+  "type": "way",
+  "id": 406873045,
+  "center": {
+    "lat": 37.1092648,
+    "lon": -8.6892121
+  },
+  "nodes": [
+    4089234465,
+    4089234468,
+    4089234466,
+    4089234467,
+    4089234464,
+    4089234463,
+    4089234465
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Repsol",
+    "brand:wikidata": "Q174747",
+    "brand:wikipedia": "pt:Repsol",
+    "building": "yes",
+    "name": "Repsol"
+  }
+},
+{
+  "type": "way",
+  "id": 444170512,
+  "center": {
+    "lat": 37.1482197,
+    "lon": -8.7029403
+  },
+  "nodes": [
+    4416608902,
+    4416619330,
+    4416608907,
+    5002341276,
+    5002341275,
+    4416571845,
+    4416571842,
+    4416678462,
+    4416678453,
+    4416608902
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Galp",
+    "brand:wikidata": "Q1492739",
+    "brand:wikipedia": "en:Galp Energia",
+    "building": "roof",
+    "fuel:diesel": "yes",
+    "fuel:octane_95": "yes",
+    "fuel:octane_98": "yes",
+    "layer": "1",
+    "name": "Galp",
+    "opening_hours": "24/7",
+    "operator": "Galp",
+    "payment:cash": "yes",
+    "payment:visa": "yes",
+    "toilets": "yes"
+  }
+},
+{
+  "type": "way",
+  "id": 593494119,
+  "center": {
+    "lat": 6.4516753,
+    "lon": 3.4295403
+  },
+  "nodes": [
+    5661711663,
+    6907797429,
+    5661711664,
+    5661711665,
+    6907797430,
+    5661711659,
+    5661711660,
+    5661711678,
+    5661711661,
+    5661711668,
+    5661711663
+  ],
+  "tags": {
+    "addr:street": "Alfred Rewane Road",
+    "amenity": "fuel",
+    "landuse": "retail",
+    "name": "NNPC Fuel Station"
+  }
+},
+{
+  "type": "way",
+  "id": 596634579,
+  "center": {
+    "lat": 6.4363629,
+    "lon": 3.4408476
+  },
+  "nodes": [
+    5683054721,
+    5683054722,
+    5683054723,
+    5683054724,
+    5683054725,
+    5683054726,
+    5683054727,
+    5683054728,
+    5683054729,
+    5683054730,
+    5683054731,
+    5683054732,
+    5683054733,
+    5683054734,
+    5683054721
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "landuse": "retail",
+    "name": "Mobil Fuel Station"
+  }
+},
+{
+  "type": "way",
+  "id": 596634585,
+  "center": {
+    "lat": 6.4363610,
+    "lon": 3.4503743
+  },
+  "nodes": [
+    4132771120,
+    4132771119,
+    5683054754,
+    5683054755,
+    5683054756,
+    5683054757,
+    5683054758,
+    5683054759,
+    4132771120
+  ],
+  "tags": {
+    "addr:street": "B.I.S. Way",
+    "amenity": "fuel",
+    "landuse": "retail",
+    "name": "Total Fuel Station"
+  }
+},
+{
+  "type": "way",
+  "id": 596634599,
+  "center": {
+    "lat": 6.4316776,
+    "lon": 3.4085971
+  },
+  "nodes": [
+    5683054810,
+    5201020410,
+    5201020409,
+    5683054793,
+    5683054811,
+    5683054813,
+    5683054812,
+    5683054810
+  ],
+  "tags": {
+    "addr:street": "Ahmadu Bello Way",
+    "amenity": "fuel",
+    "brand": "Mobil",
+    "brand:wikidata": "Q109676002",
+    "brand:wikipedia": "ja:モービル (ブランド)",
+    "landuse": "retail",
+    "name": "Mobil Fuel Station"
+  }
+},
+{
+  "type": "way",
+  "id": 597498711,
+  "center": {
+    "lat": 6.4424976,
+    "lon": 3.4188126
+  },
+  "nodes": [
+    5688851273,
+    5688851274,
+    5700144415,
+    5700144416,
+    5688851275,
+    5688851276,
+    5688851277,
+    5688851278,
+    5688851273
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Mobil",
+    "brand:wikidata": "Q109676002",
+    "landuse": "retail",
+    "name": "Mobil Fuel Station"
+  }
+},
+{
+  "type": "way",
+  "id": 597498720,
+  "center": {
+    "lat": 6.4422057,
+    "lon": 3.4154616
+  },
+  "nodes": [
+    5688851307,
+    5700144419,
+    5700144420,
+    5700144521,
+    5688851308,
+    5688851309,
+    5688851310,
+    5688851311,
+    5688851307
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "brand": "TotalEnergies",
+    "brand:wikidata": "Q154037",
+    "landuse": "retail",
+    "name": "Total Fuel Station"
+  }
+},
+{
+  "type": "way",
+  "id": 597498736,
+  "center": {
+    "lat": 6.4428775,
+    "lon": 3.4217389
+  },
+  "nodes": [
+    5688851333,
+    5700144418,
+    5688851334,
+    5700144417,
+    5688851335,
+    5688851336,
+    5688851351,
+    5688851350,
+    5688851337,
+    5688851333
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "landuse": "retail",
+    "name": "Oando Fuel Station"
+  }
+},
+{
+  "type": "way",
+  "id": 597498740,
+  "center": {
+    "lat": 6.4442616,
+    "lon": 3.4268346
+  },
+  "nodes": [
+    5688851373,
+    5688851356,
+    5688851357,
+    5688851358,
+    5688851359,
+    5688851372,
+    5688851371,
+    5688851370,
+    5688851369,
+    5649641210,
+    5649641211,
+    5649641212,
+    5688851373
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "landuse": "retail",
+    "name": "Forte Oil Fuel Station"
+  }
+},
+{
+  "type": "way",
+  "id": 597498744,
+  "center": {
+    "lat": 6.4447001,
+    "lon": 3.4236239
+  },
+  "nodes": [
+    5688851382,
+    5688851383,
+    5688851389,
+    5688851390,
+    5688851391,
+    5688851382
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "landuse": "retail",
+    "name": "Forte Oil Fuel Station"
+  }
+},
+{
+  "type": "way",
+  "id": 598412430,
+  "center": {
+    "lat": 6.4464244,
+    "lon": 3.4620567
+  },
+  "nodes": [
+    5695499326,
+    5695499327,
+    5695499328,
+    5695499329,
+    5695499330,
+    5695500035,
+    5695499331,
+    5695500033,
+    5695500034,
+    5695500032,
+    5695499326
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "landuse": "retail",
+    "name": "Ascon Fuel Station"
+  }
+},
+{
+  "type": "way",
+  "id": 598412444,
+  "center": {
+    "lat": 6.4299828,
+    "lon": 3.4677957
+  },
+  "nodes": [
+    5695499401,
+    5695500030,
+    5695499402,
+    5695499403,
+    5695500031,
+    5695499404,
+    5695499405,
+    5695499406,
+    5695499407,
+    5695499408,
+    5695499409,
+    5695499410,
+    5695500029,
+    5695499401
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "landuse": "retail",
+    "name": "Pinnacle Oil Fuel Station"
+  }
+},
+{
+  "type": "way",
+  "id": 598412453,
+  "center": {
+    "lat": 6.4339674,
+    "lon": 3.4845593
+  },
+  "nodes": [
+    5695500036,
+    5695500037,
+    5695500038,
+    5695500039,
+    5695500036
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "landuse": "retail",
+    "name": "MRS Fuel Station"
+  }
+},
+{
+  "type": "way",
+  "id": 598412462,
+  "center": {
+    "lat": 6.4347448,
+    "lon": 3.4555333
+  },
+  "nodes": [
+    5695500064,
+    5695500065,
+    5695500066,
+    5695500067,
+    5695500068,
+    6055527391,
+    6055527392,
+    5695500064
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "landuse": "retail",
+    "name": "Forte Oil Fuel Station"
+  }
+},
+{
+  "type": "way",
+  "id": 598412469,
+  "center": {
+    "lat": 6.4310122,
+    "lon": 3.4742888
+  },
+  "nodes": [
+    5695500092,
+    5695500093,
+    5695500094,
+    5695500095,
+    5695500096,
+    5695500097,
+    5695500092
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "landuse": "retail",
+    "name": "Petrocam Fuel Station"
+  }
+},
+{
+  "type": "way",
+  "id": 598999065,
+  "center": {
+    "lat": 6.4233233,
+    "lon": 3.4109251
+  },
+  "nodes": [
+    5700144522,
+    5700144523,
+    5700144524,
+    5700144528,
+    5700144525,
+    5700144526,
+    5700144527,
+    5700144522
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "brand": "MRS",
+    "brand:wikidata": "Q56274919",
+    "brand:wikipedia": "en:MRS Oil Nigeria Plc",
+    "name": "MRS Fuel Station"
+  }
+},
+{
+  "type": "way",
+  "id": 599054209,
+  "center": {
+    "lat": 6.4331593,
+    "lon": 3.4913133
+  },
+  "nodes": [
+    5700588530,
+    5700588531,
+    5700588532,
+    12178947576,
+    5700588533,
+    5700588534,
+    5700588535,
+    5700588536,
+    5700588530
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "landuse": "retail",
+    "name": "Oando Fuel Station"
+  }
+},
+{
+  "type": "way",
+  "id": 599054224,
+  "center": {
+    "lat": 6.4340895,
+    "lon": 3.4955312
+  },
+  "nodes": [
+    5700588561,
+    5700588562,
+    5700588563,
+    5700588564,
+    5700588561
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "landuse": "retail",
+    "name": "World Oil Fuel Station"
+  }
+},
+{
+  "type": "way",
+  "id": 599054233,
+  "center": {
+    "lat": 6.4349092,
+    "lon": 3.4905584
+  },
+  "nodes": [
+    5700588573,
+    5700588574,
+    5700588575,
+    5700588576,
+    5700588577,
+    5700588578,
+    5700588579,
+    5700588573
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "landuse": "retail",
+    "name": "Conoil Fuel Station"
+  }
+},
+{
+  "type": "way",
+  "id": 599054253,
+  "center": {
+    "lat": 6.4356152,
+    "lon": 3.4966688
+  },
+  "nodes": [
+    5700588607,
+    5700588608,
+    5700588726,
+    5700588609,
+    5700588727,
+    5700588610,
+    5700588611,
+    5700588612,
+    5700588728,
+    5700588613,
+    5700588614,
+    5700588607
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "barrier": "yes",
+    "boundary": "marker",
+    "brand": "Total",
+    "brand:wikidata": "Q154037",
+    "brand:wikipedia": "fr:Total (entreprise)",
+    "landuse": "retail",
+    "name": "Total"
+  }
+},
+{
+  "type": "way",
+  "id": 599054279,
+  "center": {
+    "lat": 6.4372938,
+    "lon": 3.5071481
+  },
+  "nodes": [
+    5700588729,
+    5700588730,
+    5700588731,
+    5700588732,
+    5700588733,
+    5700588734,
+    5700588735,
+    5700588736,
+    5700588729
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "landuse": "retail",
+    "name": "Mobil Oil Fuel Station"
+  }
+},
+{
+  "type": "way",
+  "id": 599054292,
+  "center": {
+    "lat": 6.4374182,
+    "lon": 3.5080209
+  },
+  "nodes": [
+    5485534192,
+    5700588769,
+    5700588752,
+    5700588753,
+    5700588754,
+    5485534194,
+    5485534193,
+    5485534192
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "landuse": "retail",
+    "name": "SPG Fuel Station"
+  }
+},
+{
+  "type": "way",
+  "id": 599054320,
+  "center": {
+    "lat": 6.4385977,
+    "lon": 3.5174364
+  },
+  "nodes": [
+    5700588770,
+    5700588771,
+    5700588772,
+    5700588791,
+    5700588773,
+    5700588774,
+    5700588775,
+    5700588776,
+    5700588770
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "landuse": "retail",
+    "name": "Total Oil Fuel Station"
+  }
+},
+{
+  "type": "way",
+  "id": 599054336,
+  "center": {
+    "lat": 6.4414560,
+    "lon": 3.5294538
+  },
+  "nodes": [
+    5700588794,
+    5700588795,
+    5700588796,
+    5700588797,
+    5700588813,
+    5700588818,
+    5700588798,
+    5700588819,
+    5700588820,
+    5700588794
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "landuse": "retail",
+    "name": "Conoil Fuel Station"
+  }
+},
+{
+  "type": "way",
+  "id": 599054356,
+  "center": {
+    "lat": 6.4442500,
+    "lon": 3.5404156
+  },
+  "nodes": [
+    5700588827,
+    5700588835,
+    5700588836,
+    5700588828,
+    5700588829,
+    5700588830,
+    5700588831,
+    5700588827
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "landuse": "retail",
+    "name": "Tyse Oil Fuel Station"
+  }
+},
+{
+  "type": "way",
+  "id": 599054364,
+  "center": {
+    "lat": 6.4468662,
+    "lon": 3.5462032
+  },
+  "nodes": [
+    5700588837,
+    5700588838,
+    5700588839,
+    5700588840,
+    5700588841,
+    5700588842,
+    5700588862,
+    5700588843,
+    5700588837
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "landuse": "retail",
+    "name": "Oando Fuel Station"
+  }
+},
+{
+  "type": "way",
+  "id": 610011056,
+  "center": {
+    "lat": 6.6053322,
+    "lon": 3.3466414
+  },
+  "nodes": [
+    5777514455,
+    5777514454,
+    5777514466,
+    5777514458,
+    5777514459,
+    5777514460,
+    5777514461,
+    5777514456,
+    5777514455
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "landuse": "retail",
+    "name": "Mobil Fuel Station"
+  }
+},
+{
+  "type": "way",
+  "id": 610029925,
+  "center": {
+    "lat": 6.4247790,
+    "lon": 3.4457765
+  },
+  "nodes": [
+    5777682189,
+    5777682190,
+    5777682191,
+    5777682206,
+    5777682205,
+    5777682192,
+    5777682189
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "landuse": "commercial",
+    "name": "Abata Fuel Station"
+  }
+},
+{
+  "type": "way",
+  "id": 641988305,
+  "center": {
+    "lat": 6.4494182,
+    "lon": 3.4097101
+  },
+  "nodes": [
+    6044894753,
+    6044894754,
+    6044894755,
+    6044894756,
+    6044894757,
+    6044894758,
+    6044894759,
+    6044894760,
+    6044894753
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "landuse": "retail",
+    "name": "Oando Fuel Station"
+  }
+},
+{
+  "type": "way",
+  "id": 643481409,
+  "center": {
+    "lat": 6.4481431,
+    "lon": 3.4705611
+  },
+  "nodes": [
+    6055527424,
+    6055527437,
+    6055527436,
+    6055527425,
+    6055527435,
+    6055527426,
+    6055527427,
+    6055527428,
+    6055527429,
+    6055527430,
+    6055527431,
+    6055527432,
+    6055527433,
+    6055527434,
+    6055527424
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "landuse": "retail",
+    "name": "Forte Oil Fuel Station"
+  }
+},
+{
+  "type": "way",
+  "id": 643481441,
+  "center": {
+    "lat": 6.4309573,
+    "lon": 3.4743570
+  },
+  "nodes": [
+    6055532828,
+    6055532829,
+    6055532830,
+    6055532831,
+    6055532828
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "building": "roof",
+    "layer": "1"
+  }
+},
+{
+  "type": "way",
+  "id": 656066127,
+  "center": {
+    "lat": 6.5491561,
+    "lon": 3.3933537
+  },
+  "nodes": [
+    6146218691,
+    6146218692,
+    6146218693,
+    6146218694,
+    6146218695,
+    6146218696,
+    6146218697,
+    6146218698,
+    6146218699,
+    6146218700,
+    6146218691
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "YKT Fuel Station"
+  }
+},
+{
+  "type": "way",
+  "id": 671518071,
+  "center": {
+    "lat": 6.4480518,
+    "lon": 3.3941869
+  },
+  "nodes": [
+    6288357707,
+    6288357725,
+    6288357724,
+    6288357723,
+    6288357759,
+    6288357707
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "Conoil"
+  }
+},
+{
+  "type": "way",
+  "id": 671850883,
+  "center": {
+    "lat": 6.5324395,
+    "lon": 3.3678893
+  },
+  "nodes": [
+    6291446247,
+    6291446246,
+    6291446245,
+    5590376778,
+    6291446247
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "Forte Oil"
+  }
+},
+{
+  "type": "way",
+  "id": 705854768,
+  "center": {
+    "lat": 6.6635785,
+    "lon": 3.2841547
+  },
+  "nodes": [
+    6632467823,
+    6632467824,
+    6632467825,
+    6632467826,
+    6632467827,
+    6632467823
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 707240040,
+  "center": {
+    "lat": 6.5190230,
+    "lon": 3.3854295
+  },
+  "nodes": [
+    6646308799,
+    6646308891,
+    6646308800,
+    6646308801,
+    6646308802,
+    6646308809,
+    6646308815,
+    6646308799
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "surface": "unpaved"
+  }
+},
+{
+  "type": "way",
+  "id": 707834175,
+  "center": {
+    "lat": 6.5302948,
+    "lon": 3.3129035
+  },
+  "nodes": [
+    6651097475,
+    11292789304,
+    6651097476,
+    6651097477,
+    6651097478,
+    11837589483,
+    11837589484,
+    6651097479,
+    6651098389,
+    6651097480,
+    6651097481,
+    6651097482,
+    6651097483,
+    6651097484,
+    6651097475
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 738656214,
+  "center": {
+    "lat": 6.4580339,
+    "lon": 3.5545612
+  },
+  "nodes": [
+    6916823689,
+    6916788780,
+    6916823686,
+    6916823687,
+    6916823689
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Northwest",
+    "name": "Northwest",
+    "source": "mapillary"
+  }
+},
+{
+  "type": "way",
+  "id": 738675715,
+  "center": {
+    "lat": 6.5301316,
+    "lon": 3.2170360
+  },
+  "nodes": [
+    6917077500,
+    6917077496,
+    6917077507,
+    6917077497,
+    6917077500
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Nipco",
+    "name": "Nipco",
+    "source": "mapillary"
+  }
+},
+{
+  "type": "way",
+  "id": 738678749,
+  "center": {
+    "lat": 6.5456799,
+    "lon": 3.2345886
+  },
+  "nodes": [
+    6917102601,
+    6917102590,
+    6917102598,
+    6917102599,
+    6917102594,
+    6917102601
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Dapsey",
+    "name": "Dapsey",
+    "source": "mapillary"
+  }
+},
+{
+  "type": "way",
+  "id": 738682063,
+  "center": {
+    "lat": 6.5514662,
+    "lon": 3.2417556
+  },
+  "nodes": [
+    6917109354,
+    6917109375,
+    6917109357,
+    6917109368,
+    6917109354
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "brand": "NNPC",
+    "name": "NNPC"
+  }
+},
+{
+  "type": "way",
+  "id": 742564542,
+  "center": {
+    "lat": 6.5587894,
+    "lon": 3.4759971
+  },
+  "nodes": [
+    6951730594,
+    6951730595,
+    6951730596,
+    6951730597,
+    6951730594
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "Timanj Oil and Gas"
+  }
+},
+{
+  "type": "way",
+  "id": 742564549,
+  "center": {
+    "lat": 6.5599131,
+    "lon": 3.4759817
+  },
+  "nodes": [
+    6951730624,
+    6951730619,
+    6951730618,
+    8742057950,
+    6951730625,
+    6951730626,
+    6951730627,
+    6951730628,
+    6951730629,
+    6951730624
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "Oando"
+  }
+},
+{
+  "type": "way",
+  "id": 742610708,
+  "center": {
+    "lat": 6.6015543,
+    "lon": 3.4924216
+  },
+  "nodes": [
+    6951898753,
+    6951898754,
+    6951898755,
+    6951898756,
+    6951898753
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Mobil",
+    "brand:wikidata": "Q3088656",
+    "brand:wikipedia": "en:Mobil",
+    "name": "Mobil"
+  }
+},
+{
+  "type": "way",
+  "id": 742626650,
+  "center": {
+    "lat": 6.6129874,
+    "lon": 3.5016141
+  },
+  "nodes": [
+    6952087420,
+    6952087407,
+    6952087406,
+    6952087405,
+    6952087421,
+    6952087422,
+    6952087423,
+    6952087424,
+    6952087425,
+    6952087426,
+    6952087420
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 742626651,
+  "center": {
+    "lat": 6.6147542,
+    "lon": 3.5022730
+  },
+  "nodes": [
+    6952087427,
+    6952087428,
+    6952087429,
+    6952087430,
+    6952087431,
+    6952087432,
+    6952087433,
+    6952087434,
+    6952087435,
+    6952087427
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Zone 4 Energy",
+    "name": "Zone 4 Energy",
+    "website": "https://zone4energy.com/"
+  }
+},
+{
+  "type": "way",
+  "id": 742630307,
+  "center": {
+    "lat": 6.6243092,
+    "lon": 3.4912173
+  },
+  "nodes": [
+    6952129611,
+    6952129612,
+    6952129613,
+    6952129614,
+    10109757643,
+    6952129615,
+    6952129611
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Conoil",
+    "name": "Conoil"
+  }
+},
+{
+  "type": "way",
+  "id": 742638087,
+  "center": {
+    "lat": 6.5819386,
+    "lon": 3.5888715
+  },
+  "nodes": [
+    6952191583,
+    6952191584,
+    6952194385,
+    6952194386,
+    6952191583
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 742638090,
+  "center": {
+    "lat": 6.5825342,
+    "lon": 3.5884232
+  },
+  "nodes": [
+    6952194395,
+    6952194396,
+    6952194397,
+    6952194398,
+    6952194395
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Mobil",
+    "brand:wikidata": "Q3088656",
+    "brand:wikipedia": "en:Mobil",
+    "name": "Mobil"
+  }
+},
+{
+  "type": "way",
+  "id": 742652350,
+  "center": {
+    "lat": 6.5981921,
+    "lon": 3.5880958
+  },
+  "nodes": [
+    6952305208,
+    6952305209,
+    6952305210,
+    6952305211,
+    6952305208
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "Lado Oil"
+  }
+},
+{
+  "type": "way",
+  "id": 743165503,
+  "center": {
+    "lat": 6.5868348,
+    "lon": 3.5216432
+  },
+  "nodes": [
+    6956313660,
+    6956313659,
+    6956313658,
+    6956313657,
+    6956313656,
+    6956313655,
+    6956313660
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "Rem Dabson"
+  }
+},
+{
+  "type": "way",
+  "id": 743165506,
+  "center": {
+    "lat": 6.5835212,
+    "lon": 3.5241890
+  },
+  "nodes": [
+    6956313672,
+    6956313671,
+    6956313670,
+    6956313669,
+    6956313672
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "Ola Oluwanishola Petroleum"
+  }
+},
+{
+  "type": "way",
+  "id": 743165515,
+  "center": {
+    "lat": 6.5730378,
+    "lon": 3.5287544
+  },
+  "nodes": [
+    6956315721,
+    6956315720,
+    6956315719,
+    6956315718,
+    6956315717,
+    6956315721
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Mobil",
+    "name": "Mobil"
+  }
+},
+{
+  "type": "way",
+  "id": 745470854,
+  "center": {
+    "lat": 6.6169493,
+    "lon": 3.5648158
+  },
+  "nodes": [
+    6978046214,
+    6978046215,
+    6978046216,
+    6978046217,
+    6978046214
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "Fomon"
+  }
+},
+{
+  "type": "way",
+  "id": 745470855,
+  "center": {
+    "lat": 6.6142296,
+    "lon": 3.5713174
+  },
+  "nodes": [
+    6978046218,
+    6978046219,
+    6978046220,
+    6978046221,
+    6978046218
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "ChongFi Petroleum"
+  }
+},
+{
+  "type": "way",
+  "id": 745483980,
+  "center": {
+    "lat": 6.6259400,
+    "lon": 3.5522560
+  },
+  "nodes": [
+    6978234697,
+    6978234698,
+    6978234699,
+    6978234700,
+    6978234697
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "Ola Oluwanishola Petroleum"
+  }
+},
+{
+  "type": "way",
+  "id": 745483997,
+  "center": {
+    "lat": 6.6316263,
+    "lon": 3.5401041
+  },
+  "nodes": [
+    6978234783,
+    6978234784,
+    6978235685,
+    6978235686,
+    6978234783
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "Be Happy Petroleum"
+  }
+},
+{
+  "type": "way",
+  "id": 745484004,
+  "center": {
+    "lat": 6.6321682,
+    "lon": 3.5341219
+  },
+  "nodes": [
+    6978235715,
+    6978235731,
+    6978235716,
+    6978235732,
+    6978235717,
+    6978235718,
+    6978235715
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "Habeeb"
+  }
+},
+{
+  "type": "way",
+  "id": 745774962,
+  "center": {
+    "lat": 6.6363260,
+    "lon": 3.5131675
+  },
+  "nodes": [
+    6980175958,
+    10557087767,
+    10557087768,
+    10557087764,
+    10557087766,
+    10557087765,
+    6980175959,
+    6980175958
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "Simart"
+  }
+},
+{
+  "type": "way",
+  "id": 745994739,
+  "center": {
+    "lat": 6.6198296,
+    "lon": 3.4641252
+  },
+  "nodes": [
+    6981527343,
+    6981527344,
+    6981527376,
+    6981527377,
+    6981527343
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "NNPC"
+  }
+},
+{
+  "type": "way",
+  "id": 745994742,
+  "center": {
+    "lat": 6.6188524,
+    "lon": 3.4640201
+  },
+  "nodes": [
+    6981527386,
+    6981527387,
+    6981527388,
+    6981527389,
+    6981527390,
+    6981527386
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "Bovas"
+  }
+},
+{
+  "type": "way",
+  "id": 746662212,
+  "center": {
+    "lat": 6.4556092,
+    "lon": 3.3597827
+  },
+  "nodes": [
+    6987404734,
+    6987404733,
+    6987404708,
+    6987404709,
+    6987404734
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 747160986,
+  "center": {
+    "lat": 6.6094996,
+    "lon": 3.4090638
+  },
+  "nodes": [
+    6991204451,
+    6991204452,
+    6991204453,
+    6991204454,
+    6991204451
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 747160989,
+  "center": {
+    "lat": 6.6052552,
+    "lon": 3.4057449
+  },
+  "nodes": [
+    6991204463,
+    6991204464,
+    6991204465,
+    6991204466,
+    6991204463
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "Slab"
+  }
+},
+{
+  "type": "way",
+  "id": 747161007,
+  "center": {
+    "lat": 6.5952688,
+    "lon": 3.4005406
+  },
+  "nodes": [
+    6991204581,
+    6991204579,
+    6991204578,
+    6991204577,
+    6991204582,
+    6991204583,
+    6991204584,
+    6991204585,
+    6991204586,
+    6991204581
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Total",
+    "name": "Total - Alapere 1"
+  }
+},
+{
+  "type": "way",
+  "id": 747161021,
+  "center": {
+    "lat": 6.6038511,
+    "lon": 3.3902916
+  },
+  "nodes": [
+    8954194961,
+    6991204653,
+    6991204654,
+    6991204655,
+    8954194961
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "NNPC"
+  }
+},
+{
+  "type": "way",
+  "id": 775434215,
+  "center": {
+    "lat": 6.4882938,
+    "lon": 3.3806638
+  },
+  "nodes": [
+    7234361260,
+    7234361261,
+    7234361262,
+    7234361263,
+    7234361260
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "Ascon"
+  }
+},
+{
+  "type": "way",
+  "id": 775434220,
+  "center": {
+    "lat": 6.4904427,
+    "lon": 3.3797795
+  },
+  "nodes": [
+    7234390086,
+    7234390087,
+    7234390088,
+    7234390089,
+    7234390086
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Total",
+    "brand:wikidata": "Q154037",
+    "brand:wikipedia": "fr:Total (entreprise)",
+    "name": "Total"
+  }
+},
+{
+  "type": "way",
+  "id": 776523026,
+  "center": {
+    "lat": 6.6077267,
+    "lon": 3.5920133
+  },
+  "nodes": [
+    7245206836,
+    7245206837,
+    7245206845,
+    7245206846,
+    7245206838,
+    7245206839,
+    7245206836
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "Mobil"
+  }
+},
+{
+  "type": "way",
+  "id": 776524227,
+  "center": {
+    "lat": 6.6106490,
+    "lon": 3.5815757
+  },
+  "nodes": [
+    7245239186,
+    7245239187,
+    7245239188,
+    7245239189,
+    7245239186
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "Samdex O."
+  }
+},
+{
+  "type": "way",
+  "id": 776526225,
+  "center": {
+    "lat": 6.6324145,
+    "lon": 3.5392318
+  },
+  "nodes": [
+    7245238262,
+    7245238263,
+    7245238264,
+    7245238265,
+    7245238266,
+    7245238262
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "Mukaz Petroleum"
+  }
+},
+{
+  "type": "way",
+  "id": 777029645,
+  "center": {
+    "lat": 6.6439145,
+    "lon": 3.5546764
+  },
+  "nodes": [
+    7250335397,
+    7250335398,
+    7250335399,
+    7250335400,
+    7250335397
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Total",
+    "brand:wikidata": "Q154037",
+    "brand:wikipedia": "fr:Total (entreprise)",
+    "name": "Total"
+  }
+},
+{
+  "type": "way",
+  "id": 777029649,
+  "center": {
+    "lat": 6.6464519,
+    "lon": 3.5643661
+  },
+  "nodes": [
+    7250335413,
+    7250335414,
+    7250335415,
+    7250335416,
+    7250335413
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 777029653,
+  "center": {
+    "lat": 6.6459211,
+    "lon": 3.5612715
+  },
+  "nodes": [
+    7250335429,
+    7250335430,
+    7250335431,
+    7250335432,
+    7250335429
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 777033981,
+  "center": {
+    "lat": 6.6634677,
+    "lon": 3.6141929
+  },
+  "nodes": [
+    7250375568,
+    11303899764,
+    7250375569,
+    7250375570,
+    7250375571,
+    11303899755,
+    11303899760,
+    7250375568
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 777033986,
+  "center": {
+    "lat": 6.6637000,
+    "lon": 3.6362603
+  },
+  "nodes": [
+    7250382288,
+    7250382289,
+    7250382290,
+    7250382291,
+    7250382288
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Kayrem",
+    "name": "Kayrem"
+  }
+},
+{
+  "type": "way",
+  "id": 777036379,
+  "center": {
+    "lat": 6.6722521,
+    "lon": 3.6627231
+  },
+  "nodes": [
+    7250386210,
+    7250386211,
+    7250386212,
+    7250386213,
+    7250386210
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Unda Oil",
+    "name": "Unda Oil"
+  }
+},
+{
+  "type": "way",
+  "id": 777036380,
+  "center": {
+    "lat": 6.6705192,
+    "lon": 3.6710987
+  },
+  "nodes": [
+    7250386214,
+    7250386215,
+    7250386216,
+    7250386217,
+    7250386214
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Mallo Petroleum",
+    "name": "Mallo Petroleum"
+  }
+},
+{
+  "type": "way",
+  "id": 778004260,
+  "center": {
+    "lat": 6.6199444,
+    "lon": 3.4747438
+  },
+  "nodes": [
+    7260939640,
+    7260939641,
+    7260939642,
+    7260939643,
+    7260939640
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Mobil",
+    "brand:wikidata": "Q3088656",
+    "brand:wikipedia": "en:Mobil",
+    "name": "Mobil"
+  }
+},
+{
+  "type": "way",
+  "id": 778293279,
+  "center": {
+    "lat": 6.6215546,
+    "lon": 3.4809260
+  },
+  "nodes": [
+    7263883540,
+    10090170432,
+    7263883541,
+    7263883542,
+    7263883543,
+    7263883540
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "brand": "SAF Petroleum",
+    "name": "SAF Petroleum"
+  }
+},
+{
+  "type": "way",
+  "id": 778293284,
+  "center": {
+    "lat": 6.6235955,
+    "lon": 3.4822788
+  },
+  "nodes": [
+    7263883566,
+    7263883567,
+    7263883568,
+    7263883569,
+    7263883566
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Nipco",
+    "name": "Nipco"
+  }
+},
+{
+  "type": "way",
+  "id": 778598817,
+  "center": {
+    "lat": 6.6304899,
+    "lon": 3.5235861
+  },
+  "nodes": [
+    7266800499,
+    7266800500,
+    7266800501,
+    7266800502,
+    7266800499
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "Gabaak"
+  }
+},
+{
+  "type": "way",
+  "id": 778599480,
+  "center": {
+    "lat": 6.6280132,
+    "lon": 3.5101821
+  },
+  "nodes": [
+    7266770960,
+    7266770961,
+    7266770962,
+    7266770963,
+    7266770960
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "Alaka"
+  }
+},
+{
+  "type": "way",
+  "id": 778616136,
+  "center": {
+    "lat": 6.6342963,
+    "lon": 3.5119420
+  },
+  "nodes": [
+    7266974086,
+    7266974087,
+    7266974088,
+    7266974089,
+    7266974086
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Remdabson",
+    "name": "Remdabson"
+  }
+},
+{
+  "type": "way",
+  "id": 778616139,
+  "center": {
+    "lat": 6.6368440,
+    "lon": 3.5125237
+  },
+  "nodes": [
+    7266974098,
+    7266974099,
+    7266974100,
+    7266974101,
+    7266974098
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Total",
+    "brand:wikidata": "Q154037",
+    "brand:wikipedia": "fr:Total (entreprise)",
+    "name": "Total Jubilee Estate"
+  }
+},
+{
+  "type": "way",
+  "id": 778616148,
+  "center": {
+    "lat": 6.6411363,
+    "lon": 3.5149845
+  },
+  "nodes": [
+    7266974138,
+    7266974139,
+    7266974140,
+    10267709926,
+    10267709919,
+    10267709914,
+    7266974141,
+    7266974138
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "Mallo Petroleum"
+  }
+},
+{
+  "type": "way",
+  "id": 778616156,
+  "center": {
+    "lat": 6.6490058,
+    "lon": 3.5178666
+  },
+  "nodes": [
+    7266974175,
+    7266974176,
+    7266974177,
+    7266974178,
+    7266974175
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "Double Oil & Gas"
+  }
+},
+{
+  "type": "way",
+  "id": 778616162,
+  "center": {
+    "lat": 6.6537727,
+    "lon": 3.5191109
+  },
+  "nodes": [
+    7266974202,
+    7266974203,
+    7266974204,
+    7266974205,
+    7266974202
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Total",
+    "brand:wikidata": "Q154037",
+    "brand:wikipedia": "fr:Total (entreprise)",
+    "name": "Total"
+  }
+},
+{
+  "type": "way",
+  "id": 778616166,
+  "center": {
+    "lat": 6.6570710,
+    "lon": 3.5191574
+  },
+  "nodes": [
+    7266974218,
+    7266974219,
+    7266974220,
+    7266974221,
+    7266974218
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "Forte Oil"
+  }
+},
+{
+  "type": "way",
+  "id": 778616175,
+  "center": {
+    "lat": 6.6619900,
+    "lon": 3.5200358
+  },
+  "nodes": [
+    7266974259,
+    7455297491,
+    7266974260,
+    7266974261,
+    10082673816,
+    7266974262,
+    7266974263,
+    7266974264,
+    7266974265,
+    7266974266,
+    7266974259
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 778616178,
+  "center": {
+    "lat": 6.6636972,
+    "lon": 3.5184335
+  },
+  "nodes": [
+    7266974276,
+    7266974277,
+    7266974278,
+    7266974279,
+    7266974276
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "First KKTJ"
+  }
+},
+{
+  "type": "way",
+  "id": 778625555,
+  "center": {
+    "lat": 6.6309688,
+    "lon": 3.5083666
+  },
+  "nodes": [
+    7267104597,
+    7267104598,
+    7267104599,
+    7267104600,
+    7267104597
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Banuso",
+    "name": "Banuso"
+  }
+},
+{
+  "type": "way",
+  "id": 778625556,
+  "center": {
+    "lat": 6.6209276,
+    "lon": 3.5034142
+  },
+  "nodes": [
+    6946503939,
+    6946503938,
+    7267104601,
+    7267104602,
+    7267104603,
+    7267104604,
+    7267104605,
+    7267104606,
+    7267104607,
+    7267104608,
+    7267104609,
+    6946503939
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "Forte Oil"
+  }
+},
+{
+  "type": "way",
+  "id": 778974328,
+  "center": {
+    "lat": 6.6040927,
+    "lon": 3.4858264
+  },
+  "nodes": [
+    7273179433,
+    7273179437,
+    7273179429,
+    7273179428,
+    7273179434,
+    7273179426,
+    7273179433
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Fadek",
+    "name": "Fadek"
+  }
+},
+{
+  "type": "way",
+  "id": 779098201,
+  "center": {
+    "lat": 6.6036274,
+    "lon": 3.4938368
+  },
+  "nodes": [
+    7274302199,
+    7274302200,
+    7274302201,
+    7274302202,
+    7274302203,
+    7274302199
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Malok",
+    "name": "Malok Beach Road"
+  }
+},
+{
+  "type": "way",
+  "id": 779100963,
+  "center": {
+    "lat": 6.6178958,
+    "lon": 3.4749767
+  },
+  "nodes": [
+    7274344127,
+    7274344128,
+    7274344129,
+    7274344130,
+    7274344131,
+    7274344132,
+    7274344127
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Mikolad",
+    "name": "Mikolad"
+  }
+},
+{
+  "type": "way",
+  "id": 779131233,
+  "center": {
+    "lat": 6.6517707,
+    "lon": 3.4757668
+  },
+  "nodes": [
+    7274712002,
+    7274712003,
+    7274712004,
+    7274712005,
+    7274712002
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 779131244,
+  "center": {
+    "lat": 6.6469158,
+    "lon": 3.4791185
+  },
+  "nodes": [
+    7274712063,
+    7274712064,
+    7274712065,
+    7274712057,
+    7274712066,
+    7274712063
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 779131250,
+  "center": {
+    "lat": 6.6442038,
+    "lon": 3.4794647
+  },
+  "nodes": [
+    7274712091,
+    7274712092,
+    7274712093,
+    7274712094,
+    7274712091
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Mobil",
+    "brand:wikidata": "Q3088656",
+    "brand:wikipedia": "en:Mobil",
+    "name": "Mobil"
+  }
+},
+{
+  "type": "way",
+  "id": 779704976,
+  "center": {
+    "lat": 6.6335427,
+    "lon": 3.4832913
+  },
+  "nodes": [
+    7281004031,
+    7281004032,
+    7281004033,
+    10264217706,
+    7281004034,
+    7281004031
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "Chong Fi Petroleum"
+  }
+},
+{
+  "type": "way",
+  "id": 779704981,
+  "center": {
+    "lat": 6.6361012,
+    "lon": 3.4824779
+  },
+  "nodes": [
+    7281004051,
+    7281004052,
+    7281004053,
+    7281004054,
+    7281004051
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "Witme Petroleum"
+  }
+},
+{
+  "type": "way",
+  "id": 780665794,
+  "center": {
+    "lat": 6.4940084,
+    "lon": 3.3214512
+  },
+  "nodes": [
+    7289824823,
+    7289824824,
+    7289824825,
+    7289824826,
+    7289824823
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Mobil",
+    "brand:wikidata": "Q3088656",
+    "brand:wikipedia": "en:Mobil",
+    "name": "Mobil"
+  }
+},
+{
+  "type": "way",
+  "id": 780665798,
+  "center": {
+    "lat": 6.4949776,
+    "lon": 3.3221154
+  },
+  "nodes": [
+    7289824840,
+    7289824835,
+    7289824839,
+    7289824838,
+    7289824841,
+    6966811941,
+    7289824840
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 780679577,
+  "center": {
+    "lat": 6.5578137,
+    "lon": 3.2497403
+  },
+  "nodes": [
+    7289857428,
+    7289857429,
+    7289857430,
+    7289857431,
+    7289857428
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 780679580,
+  "center": {
+    "lat": 6.5659876,
+    "lon": 3.2508784
+  },
+  "nodes": [
+    7289857440,
+    7289857441,
+    7289857442,
+    7289857443,
+    7289857440
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "Oando"
+  }
+},
+{
+  "type": "way",
+  "id": 780679583,
+  "center": {
+    "lat": 6.5672313,
+    "lon": 3.2520345
+  },
+  "nodes": [
+    7289857452,
+    7289857453,
+    7289857454,
+    7289857455,
+    7289857452
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "Vitality Oil & Gas"
+  }
+},
+{
+  "type": "way",
+  "id": 780679587,
+  "center": {
+    "lat": 6.5678308,
+    "lon": 3.2513496
+  },
+  "nodes": [
+    7289857468,
+    7289857469,
+    7289857470,
+    7289857471,
+    7289857468
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Total",
+    "brand:wikidata": "Q154037",
+    "brand:wikipedia": "fr:Total (entreprise)",
+    "name": "Total"
+  }
+},
+{
+  "type": "way",
+  "id": 780719156,
+  "center": {
+    "lat": 6.5924661,
+    "lon": 3.6426828
+  },
+  "nodes": [
+    7289854234,
+    7289854235,
+    7289854236,
+    7289854237,
+    7289854234
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "St. Michael Oil & Gas"
+  }
+},
+{
+  "type": "way",
+  "id": 780722044,
+  "center": {
+    "lat": 6.5830231,
+    "lon": 3.2137082
+  },
+  "nodes": [
+    7290004424,
+    7290004425,
+    7290004426,
+    11736472391,
+    11736472392,
+    11736472414,
+    11736472413,
+    7290004427,
+    7290004424
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 780722048,
+  "center": {
+    "lat": 6.5866209,
+    "lon": 3.2213316
+  },
+  "nodes": [
+    7290004446,
+    7290004447,
+    7290004448,
+    7290004449,
+    7290004446
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 781366076,
+  "center": {
+    "lat": 6.6069230,
+    "lon": 3.3280885
+  },
+  "nodes": [
+    7294965979,
+    7294965980,
+    7294965981,
+    7294965982,
+    7294965979
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "Petcost Oil & Gas"
+  }
+},
+{
+  "type": "way",
+  "id": 781366095,
+  "center": {
+    "lat": 6.6134419,
+    "lon": 3.3279520
+  },
+  "nodes": [
+    11931100911,
+    7294975798,
+    7294975799,
+    11931100910,
+    11931100911
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "Oando"
+  }
+},
+{
+  "type": "way",
+  "id": 781523655,
+  "center": {
+    "lat": 6.5983200,
+    "lon": 3.2911302
+  },
+  "nodes": [
+    7296618903,
+    7296618904,
+    7296618905,
+    7296618906,
+    7296618903
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "Zone 4 Energy"
+  }
+},
+{
+  "type": "way",
+  "id": 781523661,
+  "center": {
+    "lat": 6.6035085,
+    "lon": 3.2934349
+  },
+  "nodes": [
+    7296618939,
+    7296618940,
+    7296618941,
+    7296618942,
+    7296618939
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "Forte Oil"
+  }
+},
+{
+  "type": "way",
+  "id": 781523665,
+  "center": {
+    "lat": 6.6091299,
+    "lon": 3.2943783
+  },
+  "nodes": [
+    7296618955,
+    7296618956,
+    7296618957,
+    7296618958,
+    7296618955
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Total",
+    "brand:wikidata": "Q154037",
+    "brand:wikipedia": "fr:Total (entreprise)",
+    "name": "Total"
+  }
+},
+{
+  "type": "way",
+  "id": 781523667,
+  "center": {
+    "lat": 6.6095790,
+    "lon": 3.2936148
+  },
+  "nodes": [
+    7296618963,
+    7296618964,
+    7296618965,
+    7296618966,
+    7296618963
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 781535302,
+  "center": {
+    "lat": 6.6254545,
+    "lon": 3.3244527
+  },
+  "nodes": [
+    7296718189,
+    7296718190,
+    7296718191,
+    7296718192,
+    7296718189
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Total",
+    "brand:wikidata": "Q154037",
+    "brand:wikipedia": "fr:Total (entreprise)",
+    "name": "Total"
+  }
+},
+{
+  "type": "way",
+  "id": 781644095,
+  "center": {
+    "lat": 6.6260790,
+    "lon": 3.3470356
+  },
+  "nodes": [
+    7297763661,
+    7297763662,
+    7297763663,
+    7297763664,
+    7297763661
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "Diamond Pearls"
+  }
+},
+{
+  "type": "way",
+  "id": 781775361,
+  "center": {
+    "lat": 6.4550085,
+    "lon": 3.5557844
+  },
+  "nodes": [
+    7298956084,
+    7299026685,
+    7299026686,
+    7299026687,
+    7299026688,
+    7298956084
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "Oando"
+  }
+},
+{
+  "type": "way",
+  "id": 781775389,
+  "center": {
+    "lat": 6.4507126,
+    "lon": 3.5525073
+  },
+  "nodes": [
+    7299026809,
+    7299026810,
+    7299026811,
+    7299026812,
+    7299026813,
+    7299026814,
+    7299026809
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "Ascon Oil"
+  }
+},
+{
+  "type": "way",
+  "id": 781775402,
+  "center": {
+    "lat": 6.4600967,
+    "lon": 3.5547083
+  },
+  "nodes": [
+    7299026884,
+    7299026885,
+    7299026886,
+    7299026887,
+    7299026888,
+    7299026889,
+    7299026890,
+    7299026891,
+    7299026892,
+    7299026893,
+    7360315324,
+    7299026884
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Heyden",
+    "name": "Heyden"
+  }
+},
+{
+  "type": "way",
+  "id": 783100938,
+  "center": {
+    "lat": 6.4731004,
+    "lon": 3.3126225
+  },
+  "nodes": [
+    7312963538,
+    7312963539,
+    7312963540,
+    7312963541,
+    7312963538
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "Tom-Tan Limited"
+  }
+},
+{
+  "type": "way",
+  "id": 783259263,
+  "center": {
+    "lat": 6.5924160,
+    "lon": 3.3432511
+  },
+  "nodes": [
+    7314715152,
+    7314715153,
+    7314715154,
+    7314715155,
+    7314715156,
+    7314715157,
+    7314715158,
+    7314715159,
+    7314715160,
+    7314715152
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Conoil",
+    "name": "Conoil"
+  }
+},
+{
+  "type": "way",
+  "id": 783286551,
+  "center": {
+    "lat": 6.5908330,
+    "lon": 3.9836561
+  },
+  "nodes": [
+    7315073615,
+    7315073616,
+    7315073617,
+    7315073618,
+    7315073619,
+    7315073615
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 783301353,
+  "center": {
+    "lat": 6.4182285,
+    "lon": 2.8848841
+  },
+  "nodes": [
+    7315214275,
+    7315214276,
+    7315214277,
+    7315214278,
+    7315214279,
+    7315214280,
+    7315214275
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 783301356,
+  "center": {
+    "lat": 6.4260313,
+    "lon": 2.8833427
+  },
+  "nodes": [
+    7315214297,
+    7315214298,
+    7315214299,
+    7315214300,
+    7315214297
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 783301372,
+  "center": {
+    "lat": 6.4428826,
+    "lon": 2.9491393
+  },
+  "nodes": [
+    7315214505,
+    7315214506,
+    7315214507,
+    7315214508,
+    7315214505
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 783301375,
+  "center": {
+    "lat": 6.4398755,
+    "lon": 2.9400626
+  },
+  "nodes": [
+    7315214517,
+    7315214518,
+    7315214519,
+    7315214520,
+    7315214517
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 783301378,
+  "center": {
+    "lat": 6.4406702,
+    "lon": 2.9410167
+  },
+  "nodes": [
+    7315214531,
+    7315214532,
+    7315214533,
+    7315214534,
+    7315214531
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 783485111,
+  "center": {
+    "lat": 6.5262163,
+    "lon": 3.3596766
+  },
+  "nodes": [
+    7317242727,
+    7317242728,
+    7317242729,
+    7317242732,
+    7317242727
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "Conoil"
+  }
+},
+{
+  "type": "way",
+  "id": 783485135,
+  "center": {
+    "lat": 6.5358001,
+    "lon": 3.3531664
+  },
+  "nodes": [
+    7317242838,
+    7317242839,
+    7317242840,
+    7317242841,
+    7317242838
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Total",
+    "brand:wikidata": "Q154037",
+    "brand:wikipedia": "fr:Total (entreprise)",
+    "name": "Total"
+  }
+},
+{
+  "type": "way",
+  "id": 783485138,
+  "center": {
+    "lat": 6.5400402,
+    "lon": 3.3552083
+  },
+  "nodes": [
+    7317242850,
+    7317242851,
+    7317242852,
+    7317242853,
+    7317242850
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Mobil",
+    "brand:wikidata": "Q3088656",
+    "brand:wikipedia": "en:Mobil",
+    "name": "Mobil"
+  }
+},
+{
+  "type": "way",
+  "id": 783664115,
+  "center": {
+    "lat": 6.4563777,
+    "lon": 3.2536520
+  },
+  "nodes": [
+    7319704514,
+    7319704515,
+    7319704516,
+    7319704517,
+    7319704518,
+    7319704514
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 783664130,
+  "center": {
+    "lat": 6.4559807,
+    "lon": 3.2706471
+  },
+  "nodes": [
+    7319704611,
+    7319704631,
+    7319704632,
+    7319704603,
+    7319704611
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 783664131,
+  "center": {
+    "lat": 6.4559639,
+    "lon": 3.2720826
+  },
+  "nodes": [
+    7319704608,
+    7319704634,
+    7319704635,
+    7319704607,
+    7319704633,
+    7319704608
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 783912376,
+  "center": {
+    "lat": 6.4448989,
+    "lon": 3.3208679
+  },
+  "nodes": [
+    7322255873,
+    7322255874,
+    7322255875,
+    7322255876,
+    7357360803,
+    7322255873
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 785217629,
+  "center": {
+    "lat": 6.4689788,
+    "lon": 3.6566720
+  },
+  "nodes": [
+    7337278012,
+    7337278013,
+    7337278014,
+    7337278015,
+    7337278016,
+    7337278017,
+    7337278012
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 785217634,
+  "center": {
+    "lat": 6.4682689,
+    "lon": 3.6621694
+  },
+  "nodes": [
+    7337278046,
+    7337278047,
+    7337278048,
+    7337278049,
+    7337278046
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 785217639,
+  "center": {
+    "lat": 6.4655961,
+    "lon": 3.6688720
+  },
+  "nodes": [
+    7337278070,
+    7337278071,
+    7337278072,
+    7337278073,
+    7337278070
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 785217642,
+  "center": {
+    "lat": 6.4651013,
+    "lon": 3.6702465
+  },
+  "nodes": [
+    7337278084,
+    7337278085,
+    7337278086,
+    7337278087,
+    7337278084
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 785217646,
+  "center": {
+    "lat": 6.4627013,
+    "lon": 3.6736406
+  },
+  "nodes": [
+    7337278102,
+    7337278103,
+    7337278104,
+    7337278105,
+    7337278102
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 785225738,
+  "center": {
+    "lat": 6.4719378,
+    "lon": 3.7119843
+  },
+  "nodes": [
+    7337673012,
+    7337673013,
+    7337673014,
+    7337673015,
+    7337673016,
+    7337673017,
+    7337673012
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 785225755,
+  "center": {
+    "lat": 6.4718089,
+    "lon": 3.7131372
+  },
+  "nodes": [
+    7337673162,
+    7337673163,
+    7337673164,
+    7337673165,
+    7337673162
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 785230406,
+  "center": {
+    "lat": 6.4724587,
+    "lon": 3.7162742
+  },
+  "nodes": [
+    7338418253,
+    7338418254,
+    7338418255,
+    7338418256,
+    7338418253
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 785230407,
+  "center": {
+    "lat": 6.4725883,
+    "lon": 3.7171120
+  },
+  "nodes": [
+    7338418257,
+    7338418258,
+    7338418259,
+    7338418260,
+    7338418257
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 785230410,
+  "center": {
+    "lat": 6.4728034,
+    "lon": 3.7198566
+  },
+  "nodes": [
+    7338418269,
+    7338418270,
+    7338418271,
+    7338418272,
+    7338418273,
+    7338418269
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 785230414,
+  "center": {
+    "lat": 6.4726407,
+    "lon": 3.7266052
+  },
+  "nodes": [
+    7338502088,
+    7338502089,
+    7338502090,
+    7338502091,
+    7338502092,
+    7338502088
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 785230417,
+  "center": {
+    "lat": 6.4730529,
+    "lon": 3.7314942
+  },
+  "nodes": [
+    7338502101,
+    12000930080,
+    7338502102,
+    7338502103,
+    7338502104,
+    7338502105,
+    7338502101
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "Kaz Oil"
+  }
+},
+{
+  "type": "way",
+  "id": 785230420,
+  "center": {
+    "lat": 6.4733365,
+    "lon": 3.7337506
+  },
+  "nodes": [
+    7338502114,
+    7338502115,
+    7338502116,
+    7338502117,
+    7338502114
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 785230424,
+  "center": {
+    "lat": 6.4740643,
+    "lon": 3.7425135
+  },
+  "nodes": [
+    7338502132,
+    7338502133,
+    7338502134,
+    7338502135,
+    7338502136,
+    7338502137,
+    7338502132
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Total",
+    "brand:wikidata": "Q154037",
+    "brand:wikipedia": "fr:Total (entreprise)",
+    "name": "Total"
+  }
+},
+{
+  "type": "way",
+  "id": 785230437,
+  "center": {
+    "lat": 6.4732658,
+    "lon": 3.7816633
+  },
+  "nodes": [
+    7338502194,
+    7338502195,
+    12006176528,
+    12006176526,
+    7338502196,
+    7338502197,
+    7338502194
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "Matrix"
+  }
+},
+{
+  "type": "way",
+  "id": 785230449,
+  "center": {
+    "lat": 6.4714269,
+    "lon": 3.6372549
+  },
+  "nodes": [
+    7338502264,
+    7338502265,
+    7338502266,
+    7338502267,
+    7338502264
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 785230460,
+  "center": {
+    "lat": 6.4731035,
+    "lon": 3.6247770
+  },
+  "nodes": [
+    7338502317,
+    7338502318,
+    7338502319,
+    7338502320,
+    7338502321,
+    7338502322,
+    7338502317
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 785230466,
+  "center": {
+    "lat": 6.4739882,
+    "lon": 3.6203082
+  },
+  "nodes": [
+    7338502348,
+    7338502349,
+    7338502350,
+    7338502351,
+    7338502348
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 785230487,
+  "center": {
+    "lat": 6.4746597,
+    "lon": 3.6060273
+  },
+  "nodes": [
+    7338502456,
+    7338502457,
+    7338502458,
+    7338502459,
+    7338502456
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 785230490,
+  "center": {
+    "lat": 6.4757007,
+    "lon": 3.6057360
+  },
+  "nodes": [
+    7338502468,
+    7338502469,
+    7338502470,
+    7338502471,
+    7338502468
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 785230495,
+  "center": {
+    "lat": 6.4750862,
+    "lon": 3.6035103
+  },
+  "nodes": [
+    7338502488,
+    7338502492,
+    7338502495,
+    7338502489,
+    7338502490,
+    7338502491,
+    7338502488
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "Technoil"
+  }
+},
+{
+  "type": "way",
+  "id": 785246613,
+  "center": {
+    "lat": 6.4993051,
+    "lon": 3.5948201
+  },
+  "nodes": [
+    7338820392,
+    7338820393,
+    7338820394,
+    7338820395,
+    7338820396,
+    7338820397,
+    7338820392
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 785246623,
+  "center": {
+    "lat": 6.4947340,
+    "lon": 3.5827402
+  },
+  "nodes": [
+    7338820450,
+    7338820451,
+    7338820452,
+    7338820453,
+    7338820454,
+    7338820450
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "Soralom"
+  }
+},
+{
+  "type": "way",
+  "id": 785331121,
+  "center": {
+    "lat": 6.4747064,
+    "lon": 3.6128730
+  },
+  "nodes": [
+    7340266139,
+    7340266140,
+    7340266141,
+    7340266142,
+    7340266143,
+    7340266144,
+    7340266139
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 785343411,
+  "center": {
+    "lat": 6.4710859,
+    "lon": 3.5930664
+  },
+  "nodes": [
+    7340396870,
+    7340396869,
+    7340396868,
+    7340396867,
+    7340396866,
+    7340396865,
+    7340396870
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 785344523,
+  "center": {
+    "lat": 6.4643606,
+    "lon": 3.5622981
+  },
+  "nodes": [
+    7340408756,
+    7340408755,
+    7340408754,
+    7343518009,
+    7340408753,
+    7340408752,
+    7340408751,
+    7340408750,
+    7340408756
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "Northwest"
+  }
+},
+{
+  "type": "way",
+  "id": 786383307,
+  "center": {
+    "lat": 6.4582095,
+    "lon": 3.1393755
+  },
+  "nodes": [
+    7352782555,
+    7352782556,
+    7352782557,
+    7352782558,
+    7352782555
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 786383310,
+  "center": {
+    "lat": 6.4606252,
+    "lon": 3.1407481
+  },
+  "nodes": [
+    7352782567,
+    7352782568,
+    7352782569,
+    7352782570,
+    7352782567
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 786535506,
+  "center": {
+    "lat": 6.4681905,
+    "lon": 3.3677312
+  },
+  "nodes": [
+    7354400726,
+    7354400757,
+    7354400722,
+    7354400756,
+    7354400725,
+    7354400724,
+    7354400723,
+    7354400726
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 787313500,
+  "center": {
+    "lat": 6.6718136,
+    "lon": 3.2718829
+  },
+  "nodes": [
+    7360475002,
+    7360475001,
+    7360475000,
+    7360474999,
+    7360475002
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 788064892,
+  "center": {
+    "lat": 6.5550175,
+    "lon": 3.3244668
+  },
+  "nodes": [
+    7367746344,
+    10651232035,
+    7367746343,
+    7367746342,
+    7367746341,
+    7367746340,
+    7367746344
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Mobil",
+    "brand:wikidata": "Q109676002",
+    "name": "Mobil"
+  }
+},
+{
+  "type": "way",
+  "id": 788305531,
+  "center": {
+    "lat": 6.5285747,
+    "lon": 3.3205372
+  },
+  "nodes": [
+    7370274674,
+    7370274664,
+    7370274673,
+    7370274672,
+    7370274671,
+    7370274674
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 788305534,
+  "center": {
+    "lat": 6.5281857,
+    "lon": 3.3181645
+  },
+  "nodes": [
+    7370274686,
+    7370274685,
+    7370274684,
+    11841782984,
+    7370274683,
+    7370274686
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 788309881,
+  "center": {
+    "lat": 6.5885867,
+    "lon": 3.3800755
+  },
+  "nodes": [
+    7370307644,
+    7370307643,
+    7370307642,
+    7370307641,
+    7370307640,
+    7370307644
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 788314325,
+  "center": {
+    "lat": 6.5484749,
+    "lon": 3.3843400
+  },
+  "nodes": [
+    7370366006,
+    7370366005,
+    7370366004,
+    7370366003,
+    7370366002,
+    7370366001,
+    7370366000,
+    6883889443,
+    7370366006
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 788692794,
+  "center": {
+    "lat": 6.5869334,
+    "lon": 3.3986854
+  },
+  "nodes": [
+    7373636038,
+    7373636037,
+    7373636036,
+    7373636031,
+    7373636035,
+    7373636034,
+    7373636033,
+    7373636027,
+    7373636032,
+    7373636038
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 789085205,
+  "center": {
+    "lat": 6.5720103,
+    "lon": 3.2528903
+  },
+  "nodes": [
+    7377206029,
+    7377206030,
+    11708474748,
+    11708474747,
+    7377206029
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "Jacsam"
+  }
+},
+{
+  "type": "way",
+  "id": 789085209,
+  "center": {
+    "lat": 6.5558550,
+    "lon": 3.2694815
+  },
+  "nodes": [
+    7377206045,
+    7377206046,
+    7377206047,
+    7377206048,
+    7377206045
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 789085219,
+  "center": {
+    "lat": 6.5772153,
+    "lon": 3.2824593
+  },
+  "nodes": [
+    7377223091,
+    7377223092,
+    7377223093,
+    7377223094,
+    7377223091
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "NNPC filing station"
+  }
+},
+{
+  "type": "way",
+  "id": 789336916,
+  "center": {
+    "lat": 6.6129796,
+    "lon": 3.3969567
+  },
+  "nodes": [
+    7380494548,
+    7380494547,
+    7380494546,
+    7380494545,
+    7380494544,
+    7380494543,
+    7380494548
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 789336938,
+  "center": {
+    "lat": 6.6215434,
+    "lon": 3.3649372
+  },
+  "nodes": [
+    7380494678,
+    7380494677,
+    7380494676,
+    7380494675,
+    7380494678
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 790563799,
+  "center": {
+    "lat": 6.4747605,
+    "lon": 3.6153367
+  },
+  "nodes": [
+    7390826182,
+    7390826183,
+    7390826184,
+    7390889385,
+    7390826182
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 791169170,
+  "center": {
+    "lat": 6.4963047,
+    "lon": 3.1986375
+  },
+  "nodes": [
+    7396260706,
+    7396260705,
+    7396260704,
+    7396260703,
+    7396260706
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 792345811,
+  "center": {
+    "lat": 6.5205934,
+    "lon": 3.3219864
+  },
+  "nodes": [
+    7409015043,
+    7409015053,
+    7409015044,
+    7409015045,
+    7409015046,
+    7409015047,
+    7409015043
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 792690491,
+  "center": {
+    "lat": 6.5868602,
+    "lon": 3.3078607
+  },
+  "nodes": [
+    7412388555,
+    7412388556,
+    7412388557,
+    7412388558,
+    7412388555
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 792690506,
+  "center": {
+    "lat": 6.5842911,
+    "lon": 3.3068128
+  },
+  "nodes": [
+    7412388665,
+    7412388666,
+    7412388667,
+    7412388668,
+    7412388665
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 792728853,
+  "center": {
+    "lat": 6.4575358,
+    "lon": 3.1580111
+  },
+  "nodes": [
+    7412696375,
+    7412696376,
+    7412696377,
+    7412696378,
+    7412696375
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 792728859,
+  "center": {
+    "lat": 6.4652589,
+    "lon": 3.1550414
+  },
+  "nodes": [
+    7412701599,
+    7412701600,
+    7412701601,
+    7412701602,
+    7412701599
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 792728862,
+  "center": {
+    "lat": 6.4652975,
+    "lon": 3.1449828
+  },
+  "nodes": [
+    7412701611,
+    7412701612,
+    7412701613,
+    7412701614,
+    7412701615,
+    7412701611
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 792734986,
+  "center": {
+    "lat": 6.5277280,
+    "lon": 3.3670346
+  },
+  "nodes": [
+    7412755110,
+    7412755109,
+    7412755108,
+    7412755107,
+    7412755110
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 793075228,
+  "center": {
+    "lat": 6.4851444,
+    "lon": 3.8870562
+  },
+  "nodes": [
+    7415996623,
+    7415996624,
+    7415996625,
+    7415996626,
+    7415996623
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 793075229,
+  "center": {
+    "lat": 6.4853971,
+    "lon": 3.8876706
+  },
+  "nodes": [
+    7415996627,
+    7415996628,
+    7415996629,
+    7415996630,
+    7415996627
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 793075268,
+  "center": {
+    "lat": 6.4853913,
+    "lon": 3.8793143
+  },
+  "nodes": [
+    7415996846,
+    7415996847,
+    7415996848,
+    7415996849,
+    7415996846
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 793644710,
+  "center": {
+    "lat": 6.6307965,
+    "lon": 3.5196819
+  },
+  "nodes": [
+    7423881748,
+    7423881747,
+    7423881746,
+    7423881745,
+    7423881748
+  ],
+  "tags": {
+    "addr:city": "Ikorodu",
+    "addr:postcode": "102101",
+    "addr:street": "Old Lagos Road",
+    "amenity": "fuel",
+    "name": "NNPC"
+  }
+},
+{
+  "type": "way",
+  "id": 793656015,
+  "center": {
+    "lat": 6.5943120,
+    "lon": 3.5048714
+  },
+  "nodes": [
+    7424014100,
+    7424014099,
+    7424014098,
+    7424014097,
+    7424014100
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 796452023,
+  "center": {
+    "lat": 6.6358159,
+    "lon": 3.5407646
+  },
+  "nodes": [
+    7448634358,
+    7448634357,
+    7448634356,
+    7448634355,
+    7448634354,
+    7448634353,
+    7448634358
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 797280072,
+  "center": {
+    "lat": 6.6246321,
+    "lon": 3.5265061
+  },
+  "nodes": [
+    7456588793,
+    7456588794,
+    7456588795,
+    7456588796,
+    7456588797,
+    7456588798,
+    7456588799,
+    7456588793
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "Alabukun Oil"
+  }
+},
+{
+  "type": "way",
+  "id": 797285355,
+  "center": {
+    "lat": 6.6311654,
+    "lon": 3.5338008
+  },
+  "nodes": [
+    7456629154,
+    7456629155,
+    7456629156,
+    7456629157,
+    7456629154
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "ADB Petroleum"
+  }
+},
+{
+  "type": "way",
+  "id": 797679283,
+  "center": {
+    "lat": 6.6002065,
+    "lon": 3.6245449
+  },
+  "nodes": [
+    7460522284,
+    7460532985,
+    7460532986,
+    7460532987,
+    7460522284
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "Aie Oil"
+  }
+},
+{
+  "type": "way",
+  "id": 797679286,
+  "center": {
+    "lat": 6.6082945,
+    "lon": 3.6318983
+  },
+  "nodes": [
+    7460532996,
+    7460532997,
+    10006586444,
+    7460532998,
+    7460532999,
+    7460532996
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "Bissam Oil"
+  }
+},
+{
+  "type": "way",
+  "id": 797679291,
+  "center": {
+    "lat": 6.6033158,
+    "lon": 3.6056842
+  },
+  "nodes": [
+    7460533022,
+    7460533023,
+    7460533024,
+    7460533025,
+    7460533026,
+    7460533022
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "Fomon"
+  }
+},
+{
+  "type": "way",
+  "id": 797689755,
+  "center": {
+    "lat": 6.6319041,
+    "lon": 3.5364509
+  },
+  "nodes": [
+    7460622689,
+    7460622690,
+    10558680525,
+    7460622691,
+    7460622692,
+    7460622689
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "PM Petroleum"
+  }
+},
+{
+  "type": "way",
+  "id": 797699661,
+  "center": {
+    "lat": 6.6205894,
+    "lon": 3.5075011
+  },
+  "nodes": [
+    7460708678,
+    7460708679,
+    7460708680,
+    7460708681,
+    7460708678
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Mobil",
+    "brand:wikidata": "Q3088656",
+    "brand:wikipedia": "en:Mobil",
+    "name": "Mobil"
+  }
+},
+{
+  "type": "way",
+  "id": 797705024,
+  "center": {
+    "lat": 6.6287982,
+    "lon": 3.5121120
+  },
+  "nodes": [
+    7460735267,
+    7460735268,
+    7460735269,
+    7460735270,
+    7460735267
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "Azab Mega Station"
+  }
+},
+{
+  "type": "way",
+  "id": 797705027,
+  "center": {
+    "lat": 6.6300107,
+    "lon": 3.5193546
+  },
+  "nodes": [
+    7460735279,
+    7460735280,
+    10273545390,
+    10273545389,
+    7460735281,
+    7460735282,
+    7460735279
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "Dukescourt"
+  }
+},
+{
+  "type": "way",
+  "id": 799500879,
+  "center": {
+    "lat": 6.6410306,
+    "lon": 3.3314367
+  },
+  "nodes": [
+    7477226050,
+    7477226051,
+    7477226052,
+    7477226053,
+    7477226050
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 799500882,
+  "center": {
+    "lat": 6.6363291,
+    "lon": 3.3363066
+  },
+  "nodes": [
+    7477226066,
+    7477226067,
+    7477226068,
+    7477226069,
+    7477226070,
+    7477226071,
+    7477226066
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "Ar-Raqeeb Oil & Gas"
+  }
+},
+{
+  "type": "way",
+  "id": 799500886,
+  "center": {
+    "lat": 6.6357613,
+    "lon": 3.3365564
+  },
+  "nodes": [
+    7477226090,
+    7477226091,
+    7477226092,
+    7477226093,
+    7477226090
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "Taibod Petroleum"
+  }
+},
+{
+  "type": "way",
+  "id": 800345371,
+  "center": {
+    "lat": 6.5089652,
+    "lon": 3.3241145
+  },
+  "nodes": [
+    7485003666,
+    7485003667,
+    7365378428,
+    7485003668,
+    7485003666
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 802787466,
+  "center": {
+    "lat": 6.4857072,
+    "lon": 3.5765391
+  },
+  "nodes": [
+    7509441088,
+    7509441089,
+    7509441090,
+    7509441091,
+    7509441088
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "name": "Ailos"
+  }
+},
+{
+  "type": "way",
+  "id": 802787474,
+  "center": {
+    "lat": 6.4879771,
+    "lon": 3.5787395
+  },
+  "nodes": [
+    7509441136,
+    7509441137,
+    7509441138,
+    7509441139,
+    7509441136
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Mobil",
+    "brand:wikidata": "Q109676002",
+    "brand:wikipedia": "en:Mobil",
+    "name": "Mobil"
+  }
+},
+{
+  "type": "way",
+  "id": 802787484,
+  "center": {
+    "lat": 6.4767618,
+    "lon": 3.5685824
+  },
+  "nodes": [
+    7509441197,
+    7509441198,
+    7509441199,
+    7509441200,
+    7509441197
+  ],
+  "tags": {
+    "amenity": "fuel",
+    "brand": "Total",
+    "brand:wikidata": "Q154037",
+    "brand:wikipedia": "fr:Total (entreprise)",
+    "name": "Total"
+  }
+},
+{
+  "type": "way",
+  "id": 828811031,
+  "center": {
+    "lat": 6.5089233,
+    "lon": 3.3686210
+  },
+  "nodes": [
+    7736934763,
+    7736934764,
+    7736934765,
+    7736934766,
+    7736934763
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 828830726,
+  "center": {
+    "lat": 6.6394160,
+    "lon": 3.3648168
+  },
+  "nodes": [
+    7737086484,
+    7737141585,
+    7737141586,
+    7737141587,
+    7737086484
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 828831880,
+  "center": {
+    "lat": 6.6362599,
+    "lon": 3.3684082
+  },
+  "nodes": [
+    7737133603,
+    7737133604,
+    7737133605,
+    7737133606,
+    7737133607,
+    7737133608,
+    7737133609,
+    7737133610,
+    7737133611,
+    7737133612,
+    7737133603
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 829100025,
+  "center": {
+    "lat": 6.5405092,
+    "lon": 3.3185505
+  },
+  "nodes": [
+    7739204678,
+    7739204679,
+    7739204680,
+    7739204681,
+    7739204678
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 829112650,
+  "center": {
+    "lat": 6.6266702,
+    "lon": 3.3410316
+  },
+  "nodes": [
+    7739290458,
+    7739290459,
+    7739290460,
+    7739290461,
+    7739290458
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 829125121,
+  "center": {
+    "lat": 6.4960491,
+    "lon": 3.3430391
+  },
+  "nodes": [
+    7739431697,
+    7739431698,
+    7739431699,
+    7739431700,
+    7739431697
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 829208572,
+  "center": {
+    "lat": 6.5924865,
+    "lon": 3.3365455
+  },
+  "nodes": [
+    3743618348,
+    7740113409,
+    7740113410,
+    7740113411,
+    3743618348
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 829214963,
+  "center": {
+    "lat": 6.5896253,
+    "lon": 3.3345785
+  },
+  "nodes": [
+    7740144331,
+    7740144332,
+    7740144333,
+    7740144334,
+    7740144331
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 829217620,
+  "center": {
+    "lat": 6.6566831,
+    "lon": 3.3228968
+  },
+  "nodes": [
+    7740177854,
+    7740177855,
+    7740177856,
+    7740177857,
+    7740177854
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 848302303,
+  "center": {
+    "lat": 6.5349909,
+    "lon": 3.3055365
+  },
+  "nodes": [
+    7915876748,
+    7915876749,
+    7915876750,
+    7915876751,
+    7915876748
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 848468792,
+  "center": {
+    "lat": 6.6269324,
+    "lon": 3.3372855
+  },
+  "nodes": [
+    7917210812,
+    7917210813,
+    7917210820,
+    7917210814,
+    7917210815,
+    7917210816,
+    7917210812
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 848885954,
+  "center": {
+    "lat": 6.5056271,
+    "lon": 3.3229461
+  },
+  "nodes": [
+    7920365125,
+    7920365126,
+    7920365127,
+    7920365128,
+    7920365125
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 850028339,
+  "center": {
+    "lat": 6.5588416,
+    "lon": 3.3640839
+  },
+  "nodes": [
+    7930471923,
+    7930471924,
+    7930471925,
+    7930471926,
+    7930471927,
+    7930471928,
+    7930471929,
+    7930471930,
+    7930471923
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+},
+{
+  "type": "way",
+  "id": 850091514,
+  "center": {
+    "lat": 6.5460547,
+    "lon": 3.3603029
+  },
+  "nodes": [
+    7931040858,
+    7931040859,
+    7931040860,
+    7931040861,
+    11760248002,
+    11760248003,
+    8613084010,
+    7931040858
+  ],
+  "tags": {
+    "amenity": "fuel"
+  }
+}
+
+  ]
+}

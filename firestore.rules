@@ -1,0 +1,21 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Stations Collection
+    match /stations/{stationId} {
+      // Allow anyone to read station data (public)
+      allow read: if true;
+      
+      // Allow only authenticated users to create (add new stations)
+      allow create: if request.auth != null;
+      
+      // Allow only authenticated users to update (report status, fix address)
+      // Optional: Add validation logic here (e.g. only allow status to be 'active' or 'inactive')
+      allow update: if request.auth != null;
+      
+      // Allow admins to delete? (For now, let's restrict delete to auth as well)
+      allow delete: if request.auth != null;
+    }
+  }
+}
