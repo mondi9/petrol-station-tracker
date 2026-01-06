@@ -36,19 +36,18 @@
 
     .sidebar {
         width: 100%;
-        height: 50vh;
-        /* Bottom sheet height */
+        height: 65vh;
+        /* Increased from 50vh */
         border-right: none;
         border-top: 1px solid var(--glass-border);
         border-radius: 20px 20px 0 0;
-        /* Rounded top corners for sheet look */
         box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.3);
     }
 
     .map-container-wrapper {
-        height: 50vh;
+        height: 35vh;
+        /* Reduced from 50vh */
         flex: none;
-        /* Don't stretch, respect height */
     }
 
     /* Adjust modal padding for mobile */
