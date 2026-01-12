@@ -5,7 +5,7 @@ import AddReviewModal from './AddReviewModal';
 import { addReview } from '../services/reviewService';
 import { formatTimeAgo } from '../services/stationService';
 
-const StationDetailsModal = ({ isOpen, onClose, station, user, onLoginRequest }) => {
+const StationDetailsModal = ({ isOpen, onClose, station, user, onLoginRequest, userLocation }) => {
     const [isReviewOpen, setIsReviewOpen] = useState(false);
 
     if (!isOpen || !station) return null;
@@ -45,10 +45,41 @@ const StationDetailsModal = ({ isOpen, onClose, station, user, onLoginRequest })
                             <span className={`status-badge status-${station.status}`} style={{ marginBottom: '12px', display: 'inline-block' }}>
                                 {station.status === 'active' ? 'Active' : 'Inactive'}
                             </span>
+                            {station.status === 'active' && station.queueStatus && (
+                                <span className={`status-badge`} style={{
+                                    marginBottom: '12px',
+                                    marginLeft: '8px',
+                                    display: 'inline-block',
+                                    backgroundColor: station.queueStatus === 'short' ? '#22c55e' :
+                                        station.queueStatus === 'medium' ? '#eab308' :
+                                            station.queueStatus === 'long' ? '#ef4444' : '#64748b',
+                                    color: station.queueStatus === 'medium' ? 'black' : 'white'
+                                }}>
+                                    {station.queueStatus === 'short' ? 'Short Queue' :
+                                        station.queueStatus === 'medium' ? 'Med Queue' :
+                                            station.queueStatus === 'long' ? 'Long Queue' : station.queueStatus}
+                                </span>
+                            )}
+
                             <h2 style={{ fontSize: '1.8rem', fontWeight: '800', margin: 0 }}>{station.name}</h2>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', opacity: 0.7, marginTop: '8px', fontSize: '0.95rem' }}>
                                 <MapPin size={16} />
                                 {station.address}
+                                {/* Distance Display */}
+                                {userLocation && station.lat && station.lng && (
+                                    <span style={{ marginLeft: '8px', fontWeight: 'bold', color: 'var(--color-active)' }}>
+                                        • {(() => {
+                                            const R = 6371;
+                                            const dLat = (station.lat - userLocation.lat) * (Math.PI / 180);
+                                            const dLon = (station.lng - userLocation.lng) * (Math.PI / 180);
+                                            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                                                Math.cos(userLocation.lat * (Math.PI / 180)) * Math.cos(station.lat * (Math.PI / 180)) *
+                                                Math.sin(dLon / 2) * Math.sin(dLon / 2);
+                                            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                                            return (R * c).toFixed(1);
+                                        })()} km away
+                                    </span>
+                                )}
                             </div>
                         </div>
                         <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'var(--text-secondary)', cursor: 'pointer', padding: '4px' }}>
@@ -63,9 +94,26 @@ const StationDetailsModal = ({ isOpen, onClose, station, user, onLoginRequest })
                             target="_blank"
                             rel="noreferrer"
                             className="btn btn-primary"
-                            style={{ flex: 1, justifyContent: 'center', textDecoration: 'none' }}
+                            style={{ flex: 1, justifyContent: 'center', textDecoration: 'none', gap: '8px' }}
                         >
-                            <Navigation size={16} /> Directions
+                            <Navigation size={16} /> Google Maps
+                        </a>
+                        <a
+                            href={`https://waze.com/ul?ll=${station.lat},${station.lng}&navigate=yes`}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="btn"
+                            style={{
+                                flex: 1,
+                                justifyContent: 'center',
+                                textDecoration: 'none',
+                                gap: '8px',
+                                background: '#33ccff',
+                                color: 'black',
+                                border: 'none'
+                            }}
+                        >
+                            <Navigation size={16} /> Waze
                         </a>
                         <button
                             className="btn"

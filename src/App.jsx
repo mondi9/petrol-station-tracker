@@ -4,13 +4,16 @@ import MapComponent from './components/MapContainer';
 import StationList from './components/StationList';
 import ReportModal from './components/ReportModal';
 import ReloadPrompt from './components/ReloadPrompt';
-import { subscribeToStations, updateStationStatus, seedInitialData, addStation } from './services/stationService';
+import { subscribeToStations, updateStationStatus, seedInitialData, addStation, recordUserPresence } from './services/stationService';
 
 import { importLagosStationsV3, enrichStationData } from './services/osmService';
+
 import { subscribeToAuth, logout } from './services/authService';
+import { grantAdminRole } from './services/userService';
 import AuthModal from './components/AuthModal';
 import AddStationModal from './components/AddStationModal';
 import StationDetailsModal from './components/StationDetailsModal';
+import AdminDashboard from './components/AdminDashboard';
 
 // Temporary Initial Data for Seeding
 const INITIAL_DATA_SEED = [
@@ -19,7 +22,7 @@ const INITIAL_DATA_SEED = [
   { id: "3", name: "NNPC Mega Station", address: "Lekki-Epe Expy, Lekki", lat: 6.4323, lng: 3.4682, status: "inactive", lastUpdated: new Date().toISOString() },
   { id: "4", name: "Conoil Yaba", address: "Herbert Macaulay Way, Yaba", lat: 6.5095, lng: 3.3711, status: "active", lastUpdated: new Date().toISOString() },
   { id: "5", name: "Mobil Ikeja", address: "Obafemi Awolowo Way, Ikeja", lat: 6.5966, lng: 3.3421, status: "inactive", lastUpdated: new Date().toISOString() },
-  { id: "6", name: "MRS Festac", address: "21 Rd, Festac Town", lat: 6.4670, lng: 3.2830, status: "active", lastUpdated: new Date().toISOString() },
+  { id: "6", name: "MRS Festac", address: "22 Rd, Festac Town", lat: 6.4808, lng: 3.2883, status: "active", lastUpdated: new Date().toISOString() },
   { id: "60", name: "Mobil (11PLC)", address: "23 Road, Festac Town", lat: 6.4762, lng: 3.2750, status: "active", lastUpdated: new Date().toISOString() },
   { id: "7", name: "NNPC Filling Station", address: "Plot 88, 21 Road, Festac Town", lat: 6.4664, lng: 3.2835, status: "active", lastUpdated: new Date().toISOString() },
   { id: "8", name: "TotalEnergies", address: "Amuwo/Festac Link Rd", lat: 6.4600, lng: 3.2950, status: "inactive", lastUpdated: new Date().toISOString() },
@@ -39,6 +42,7 @@ function App() {
   const [user, setUser] = useState(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isAddStationModalOpen, setIsAddStationModalOpen] = useState(false);
+  const [isAdminDashboardOpen, setIsAdminDashboardOpen] = useState(false);
 
   // ... existing hooks ...
 
@@ -143,6 +147,25 @@ function App() {
     setImportStatus("");
   };
 
+  const handleGrantAdmin = async (email) => {
+    if (!confirm(`Are you sure you want to promote ${email} to Admin? This gives them full control.`)) return;
+
+    try {
+      setImportStatus("Promoting user...");
+      const success = await grantAdminRole(email);
+      if (success) {
+        alert(`Success! ${email} is now an Admin. They may need to relogin.`);
+      } else {
+        alert(`User with email ${email} not found. Ensure they have signed up first.`);
+      }
+    } catch (e) {
+      console.error(e);
+      alert("Error promoting user: " + e.message);
+    } finally {
+      setImportStatus("");
+    }
+  };
+
 
   useEffect(() => {
     // Subscribe to Firestore updates
@@ -215,12 +238,12 @@ function App() {
     setReportModalData({ isOpen: true, station });
   };
 
-  const handleReportSubmit = async (status) => {
+  const handleReportSubmit = async (status, queueStatus) => {
     if (!reportModalData.station) return;
 
     try {
       // Optimistic update (optional) or just wait for Firebase
-      await updateStationStatus(reportModalData.station.id, status);
+      await updateStationStatus(reportModalData.station.id, status, queueStatus);
       // Alert? No, real-time listener will update UI.
     } catch (error) {
       console.error("Failed to update status:", error);
@@ -233,6 +256,111 @@ function App() {
   // derived state for selected station to ensure it's always fresh
   const activeSelectedStation = stations.find(s => s.id === selectedStation?.id) || selectedStation;
 
+  // ... existing code ...
+
+  const [userLocation, setUserLocation] = useState(null);
+
+  const handleFindNearest = () => {
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by your browser");
+      return;
+    }
+
+    setIsLoading(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        setUserLocation({ lat: latitude, lng: longitude });
+
+        // ... calculation logic ...
+        // (same logic as before)
+        const R = 6371;
+        let nearest = null;
+        let minDist = Infinity;
+
+        // NEW: Prioritize Active Stations
+        // Calculate distance for ALL stations
+        const stationsWithDist = stations.map(station => {
+          if (!station.lat || !station.lng) return { ...station, distance: Infinity };
+
+          const dLat = (station.lat - latitude) * (Math.PI / 180);
+          const dLon = (station.lng - longitude) * (Math.PI / 180);
+          const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(latitude * (Math.PI / 180)) * Math.cos(station.lat * (Math.PI / 180)) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+          const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+          const d = R * c; // Distance in km
+          return { ...station, distance: d };
+        });
+
+        // 1. Find the absolute nearest physical station
+        const sortedByDist = [...stationsWithDist].sort((a, b) => a.distance - b.distance);
+        const absoluteNearest = sortedByDist.length > 0 ? sortedByDist[0] : null;
+
+        // 2. Find nearest ACTIVE station
+        const activeStations = sortedByDist.filter(s => s.status === 'active');
+        const nearestActive = activeStations.length > 0 ? activeStations[0] : null;
+
+        // Decision Logic
+        // Default: Guide to Active
+        // Exception: If user is "on site" (>200m) at an inactive station, select it (assume they want to report/update/verify)
+
+        const ONSITE_THRESHOLD_KM = 0.2; // 200 meters
+
+        if (absoluteNearest && absoluteNearest.distance <= ONSITE_THRESHOLD_KM) {
+          console.log("User is on-site at:", absoluteNearest.name);
+          nearest = absoluteNearest;
+          if (nearest.status !== 'active' && nearestActive) {
+            // Optional: Alert user they are at an inactive station?
+            console.log("Station is inactive, but user is here.");
+          }
+        } else if (nearestActive) {
+          nearest = nearestActive;
+        } else {
+          nearest = absoluteNearest; // Fallback to closest inactive if no active found
+          if (nearest) alert("No active stations found nearby. Showing the closest inactive station.");
+        }
+
+        minDist = nearest ? nearest.distance : Infinity;
+
+
+        setIsLoading(false);
+        if (nearest) {
+          setSelectedStation(nearest);
+          setViewingStation(nearest); // Automatically open details
+
+          // Presence Check: If within 200m (0.2km), record them as "present"
+          // Presence Check handled in main logic visually, but let's keep the ping
+          if (minDist <= 0.2) {
+            // Logic already established nearest is within range if we selected it via OnSite rule, 
+            // but if we selected a far Active station, minDist will be large, so this is safe.
+            // Actually, wait: if selected is Far Active, we DON'T want to ping presence at the far station.
+            // The minDist check here protects us. Good.
+            recordUserPresence(nearest.id, user?.uid);
+          }
+        } else {
+          alert("No stations found with coordinates.");
+        }
+      },
+      (error) => {
+        console.error("Error getting location", error);
+        setIsLoading(false);
+        let msg = "Unable to retrieve your location.";
+        if (error.code === 1) msg = "Location permission denied. Please allow location access.";
+        if (error.code === 2) msg = "Location unavailable. Ensure GPS is on.";
+        if (error.code === 3) msg = "Location request timed out.";
+        alert(msg);
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
+    );
+  };
+
+  // Dev Mode State
+  const [isDevMode, setIsDevMode] = useState(false);
+
+  // Derived User for Dev Mode
+  const appUser = isDevMode ? { ...user, email: user?.email || 'dev@admin.local', role: 'admin' } : user;
+
   return (
     <div className="app-container">
       <StationList
@@ -244,11 +372,32 @@ function App() {
         onFixAddresses={handleFixAddresses}
         onRestore={handleRestoreMissing}
         importStatus={importStatus}
-        user={user}
+        user={appUser}
         onLogin={() => setIsAuthModalOpen(true)}
         onLogout={handleLogout}
         onAddStation={() => setIsAddStationModalOpen(true)}
+        onOpenAdminDashboard={() => setIsAdminDashboardOpen(true)}
       />
+
+      {/* Dev Mode Toggle */}
+      <button
+        onClick={() => setIsDevMode(!isDevMode)}
+        style={{
+          position: 'fixed',
+          bottom: '10px',
+          right: '10px',
+          background: isDevMode ? 'red' : 'rgba(0,0,0,0.5)',
+          color: 'white',
+          border: 'none',
+          fontSize: '10px',
+          padding: '5px',
+          borderRadius: '4px',
+          zIndex: 9999,
+          cursor: 'pointer'
+        }}
+      >
+        {isDevMode ? "DEV ADMIN ON" : "Dev Mode"}
+      </button>
 
       <div className="map-container-wrapper">
         {isLoading && (
@@ -266,6 +415,7 @@ function App() {
           onViewDetails={handleViewDetails}
           selectedStation={activeSelectedStation}
           onReportClick={handleReportClick}
+          onFindNearest={handleFindNearest}
         />
       </div>
 
@@ -275,6 +425,7 @@ function App() {
         onClose={() => setViewingStation(null)}
         station={viewingStation}
         user={user}
+        userLocation={userLocation}
         onLoginRequest={() => setIsAuthModalOpen(true)}
       />
 
@@ -294,6 +445,19 @@ function App() {
         isOpen={isAddStationModalOpen}
         onClose={() => setIsAddStationModalOpen(false)}
         onSubmit={handleAddStation}
+      />
+
+      <AdminDashboard
+        isOpen={isAdminDashboardOpen}
+        onClose={() => setIsAdminDashboardOpen(false)}
+        onImport={handleImportOSM}
+        onFixAddresses={handleFixAddresses}
+        onRestore={handleRestoreMissing}
+        onAddStation={() => setIsAddStationModalOpen(true)}
+        onGrantAdmin={handleGrantAdmin}
+        importStatus={importStatus}
+        stations={stations}
+        user={user}
       />
 
       <ReloadPrompt />

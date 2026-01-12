@@ -1,5 +1,5 @@
 import { db } from './firebase';
-import { collection, onSnapshot, doc, updateDoc, setDoc, query, addDoc } from 'firebase/firestore';
+import { collection, onSnapshot, doc, updateDoc, setDoc, query, addDoc, serverTimestamp, getDocs, where } from 'firebase/firestore';
 
 const COLLECTION_NAME = 'stations';
 
@@ -28,12 +28,20 @@ export const subscribeToStations = (onUpdate, onError) => {
 };
 
 // Update a station's status
-export const updateStationStatus = async (stationId, status) => {
+export const updateStationStatus = async (stationId, status, queueStatus = null) => {
     const stationRef = doc(db, COLLECTION_NAME, stationId);
-    await updateDoc(stationRef, {
+    const updateData = {
         status: status,
         lastUpdated: new Date().toISOString()
-    });
+    };
+    if (queueStatus) {
+        updateData.queueStatus = queueStatus;
+    } else if (status === 'inactive') {
+        // Clear queue status if station is inactive
+        updateData.queueStatus = null;
+    }
+
+    await updateDoc(stationRef, updateData);
 };
 
 // Add a new station (Manual)
@@ -105,4 +113,61 @@ export const seedInitialData = async (initialData) => {
     });
     await Promise.all(promises);
     console.log("Seeding complete");
+};
+
+// Calculate distance between two points in km (Haversine formula)
+export const calculateDistance = (lat1, lon1, lat2, lon2) => {
+    if (!lat1 || !lon1 || !lat2 || !lon2) return null;
+
+    const R = 6371; // Radius of the earth in km
+    const dLat = (lat2 - lat1) * (Math.PI / 180);
+    const dLon = (lon2 - lon1) * (Math.PI / 180);
+    const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    const d = R * c; // Distance in km
+    return parseFloat(d.toFixed(1)); // Return 1 decimal place
+};
+
+/**
+ * Records a user's presence at a station (Ping).
+ * This allows us to estimate live crowd size.
+ * @param {string} stationId
+ * @param {string} userId (optional, uses anonymous ID if missing)
+ */
+export const recordUserPresence = async (stationId, userId = 'anon') => {
+    if (!stationId) return;
+    // We use a subcollection 'pings' to track active users
+    // Doc ID is userId to prevent duplicate counting per user
+    const pingRef = doc(db, COLLECTION_NAME, stationId, 'pings', userId);
+    try {
+        await setDoc(pingRef, {
+            timestamp: serverTimestamp(),
+            device_type: 'web'
+        });
+    } catch (e) {
+        console.error("Error regarding presence:", e);
+    }
+};
+
+/**
+ * Gets the number of active users (pings in last 15 mins).
+ * @param {string} stationId
+ * @returns {Promise<number>}
+ */
+export const getLiveVisitors = async (stationId) => {
+    try {
+        const pingsRef = collection(db, COLLECTION_NAME, stationId, 'pings');
+        // 15 minutes ago
+        const timeThreshold = new Date(Date.now() - 15 * 60 * 1000);
+
+        const q = query(pingsRef, where("timestamp", ">", timeThreshold));
+        const snapshot = await getDocs(q);
+        return snapshot.size;
+    } catch (e) {
+        console.error("Error active visitors:", e);
+        return 0;
+    }
 };

@@ -1,12 +1,12 @@
 import React from 'react';
-import { MapPin, Fuel, Clock, Activity } from 'lucide-react';
+import { MapPin, Fuel, Clock } from 'lucide-react';
 import { formatTimeAgo } from '../services/stationService';
 
-const StationList = ({ stations, onSelect, onViewDetails, selectedStationId, onImport, onFixAddresses, onRestore, onAddStation, importStatus, user, onLogin, onLogout }) => {
+const StationList = ({ stations, onSelect, onViewDetails, selectedStationId, onImport, onFixAddresses, onRestore, onAddStation, onOpenAdminDashboard, importStatus, user, onLogin, onLogout }) => {
     // ... matching existing code ...
     const [filter, setFilter] = React.useState('all'); // 'all', 'active', 'inactive'
     const [searchQuery, setSearchQuery] = React.useState('');
-    const activeCount = stations.filter(s => s.status === 'active').length;
+
 
     const filteredStations = stations.filter(s => {
         const matchesFilter = filter === 'all' || s.status === filter;
@@ -182,69 +182,61 @@ const StationList = ({ stations, onSelect, onViewDetails, selectedStationId, onI
                                 Log Out
                             </button>
                         </div>
+                        {user.role === 'admin' && (
+                            <div style={{
+                                fontSize: '0.7rem',
+                                background: 'var(--color-active)',
+                                color: 'black',
+                                padding: '2px 6px',
+                                borderRadius: '4px',
+                                display: 'inline-block',
+                                marginBottom: '8px',
+                                fontWeight: 'bold'
+                            }}>
+                                ADMIN MODE
+                            </div>
+                        )}
 
-                        {stations.length < 50 && (
+                        {user.role === 'admin' && (
                             <button
-                                onClick={onImport}
+                                onClick={onOpenAdminDashboard}
                                 className="btn btn-primary"
-                                disabled={!!importStatus}
-                                style={{ width: '100%', justifyContent: 'center', fontSize: '0.85rem', padding: '8px' }}
+                                style={{
+                                    width: '100%',
+                                    justifyContent: 'center',
+                                    marginTop: '8px',
+                                    background: 'var(--color-active)',
+                                    color: 'black',
+                                    fontWeight: 'bold'
+                                }}
                             >
-                                {importStatus && importStatus.includes("Fetching") ? importStatus : "Import Data (v3)"}
+                                Open Admin Dashboard
                             </button>
                         )}
 
-                        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px' }}>
+                        {/* Temporary Dev Button */}
+                        {user.role !== 'admin' && (
                             <button
-                                onClick={onAddStation}
-                                className="btn btn-primary"
-                                style={{
-                                    justifyContent: 'center',
-                                    background: 'var(--color-active)',
-                                    color: 'black',
-                                    fontSize: '0.8rem',
-                                    padding: '8px',
-                                    whiteSpace: 'nowrap'
+                                onClick={async () => {
+                                    if (confirm("Make current user Admin?")) {
+                                        try {
+                                            const { doc, setDoc, getFirestore } = await import('firebase/firestore');
+                                            const db = getFirestore();
+                                            const { auth } = await import('../services/firebase');
+                                            if (auth.currentUser) {
+                                                await setDoc(doc(db, "users", auth.currentUser.uid), { role: "admin" }, { merge: true });
+                                                alert("You are now an Admin! Refresh the page.");
+                                                window.location.reload();
+                                            }
+                                        } catch (e) {
+                                            console.error(e);
+                                            alert("Error: " + e.message);
+                                        }
+                                    }
                                 }}
+                                style={{ marginTop: '20px', fontSize: '0.7rem', opacity: 0.5, background: 'none', border: 'none', color: 'red', cursor: 'pointer' }}
                             >
-                                + Add Station
-                            </button>
-
-                            <button
-                                onClick={onFixAddresses}
-                                className="btn btn-secondary"
-                                disabled={importStatus && importStatus.includes("...")}
-                                style={{
-                                    background: '#f59e0b',
-                                    color: 'black',
-                                    justifyContent: 'center',
-                                    opacity: (importStatus && importStatus.includes("...")) ? 0.7 : 1,
-                                    cursor: (importStatus && importStatus.includes("...")) ? 'wait' : 'pointer',
-                                    fontSize: '0.8rem',
-                                    padding: '8px',
-                                    whiteSpace: 'nowrap'
-                                }}
-                            >
-                                Fix Addresses
-                            </button>
-                        </div>
-
-                        {onRestore && (
-                            <button
-                                onClick={onRestore}
-                                className="btn"
-                                style={{
-                                    background: 'transparent',
-                                    color: 'var(--text-secondary)',
-                                    width: '100%',
-                                    marginTop: '4px',
-                                    border: '1px solid var(--glass-border)',
-                                    fontSize: '0.75rem',
-                                    padding: '6px',
-                                    cursor: 'pointer'
-                                }}
-                            >
-                                Restore Missing Stations
+                                (Dev) Make Me Admin
                             </button>
                         )}
                     </>

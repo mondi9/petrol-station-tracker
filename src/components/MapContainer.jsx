@@ -54,7 +54,7 @@ const MapController = ({ selectedStation }) => {
     return null;
 };
 
-const MapComponent = ({ stations, onStationSelect, onViewDetails, selectedStation, onReportClick }) => {
+const MapComponent = ({ stations, onStationSelect, onViewDetails, selectedStation, onReportClick, onFindNearest }) => {
     const position = [6.5244, 3.3792]; // Default Lagos center
 
     return (
@@ -79,6 +79,8 @@ const MapComponent = ({ stations, onStationSelect, onViewDetails, selectedStatio
                     url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
                 />
                 <MapController selectedStation={selectedStation} />
+
+                <LocationButton onFindNearest={onFindNearest} />
 
                 {stations.map(station => (
                     <Marker
@@ -127,6 +129,45 @@ const MapComponent = ({ stations, onStationSelect, onViewDetails, selectedStatio
                     </Marker>
                 ))}
             </MapContainer>
+        </div>
+    );
+};
+
+const LocationButton = ({ onFindNearest }) => {
+    const map = useMap();
+
+    const handleNearMe = () => {
+        if (!navigator.geolocation) {
+            alert("Geolocation is not supported by your browser");
+            return;
+        }
+
+        navigator.geolocation.getCurrentPosition(
+            (position) => {
+                const { latitude, longitude } = position.coords;
+                map.flyTo([latitude, longitude], 14, { duration: 1.5 });
+            },
+            () => {
+                alert("Unable to retrieve your location");
+            }
+        );
+    };
+
+    return (
+        <div style={{ position: 'absolute', bottom: '24px', right: '24px', zIndex: 1000, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+            <button
+                onClick={onFindNearest}
+                className="glass-panel"
+                style={{
+                    width: '48px', height: '48px', borderRadius: '50%',
+                    background: 'var(--color-active)', color: 'black', border: 'none',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.5)'
+                }}
+                title="Find Nearest Station"
+            >
+                <Navigation size={24} fill="black" />
+            </button>
         </div>
     );
 };

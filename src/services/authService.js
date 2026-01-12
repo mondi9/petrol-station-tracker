@@ -5,11 +5,14 @@ import {
     onAuthStateChanged
 } from 'firebase/auth';
 import { auth } from './firebase';
+import { createUserProfile, getUserRole } from './userService';
 
 // Sign Up
 export const signUp = async (email, password) => {
     try {
         const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+        // Create user profile in Firestore
+        await createUserProfile(userCredential.user);
         return userCredential.user;
     } catch (error) {
         throw error;
@@ -37,7 +40,12 @@ export const logout = async () => {
 
 // Subscribe to Auth State Changes
 export const subscribeToAuth = (callback) => {
-    return onAuthStateChanged(auth, (user) => {
+    return onAuthStateChanged(auth, async (user) => {
+        if (user) {
+            // Fetch role and add to user object
+            const role = await getUserRole(user.uid);
+            user.role = role;
+        }
         callback(user);
     });
 };

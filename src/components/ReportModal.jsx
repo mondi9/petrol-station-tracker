@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { X, ThumbsUp, ThumbsDown, CheckCircle } from 'lucide-react';
+import React from 'react';
+import { X, ThumbsUp, ThumbsDown } from 'lucide-react';
 
 const ReportModal = ({ isOpen, onClose, onSubmit, station }) => {
     if (!isOpen || !station) return null;
@@ -54,7 +54,7 @@ const ReportModal = ({ isOpen, onClose, onSubmit, station }) => {
                         }}
                         onMouseOver={(e) => e.currentTarget.style.borderColor = 'var(--color-active)'}
                         onMouseOut={(e) => e.currentTarget.style.borderColor = 'transparent'}
-                        onClick={() => onSubmit('active')}
+                        onClick={() => onSubmit('active', 'short')}
                     >
                         <div style={{
                             width: '40px', height: '40px',
@@ -64,7 +64,31 @@ const ReportModal = ({ isOpen, onClose, onSubmit, station }) => {
                         }}>
                             <ThumbsUp size={20} />
                         </div>
-                        <span>Yes, Active</span>
+                        <span>Active (Short Queue)</span>
+                    </button>
+
+                    <button
+                        className="btn glass"
+                        style={{
+                            flexDirection: 'column',
+                            padding: '20px',
+                            gap: '12px',
+                            border: '2px solid transparent',
+                            background: 'rgba(234, 179, 8, 0.1)',
+                        }}
+                        onMouseOver={(e) => e.currentTarget.style.borderColor = '#eab308'}
+                        onMouseOut={(e) => e.currentTarget.style.borderColor = 'transparent'}
+                        onClick={() => onSubmit('active', 'medium')}
+                    >
+                        <div style={{
+                            width: '40px', height: '40px',
+                            borderRadius: '50%', background: '#eab308',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            color: 'black'
+                        }}>
+                            <ThumbsUp size={20} />
+                        </div>
+                        <span>Active (Med Queue)</span>
                     </button>
 
                     <button
@@ -78,11 +102,35 @@ const ReportModal = ({ isOpen, onClose, onSubmit, station }) => {
                         }}
                         onMouseOver={(e) => e.currentTarget.style.borderColor = 'var(--color-inactive)'}
                         onMouseOut={(e) => e.currentTarget.style.borderColor = 'transparent'}
-                        onClick={() => onSubmit('inactive')}
+                        onClick={() => onSubmit('active', 'long')}
                     >
                         <div style={{
                             width: '40px', height: '40px',
                             borderRadius: '50%', background: 'var(--color-inactive)',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center',
+                            color: 'white'
+                        }}>
+                            <ThumbsUp size={20} />
+                        </div>
+                        <span>Active (Long Queue)</span>
+                    </button>
+
+                    <button
+                        className="btn glass"
+                        style={{
+                            flexDirection: 'column',
+                            padding: '20px',
+                            gap: '12px',
+                            border: '2px solid transparent',
+                            background: 'rgba(100, 116, 139, 0.1)',
+                        }}
+                        onMouseOver={(e) => e.currentTarget.style.borderColor = '#64748b'}
+                        onMouseOut={(e) => e.currentTarget.style.borderColor = 'transparent'}
+                        onClick={() => onSubmit('inactive', null)}
+                    >
+                        <div style={{
+                            width: '40px', height: '40px',
+                            borderRadius: '50%', background: '#64748b',
                             display: 'flex', alignItems: 'center', justifyContent: 'center',
                             color: 'white'
                         }}>
