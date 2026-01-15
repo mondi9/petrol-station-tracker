@@ -1,63 +1,75 @@
 # Petrol Station Status Tracker
 
-A React application to track and display the operational status of petrol stations.
+A modern, real-time web application to track the operational status of petrol stations in Lagos. Built with React, Leaflet, and Firebase.
 
-## Getting Started
+![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
+![Firebase](https://img.shields.io/badge/Firebase-039BE5?style=for-the-badge&logo=Firebase&logoColor=white)
+![Leaflet](https://img.shields.io/badge/Leaflet-199900?style=for-the-badge&logo=Leaflet&logoColor=white)
+
+## ✨ Features
+
+- **Real-Time Map**: Interactive map showing all petrol stations with status indicators (Green = Active, Red = Inactive).
+- **Live Status Updates**: Crowd-sourced status reporting that updates instantly across all devices.
+- **Smart Navigation**: 
+   - "Near Me" button to quickly find the closest station.
+   - Deep links to **Google Maps** and **Waze** for one-click navigation.
+- **User Reviews**: Rate stations (1-5 stars) and leave comments.
+- **User Authentication**: Sign Up/Login to contribute reviews and reliable data.
+- **Admin Dashboard**: Special tools for admins to add stations, import data, and manage content.
+- **Responsive Design**: Glassmorphism UI that works perfectly on Desktop and Mobile.
+
+## 🚀 Getting Started
 
 ### Prerequisites
-
-- [Node.js](https://nodejs.org/) installed on your machine.
-- A terminal (PowerShell, Command Prompt, or VS Code Integrated Terminal).
+- [Node.js](https://nodejs.org/) (v16+)
+- A Firebase Project (with Firestore and Auth enabled)
 
 ### Installation
 
-1. Open your terminal in the project directory.
-2. Install dependencies:
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/your-username/petrol-station-tracker.git
+   cd petrol-station-tracker
+   ```
+
+2. **Install Dependencies**
    ```bash
    npm install
    ```
 
-### Running the App
+3. **Configure Firebase**
+   - Create a `firebaseConfig.js` file in `src/` (or check existing `src/firebase.js`).
+   - Add your Firebase API keys.
 
-To start the development server:
-
-1. Run the following command in your terminal:
+4. **Run the Development Server**
    ```bash
    npm run dev
    ```
-2. Open your browser and navigate to the URL shown in the terminal (usually `http://localhost:5173`).
+   Open `http://localhost:5173` in your browser.
 
-**Which terminal to use?**
-You can use any terminal. The integrated terminal in VS Code is convenient (Ctrl+` to open).
+## 🛠 Tech Stack
 
-## Scripts
+- **Frontend Framework**: React (Vite)
+- **Styling**: Vanilla CSS (Custom Design System, Glassmorphism)
+- **Map Engine**: Leaflet (React-Leaflet)
+- **Backend / Database**: Firebase Firestore
+- **Authentication**: Firebase Authentication
+- **Icons**: Lucide React
 
-- `npm run dev`: Starts the development server.
-- `npm run build`: Builds the app for production.
-- `npm run lint`: Runs ESLint to check for code quality issues.
-- `npm run preview`: Locally preview the production build.
+## 📄 Documentation
 
-## How to Put on GitHub
+- [Architecture & Data Model](./ARCHITECTURE.md) - Details on Firestore schema and security rules.
+- [Changelog](./CHANGELOG.md) - History of changes and updates.
+- [Android Guide](./ANDROID_GUIDE.md) - Information on TWA / Mobile deployment.
 
-1. **Initialize Git** (if not done):
-   ```bash
-   git init
-   git add .
-   git commit -m "Initial commit"
-   ```
+## 🤝 Contributing
 
-2. **Create a Repository on GitHub**:
-   - Go to [GitHub.com](https://github.com) and sign in.
-   - Click the "+" icon in the top right and select "New repository".
-   - Name your repository (e.g., `petrol-station-tracker`).
-   - Click "Create repository".
+1. Fork the repo.
+2. Create your feature branch (`git checkout -b feature/AmazingFeature`).
+3. Commit your changes (`git commit -m 'Add some AmazingFeature'`).
+4. Push to the branch (`git push origin feature/AmazingFeature`).
+5. Open a Pull Request.
 
-3. **Push to GitHub**:
-   - Copy the commands under "**…or push an existing repository from the command line**".
-   - It will look something like this:
-     ```bash
-     git remote add origin https://github.com/YOUR_USERNAME/petrol-station-tracker.git
-     git branch -M main
-     git push -u origin main
-     ```
-   - Paste and run these commands in your terminal.
+## 📝 License
+
+Distributed under the MIT License.

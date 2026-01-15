@@ -28,20 +28,32 @@ export const subscribeToStations = (onUpdate, onError) => {
 };
 
 // Update a station's status
-export const updateStationStatus = async (stationId, status, queueStatus = null) => {
+export const updateStationStatus = async (stationId, status, queueStatus = null, prices = null) => {
     const stationRef = doc(db, COLLECTION_NAME, stationId);
     const updateData = {
         status: status,
         lastUpdated: new Date().toISOString()
     };
+
     if (queueStatus) {
         updateData.queueStatus = queueStatus;
     } else if (status === 'inactive') {
-        // Clear queue status if station is inactive
         updateData.queueStatus = null;
     }
 
+    if (prices) {
+        // Merge with existing logic if needed, but for now we overwrite provided keys
+        // valid keys: petrol, diesel, gas
+        updateData.prices = prices; // Object { petrol: 950, diesel: 1200 }
+        updateData.lastPriceUpdate = new Date().toISOString();
+    }
+
     await updateDoc(stationRef, updateData);
+};
+
+export const formatPrice = (amount) => {
+    if (!amount) return 'N/A';
+    return '₦' + amount.toLocaleString();
 };
 
 // Add a new station (Manual)
@@ -75,7 +87,8 @@ export const addStation = async (stationData) => {
         lng: stationData.lng || null,
         status: 'active', // Default to active for user-added stations
         lastUpdated: new Date().toISOString(),
-        source: 'user_manual'
+        source: 'user_manual',
+        prices: stationData.prices || null
     };
 
     // Add to Firestore (auto-ID)

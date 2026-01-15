@@ -1,20 +1,41 @@
 import React from 'react';
 import { MapPin, Fuel, Clock } from 'lucide-react';
-import { formatTimeAgo } from '../services/stationService';
+import { formatTimeAgo, formatPrice } from '../services/stationService';
+import FilterBar from './FilterBar';
 
-const StationList = ({ stations, onSelect, onViewDetails, selectedStationId, onImport, onFixAddresses, onRestore, onAddStation, onOpenAdminDashboard, importStatus, user, onLogin, onLogout }) => {
+const StationList = ({ stations, onSelect, onViewDetails, selectedStationId, onImport, onFixAddresses, onRestore, onAddStation, onOpenAdminDashboard, importStatus, user, onLogin, onLogout, filters, onFilterChange }) => {
     // ... matching existing code ...
-    const [filter, setFilter] = React.useState('all'); // 'all', 'active', 'inactive'
-    const [searchQuery, setSearchQuery] = React.useState('');
+    // Local State for sorting only
+    const [sortBy, setSortBy] = React.useState('distance'); // 'distance', 'price', 'queue'
 
-
-    const filteredStations = stations.filter(s => {
-        const matchesFilter = filter === 'all' || s.status === filter;
-        const name = s.name || '';
-        const address = s.address || '';
-        const matchesSearch = name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            address.toLowerCase().includes(searchQuery.toLowerCase());
-        return matchesFilter && matchesSearch;
+    // Sort the incoming filtered stations
+    const sortedStations = [...stations].sort((a, b) => {
+        if (sortBy === 'distance') {
+            // Assuming stations have 'distance' calculated (which they do in App.jsx when location is found, BUT maybe not just raw list)
+            // If distance is missing, push to bottom.
+            const distA = a.distance || Infinity;
+            const distB = b.distance || Infinity;
+            return distA - distB;
+        }
+        if (sortBy === 'price') {
+            // Sort by Petrol Price ascending
+            // If price missing, push to bottom
+            const priceA = a.prices?.petrol || Infinity;
+            const priceB = b.prices?.petrol || Infinity;
+            return priceA - priceB;
+        }
+        if (sortBy === 'queue') {
+            // Priority: Short (1) < Medium (2) < Long (3) < Null/Inactive (4)
+            const getRank = (s) => {
+                if (s.status !== 'active') return 4;
+                if (s.queueStatus === 'short') return 1;
+                if (s.queueStatus === 'medium') return 2;
+                if (s.queueStatus === 'long') return 3;
+                return 4; // active but no queue info
+            };
+            return getRank(a) - getRank(b);
+        }
+        return 0;
     });
 
     return (
@@ -41,8 +62,8 @@ const StationList = ({ stations, onSelect, onViewDetails, selectedStationId, onI
                 <input
                     type="text"
                     placeholder="Search stations or addresses..."
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
+                    value={filters.searchQuery}
+                    onChange={(e) => onFilterChange({ ...filters, searchQuery: e.target.value })}
                     style={{
                         width: '100%',
                         padding: '10px',
@@ -55,54 +76,19 @@ const StationList = ({ stations, onSelect, onViewDetails, selectedStationId, onI
                     }}
                 />
 
-                <div style={{ marginTop: '20px', display: 'flex', gap: '8px', background: 'var(--bg-primary)', padding: '4px', borderRadius: 'var(--radius-md)' }}>
-                    <button
-                        onClick={() => setFilter('all')}
-                        style={{
-                            flex: 1, padding: '8px', border: 'none', borderRadius: 'var(--radius-sm)',
-                            background: filter === 'all' ? 'var(--glass-panel)' : 'transparent',
-                            color: filter === 'all' ? 'white' : 'var(--text-secondary)',
-                            cursor: 'pointer', fontSize: '0.8rem', fontWeight: '600',
-                            border: filter === 'all' ? '1px solid var(--glass-border)' : 'none'
-                        }}
-                    >
-                        All
-                    </button>
-                    <button
-                        onClick={() => setFilter('active')}
-                        style={{
-                            flex: 1, padding: '8px', border: 'none', borderRadius: 'var(--radius-sm)',
-                            background: filter === 'active' ? 'rgba(34, 197, 94, 0.1)' : 'transparent',
-                            color: filter === 'active' ? 'var(--color-active)' : 'var(--text-secondary)',
-                            cursor: 'pointer', fontSize: '0.8rem', fontWeight: '600',
-                            border: filter === 'active' ? '1px solid rgba(34, 197, 94, 0.2)' : 'none'
-                        }}
-                    >
-                        Active
-                    </button>
-                    <button
-                        onClick={() => setFilter('inactive')}
-                        style={{
-                            flex: 1, padding: '8px', border: 'none', borderRadius: 'var(--radius-sm)',
-                            background: filter === 'inactive' ? 'rgba(239, 68, 68, 0.1)' : 'transparent',
-                            color: filter === 'inactive' ? 'var(--color-inactive)' : 'var(--text-secondary)',
-                            cursor: 'pointer', fontSize: '0.8rem', fontWeight: '600',
-                            border: filter === 'inactive' ? '1px solid rgba(239, 68, 68, 0.2)' : 'none'
-                        }}
-                    >
-                        Inactive
-                    </button>
+                <div style={{ marginTop: '16px' }}>
+                    <FilterBar filters={filters} onFilterChange={onFilterChange} />
                 </div>
             </div>
 
             {/* List */}
             <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
                 <h2 style={{ fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.5, marginBottom: '16px' }}>
-                    {filter === 'all' ? 'Nearby Stations' : filter === 'active' ? 'Active Stations' : 'Inactive Stations'}
+                    {filters.status === 'all' ? 'Nearby Stations' : filters.status === 'active' ? 'Active Stations' : 'Inactive Stations'}
                 </h2>
 
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
-                    {filteredStations.map(station => (
+                    {sortedStations.map(station => (
                         <div
                             key={station.id}
                             onClick={() => onSelect(station)}
@@ -126,11 +112,46 @@ const StationList = ({ stations, onSelect, onViewDetails, selectedStationId, onI
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', opacity: 0.7, fontSize: '0.85rem', marginBottom: '4px' }}>
                                 <MapPin size={14} />
                                 {station.address}
+                                {station.distance && <span style={{ color: 'var(--color-active)', fontWeight: 'bold' }}>• {station.distance.toFixed(1)}km</span>}
                             </div>
 
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', opacity: 0.5, fontSize: '0.8rem' }}>
-                                <Clock size={12} />
-                                Updated {formatTimeAgo(station.lastUpdated)}
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px' }}>
+                                <div style={{ display: 'flex', gap: '6px' }}>
+                                    <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
+                                        {station.prices?.petrol && (
+                                            <div style={{ fontSize: '0.8rem', fontWeight: 'bold', color: '#4ade80', background: 'rgba(34, 197, 94, 0.1)', padding: '2px 6px', borderRadius: '4px' }}>
+                                                P: {formatPrice(station.prices.petrol)}
+                                            </div>
+                                        )}
+                                        {station.prices?.diesel && (
+                                            <div style={{ fontSize: '0.8rem', fontWeight: 'bold', color: '#facc15', background: 'rgba(234, 179, 8, 0.1)', padding: '2px 6px', borderRadius: '4px' }}>
+                                                D: {formatPrice(station.prices.diesel)}
+                                            </div>
+                                        )}
+                                        {station.prices?.gas && (
+                                            <div style={{ fontSize: '0.8rem', fontWeight: 'bold', color: '#38bdf8', background: 'rgba(56, 189, 248, 0.1)', padding: '2px 6px', borderRadius: '4px' }}>
+                                                G: {formatPrice(station.prices.gas)}
+                                            </div>
+                                        )}
+                                        {!station.prices?.petrol && !station.prices?.diesel && !station.prices?.gas && (
+                                            <span style={{ fontSize: '0.8rem', opacity: 0.3 }}>No Price</span>
+                                        )}
+                                    </div>
+
+                                    {station.status === 'active' && station.queueStatus && (
+                                        <div style={{
+                                            fontSize: '0.75rem', padding: '2px 6px', borderRadius: '4px',
+                                            background: station.queueStatus === 'short' ? 'rgba(34, 197, 94, 0.2)' : station.queueStatus === 'medium' ? 'rgba(234, 179, 8, 0.2)' : 'rgba(239, 68, 68, 0.2)',
+                                            color: station.queueStatus === 'short' ? '#4ade80' : station.queueStatus === 'medium' ? '#facc15' : '#f87171'
+                                        }}>
+                                            {station.queueStatus === 'short' ? 'Short Q' : station.queueStatus === 'medium' ? 'Med Q' : 'Long Q'}
+                                        </div>
+                                    )}
+                                </div>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', opacity: 0.5, fontSize: '0.8rem' }}>
+                                    <Clock size={12} />
+                                    {formatTimeAgo(station.lastUpdated)}
+                                </div>
                             </div>
 
                             <div
@@ -144,7 +165,7 @@ const StationList = ({ stations, onSelect, onViewDetails, selectedStationId, onI
                             </div>
                         </div>
                     ))}
-                    {filteredStations.length === 0 && (
+                    {sortedStations.length === 0 && (
                         <div style={{ padding: '20px', textAlign: 'center', opacity: 0.5 }}>
                             No stations found with this status.
                         </div>
@@ -214,31 +235,7 @@ const StationList = ({ stations, onSelect, onViewDetails, selectedStationId, onI
                             </button>
                         )}
 
-                        {/* Temporary Dev Button */}
-                        {user.role !== 'admin' && (
-                            <button
-                                onClick={async () => {
-                                    if (confirm("Make current user Admin?")) {
-                                        try {
-                                            const { doc, setDoc, getFirestore } = await import('firebase/firestore');
-                                            const db = getFirestore();
-                                            const { auth } = await import('../services/firebase');
-                                            if (auth.currentUser) {
-                                                await setDoc(doc(db, "users", auth.currentUser.uid), { role: "admin" }, { merge: true });
-                                                alert("You are now an Admin! Refresh the page.");
-                                                window.location.reload();
-                                            }
-                                        } catch (e) {
-                                            console.error(e);
-                                            alert("Error: " + e.message);
-                                        }
-                                    }
-                                }}
-                                style={{ marginTop: '20px', fontSize: '0.7rem', opacity: 0.5, background: 'none', border: 'none', color: 'red', cursor: 'pointer' }}
-                            >
-                                (Dev) Make Me Admin
-                            </button>
-                        )}
+
                     </>
                 )}
 

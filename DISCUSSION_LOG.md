@@ -2,6 +2,25 @@
 
 Since the platform interface might not persist chat history, this file archives the summary of our development sessions and key decisions.
 
+## [Session 10] - Admin Account Creation (Jan 12, 2026)
+*   **Objective:** Allow creation of new Admin accounts.
+*   **Actions:**
+    *   Developed process to create new users and promote them via existing Admin accounts.
+    *   Debugged route rendering issues on the map.
+
+## [Session 9] - Debugging Navigation (Jan 11, 2026)
+*   **Objective:** Fix "Find Nearest Station" accuracy.
+*   **Actions:**
+    *   Addressed issues where the wrong station was selected.
+    *   Refined location data and GPS handling.
+
+## [Session 8] - Implementing Admin Roles (Jan 7, 2026)
+*   **Objective:** Secure the application with RBAC.
+*   **Actions:**
+    *   Implemented Firestore Security Rules for `admin` vs `user`.
+    *   Restricted "Add Station" and "Import" to Admins only.
+    *   Updated UI to hide Admin-only buttons for regular users.
+
 ## [Session 7] - Smart Navigation & Features (Jan 7, 2026)
 *   **Discussion:** User requested "Wait Time" reporting.
 *   **Action:** Implemented Wait Time (Queue Length) reporting.

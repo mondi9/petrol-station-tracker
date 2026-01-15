@@ -2,8 +2,19 @@
 
 All notable changes to the "Lagos Petrol Pulse" project will be documented in this file.
 
+## [0.6.0] - 2026-01-14
+### Added
+- **Smart Navigation**: Added "Near Me" button to center map on user location.
+- **External Maps**: Added deep links to open Station location in **Google Maps** or **Waze**.
+- **Admin Roles**: Implemented strict RBAC. Created `users` collection to store roles.
+- **Admin Tools**: Feature to promote other users to admin status.
+
+### Changed
+- **Removed**: "Wait Time" reporting feature (removed in favor of smart navigation).
+- **Navigation**: Improved "Find Nearest Station" logic.
+
 ## [Unreleased]
-- Proposed: Expanded reporting (Fuel Types, Wait Times), Gamification, Admin Dashboard.
+- Proposed: Gamification, Admin Dashboard UI Polishing.
 
 ## [0.5.0] - 2026-01-05
 ### Added

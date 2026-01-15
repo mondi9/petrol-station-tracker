@@ -11,8 +11,16 @@ const AddStationModal = ({ isOpen, onClose, onSubmit }) => {
     const handleSubmit = async (e) => {
         e.preventDefault();
         setLoading(true);
+
+        const petrolPrice = e.target.petrolPrice.value;
+        const dieselPrice = e.target.dieselPrice.value;
+
+        const prices = {};
+        if (petrolPrice) prices.petrol = parseInt(petrolPrice);
+        if (dieselPrice) prices.diesel = parseInt(dieselPrice);
+
         try {
-            await onSubmit({ name, address });
+            await onSubmit({ name, address, prices: Object.keys(prices).length > 0 ? prices : null });
             // Reset form
             setName('');
             setAddress('');
@@ -71,6 +79,35 @@ const AddStationModal = ({ isOpen, onClose, onSubmit }) => {
                                 color: 'white', outline: 'none'
                             }}
                         />
+                    </div>
+
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>
+                        <div>
+                            <label style={{ display: 'block', marginBottom: '5px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Petrol Price (₦)</label>
+                            <input
+                                type="number"
+                                placeholder="e.g. 950"
+                                name="petrolPrice"
+                                style={{
+                                    width: '100%', padding: '12px', borderRadius: '8px',
+                                    border: '1px solid var(--glass-border)', background: 'rgba(0,0,0,0.2)',
+                                    color: 'white', outline: 'none'
+                                }}
+                            />
+                        </div>
+                        <div>
+                            <label style={{ display: 'block', marginBottom: '5px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Diesel Price (₦)</label>
+                            <input
+                                type="number"
+                                placeholder="e.g. 1200"
+                                name="dieselPrice"
+                                style={{
+                                    width: '100%', padding: '12px', borderRadius: '8px',
+                                    border: '1px solid var(--glass-border)', background: 'rgba(0,0,0,0.2)',
+                                    color: 'white', outline: 'none'
+                                }}
+                            />
+                        </div>
                     </div>
 
                     <div style={{ fontSize: '0.8rem', opacity: 0.7, lineHeight: '1.4' }}>

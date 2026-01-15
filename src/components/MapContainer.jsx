@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap, Polyline } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { getStatusColor, formatTimeAgo } from '../services/stationService';
@@ -16,45 +16,142 @@ const DefaultIcon = L.icon({
     iconAnchor: [12, 41]
 });
 
-// Custom marker generator
-const createCustomIcon = (status) => {
-    const color = getStatusColor(status);
+// Custom marker generator (Traffic Dot Style)
+const createCustomIcon = (status, queueStatus) => {
+    let color = '#64748b'; // Default Grey (Inactive)
+    let glowColor = 'rgba(100, 116, 139, 0.4)';
+    let size = 24; // Increased size for visibility
+    let pulseClass = '';
+    let label = '';
+    let textColor = 'white';
 
-    // SVG Pin with "Fuel" context
-    // Outer pin, Inner white circle
-    const svgContent = `
-        <div style="color: ${color}; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.5)); transform: translateY(-5px);">
-            <svg width="32" height="42" viewBox="0 0 24 30" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 0C7.58172 0 4 3.58172 4 8C4 13.25 11.25 21.625 11.6641 22.0938C11.8477 22.3047 12.1523 22.3047 12.3359 22.0938C12.75 21.625 20 13.25 20 8C20 3.58172 16.4183 0 12 0Z" fill="currentColor"/>
-                <circle cx="12" cy="8" r="3.5" fill="white"/>
-            </svg>
+    if (status === 'active') {
+        if (!queueStatus || queueStatus === 'short') {
+            color = '#22c55e'; // Green
+            glowColor = 'rgba(34, 197, 94, 0.5)';
+            label = 'S';
+        } else if (queueStatus === 'medium') {
+            color = '#eab308'; // Yellow
+            glowColor = 'rgba(234, 179, 8, 0.5)';
+            label = 'M';
+            textColor = 'black';
+        } else if (queueStatus === 'long') {
+            color = '#ef4444'; // Red
+            glowColor = 'rgba(239, 68, 68, 0.6)';
+            size = 28; // Slightly larger
+            pulseClass = 'pulse-animation';
+            label = 'L';
+        } else {
+            label = 'A'; // Just Active
+        }
+    } else {
+        size = 18; // Smaller for inactive
+    }
+
+    // Traffic Dot: Circle with Glow + Label
+    const htmlContent = `
+        <div style="
+             width: ${size}px;
+             height: ${size}px;
+             background-color: ${color};
+             border-radius: 50%;
+             border: 2px solid white;
+             box-shadow: 0 0 10px ${glowColor}, 0 0 20px ${glowColor};
+             position: relative;
+             display: flex;
+             align-items: center;
+             justify-content: center;
+             color: ${textColor};
+             font-weight: 800;
+             font-size: ${size * 0.5}px;
+             font-family: sans-serif;
+        " class="${pulseClass}">
+            ${label}
         </div>
     `;
 
     return L.divIcon({
-        className: 'custom-marker-pin',
-        html: svgContent,
-        iconSize: [32, 42],
-        iconAnchor: [16, 42], // Tip at bottom center
-        popupAnchor: [0, -38]
+        className: 'custom-traffic-marker',
+        html: htmlContent,
+        iconSize: [size, size],
+        iconAnchor: [size / 2, size / 2], // Center anchor
+        popupAnchor: [0, -size / 2]
     });
 };
 
-const MapController = ({ selectedStation }) => {
+const RoutingController = ({ selectedStation, userLocation }) => {
     const map = useMap();
+    const [route, setRoute] = React.useState(null);
+
+    // Debug active props
+    useEffect(() => {
+        console.log("RoutingController Update:", { selectedStation, userLocation });
+    }, [selectedStation, userLocation]);
 
     useEffect(() => {
-        if (selectedStation) {
-            map.flyTo([selectedStation.lat, selectedStation.lng], 15, {
-                duration: 1.5
-            });
+        if (!selectedStation || !userLocation) {
+            console.log("Routing: Missing selectedStation or userLocation");
+            setRoute(null);
+            return;
         }
-    }, [selectedStation, map]);
 
-    return null;
+        const fetchRoute = async () => {
+            console.log("Routing: Fetching route...");
+            try {
+                // OSRM: lon,lat;lon,lat
+                const url = `https://router.project-osrm.org/route/v1/driving/${userLocation.lng},${userLocation.lat};${selectedStation.lng},${selectedStation.lat}?overview=full&geometries=geojson`;
+                const response = await fetch(url);
+                const data = await response.json();
+
+                if (data.routes && data.routes.length > 0) {
+                    // OSRM is Lon,Lat. Leaflet is Lat,Lon. Swap 'em.
+                    const coords = data.routes[0].geometry.coordinates.map(c => [c[1], c[0]]);
+                    setRoute(coords);
+                    console.log("Routing: Route found and set", coords);
+
+                    // Fit bounds to show route
+                    const bounds = L.latLngBounds(coords);
+                    map.fitBounds(bounds, { padding: [50, 50] });
+                } else {
+                    console.log("Routing: No routes found in response", data);
+                }
+            } catch (e) {
+                console.error("Routing failed", e);
+                // Fallback: fly to station
+                map.flyTo([selectedStation.lat, selectedStation.lng], 15);
+            }
+        };
+
+        fetchRoute();
+
+    }, [selectedStation, userLocation, map]);
+
+    // Determine Route Color based on Queue Status
+    let routeColor = '#3b82f6'; // Default Blue
+    if (selectedStation) {
+        if (selectedStation.status === 'active') {
+            if (selectedStation.queueStatus === 'short') routeColor = '#22c55e'; // Green
+            else if (selectedStation.queueStatus === 'medium') routeColor = '#eab308'; // Yellow
+            else if (selectedStation.queueStatus === 'long') routeColor = '#ef4444'; // Red
+        } else {
+            routeColor = '#64748b'; // Inactive/Grey
+        }
+    }
+
+    console.log("Routing: Rendering Polyline?", !!route, "Color:", routeColor);
+
+    return route ? (
+        <Polyline
+            positions={route}
+            color={routeColor}
+            weight={6}
+            opacity={0.8}
+            dashArray={null}
+        />
+    ) : null;
 };
 
-const MapComponent = ({ stations, onStationSelect, onViewDetails, selectedStation, onReportClick, onFindNearest }) => {
+const MapComponent = ({ stations, onStationSelect, onViewDetails, selectedStation, onReportClick, onFindNearest, userLocation }) => {
     const position = [6.5244, 3.3792]; // Default Lagos center
 
     return (
@@ -78,7 +175,7 @@ const MapComponent = ({ stations, onStationSelect, onViewDetails, selectedStatio
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
                     url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
                 />
-                <MapController selectedStation={selectedStation} />
+                <RoutingController selectedStation={selectedStation} userLocation={userLocation} />
 
                 <LocationButton onFindNearest={onFindNearest} />
 
@@ -86,7 +183,7 @@ const MapComponent = ({ stations, onStationSelect, onViewDetails, selectedStatio
                     <Marker
                         key={station.id}
                         position={[station.lat, station.lng]}
-                        icon={createCustomIcon(station.status)}
+                        icon={createCustomIcon(station.status, station.queueStatus)}
                         eventHandlers={{
                             click: () => onStationSelect(station),
                         }}
