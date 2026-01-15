@@ -255,12 +255,12 @@ function App() {
     setReportModalData({ isOpen: true, station });
   };
 
-  const handleReportSubmit = async (status, queueStatus, prices) => {
+  const handleReportSubmit = async (status, queueStatus, prices, availability) => {
     if (!reportModalData.station) return;
 
     try {
       // Optimistic update (optional) or just wait for Firebase
-      await updateStationStatus(reportModalData.station.id, status, queueStatus, prices);
+      await updateStationStatus(reportModalData.station.id, status, queueStatus, prices, availability, user?.uid);
       // Alert? No, real-time listener will update UI.
     } catch (error) {
       console.error("Failed to update status:", error);

@@ -27,9 +27,11 @@ export const subscribeToStations = (onUpdate, onError) => {
     });
 };
 
-// Update a station's status
-export const updateStationStatus = async (stationId, status, queueStatus = null, prices = null) => {
+// Update a station's status and log the report
+export const updateStationStatus = async (stationId, status, queueStatus = null, prices = null, availability = null, userId = null) => {
     const stationRef = doc(db, COLLECTION_NAME, stationId);
+
+    // 1. Prepare Main Station Update
     const updateData = {
         status: status,
         lastUpdated: new Date().toISOString()
@@ -42,13 +44,33 @@ export const updateStationStatus = async (stationId, status, queueStatus = null,
     }
 
     if (prices) {
-        // Merge with existing logic if needed, but for now we overwrite provided keys
-        // valid keys: petrol, diesel, gas
-        updateData.prices = prices; // Object { petrol: 950, diesel: 1200 }
+        updateData.prices = prices;
         updateData.lastPriceUpdate = new Date().toISOString();
     }
 
-    await updateDoc(stationRef, updateData);
+    if (availability) {
+        updateData.availability = availability; // { petrol: true, diesel: false, ... }
+    }
+
+    // 2. Add to Reports Subcollection (Audit History)
+    const reportData = {
+        timestamp: serverTimestamp(),
+        userId: userId || 'anonymous',
+        status,
+        queueStatus,
+        prices,
+        availability,
+        device: 'web'
+    };
+
+    // Perform both writes
+    // We use a batch? Or just await both. For simplicity/speed in this context, await active promise.
+    // Actually, updateDoc for the snapshot users see, addDoc for history.
+
+    await Promise.all([
+        updateDoc(stationRef, updateData),
+        addDoc(collection(db, COLLECTION_NAME, stationId, 'reports'), reportData)
+    ]);
 };
 
 export const formatPrice = (amount) => {

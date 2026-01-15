@@ -2,13 +2,15 @@ import React, { useState, useEffect } from 'react';
 import { X, Fuel, Ban, Check } from 'lucide-react';
 
 const ReportModal = ({ isOpen, onClose, onSubmit, station }) => {
-    const [status, setStatus] = useState(null); // 'active' | 'inactive'
+    const [availability, setAvailability] = useState({ petrol: true, diesel: true, gas: false });
     const [queue, setQueue] = useState('short'); // 'short' | 'medium' | 'long'
     const [prices, setPrices] = useState({ petrol: '', diesel: '', gas: '' });
 
+    // Reset when opening
     useEffect(() => {
         if (isOpen) {
-            setStatus(null);
+            // Default to all active for ease, or maybe just petrol
+            setAvailability({ petrol: true, diesel: true, gas: false });
             setQueue('short');
             setPrices({ petrol: '', diesel: '', gas: '' });
         }
@@ -16,19 +18,28 @@ const ReportModal = ({ isOpen, onClose, onSubmit, station }) => {
 
     if (!isOpen || !station) return null;
 
+    // Derived Status
+    const isAnyFuelAvailable = Object.values(availability).some(v => v);
+    const derivedStatus = isAnyFuelAvailable ? 'active' : 'inactive';
+
     const handleSubmit = () => {
-        if (!status) return;
+        // Prepare prices (only if value exists)
+        const formattedPrices = {};
+        if (prices.petrol) formattedPrices.petrol = parseInt(prices.petrol);
+        if (prices.diesel) formattedPrices.diesel = parseInt(prices.diesel);
+        if (prices.gas) formattedPrices.gas = parseInt(prices.gas);
 
-        if (status === 'inactive') {
-            onSubmit('inactive', null, null);
-        } else {
-            const formattedPrices = {};
-            if (prices.petrol) formattedPrices.petrol = parseInt(prices.petrol);
-            if (prices.diesel) formattedPrices.diesel = parseInt(prices.diesel);
-            if (prices.gas) formattedPrices.gas = parseInt(prices.gas);
+        // Submit derived status + granular availability
+        onSubmit(
+            derivedStatus,
+            derivedStatus === 'active' ? queue : null,
+            Object.keys(formattedPrices).length > 0 ? formattedPrices : null,
+            availability
+        );
+    };
 
-            onSubmit('active', queue, Object.keys(formattedPrices).length > 0 ? formattedPrices : null);
-        }
+    const toggleAvailability = (type) => {
+        setAvailability(prev => ({ ...prev, [type]: !prev[type] }));
     };
 
     return (
@@ -66,43 +77,36 @@ const ReportModal = ({ isOpen, onClose, onSubmit, station }) => {
                     <p style={{ fontSize: '0.9rem', opacity: 0.5 }}>{station.address}</p>
                 </div>
 
-                {/* 1. Availability Selection */}
+                {/* 1. Granular Availability Toggles */}
                 <div style={{ marginBottom: '24px' }}>
-                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', fontSize: '0.9rem' }}>Is fuel available right now?</label>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px' }}>
-                        <button
-                            onClick={() => setStatus('active')}
-                            style={{
-                                padding: '16px', borderRadius: '12px',
-                                border: status === 'active' ? '2px solid var(--color-active)' : '1px solid var(--glass-border)',
-                                background: status === 'active' ? 'rgba(34, 197, 94, 0.1)' : 'rgba(255,255,255,0.05)',
-                                color: status === 'active' ? 'var(--color-active)' : 'white',
-                                cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px',
-                                transition: 'all 0.2s'
-                            }}
-                        >
-                            <Fuel size={24} />
-                            <span style={{ fontWeight: '600' }}>Yes, Selling</span>
-                        </button>
-                        <button
-                            onClick={() => setStatus('inactive')}
-                            style={{
-                                padding: '16px', borderRadius: '12px',
-                                border: status === 'inactive' ? '2px solid var(--color-inactive)' : '1px solid var(--glass-border)',
-                                background: status === 'inactive' ? 'rgba(239, 68, 68, 0.1)' : 'rgba(255,255,255,0.05)',
-                                color: status === 'inactive' ? 'var(--color-inactive)' : 'white',
-                                cursor: 'pointer', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '8px',
-                                transition: 'all 0.2s'
-                            }}
-                        >
-                            <Ban size={24} />
-                            <span style={{ fontWeight: '600' }}>No Fuel</span>
-                        </button>
+                    <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', fontSize: '0.9rem' }}>What is available?</label>
+                    <div style={{ display: 'flex', gap: '10px' }}>
+                        {['petrol', 'diesel', 'gas'].map(type => (
+                            <button
+                                key={type}
+                                onClick={() => toggleAvailability(type)}
+                                style={{
+                                    flex: 1,
+                                    padding: '12px',
+                                    borderRadius: '8px',
+                                    border: availability[type] ? '1px solid var(--color-active)' : '1px solid var(--glass-border)',
+                                    background: availability[type] ? 'rgba(34, 197, 94, 0.15)' : 'rgba(255,255,255,0.05)',
+                                    color: availability[type] ? 'var(--color-active)' : 'rgba(255,255,255,0.5)',
+                                    fontWeight: availability[type] ? 'bold' : 'normal',
+                                    cursor: 'pointer',
+                                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '4px',
+                                    transition: 'all 0.2s'
+                                }}
+                            >
+                                <span style={{ textTransform: 'capitalize' }}>{type}</span>
+                                {availability[type] ? <Check size={16} /> : <Ban size={16} />}
+                            </button>
+                        ))}
                     </div>
                 </div>
 
                 {/* 2. Details Form (Only if Active) */}
-                {status === 'active' && (
+                {derivedStatus === 'active' ? (
                     <div style={{ animation: 'fadeIn 0.3s ease' }}>
                         <hr style={{ border: 'none', borderTop: '1px solid rgba(255,255,255,0.1)', margin: '20px 0' }} />
 
@@ -130,16 +134,17 @@ const ReportModal = ({ isOpen, onClose, onSubmit, station }) => {
 
                         {/* Prices */}
                         <div style={{ marginBottom: '24px' }}>
-                            <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', fontSize: '0.9rem' }}>Update Prices (Optional)</label>
+                            <label style={{ display: 'block', marginBottom: '8px', fontWeight: '500', fontSize: '0.9rem' }}>Current Prices (Optional)</label>
                             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '8px' }}>
                                 <div>
                                     <label style={{ fontSize: '0.7rem', opacity: 0.6, display: 'block', marginBottom: '4px' }}>Petrol</label>
                                     <input
                                         type="number"
                                         placeholder="₦"
+                                        disabled={!availability.petrol}
                                         value={prices.petrol}
                                         onChange={(e) => setPrices({ ...prices, petrol: e.target.value })}
-                                        style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid var(--glass-border)', background: 'rgba(0,0,0,0.3)', color: 'white', fontSize: '0.9rem' }}
+                                        style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid var(--glass-border)', background: availability.petrol ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.5)', opacity: availability.petrol ? 1 : 0.3, color: 'white', fontSize: '0.9rem' }}
                                     />
                                 </div>
                                 <div>
@@ -147,9 +152,10 @@ const ReportModal = ({ isOpen, onClose, onSubmit, station }) => {
                                     <input
                                         type="number"
                                         placeholder="₦"
+                                        disabled={!availability.diesel}
                                         value={prices.diesel}
                                         onChange={(e) => setPrices({ ...prices, diesel: e.target.value })}
-                                        style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid var(--glass-border)', background: 'rgba(0,0,0,0.3)', color: 'white', fontSize: '0.9rem' }}
+                                        style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid var(--glass-border)', background: availability.diesel ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.5)', opacity: availability.diesel ? 1 : 0.3, color: 'white', fontSize: '0.9rem' }}
                                     />
                                 </div>
                                 <div>
@@ -157,28 +163,32 @@ const ReportModal = ({ isOpen, onClose, onSubmit, station }) => {
                                     <input
                                         type="number"
                                         placeholder="₦"
+                                        disabled={!availability.gas}
                                         value={prices.gas}
                                         onChange={(e) => setPrices({ ...prices, gas: e.target.value })}
-                                        style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid var(--glass-border)', background: 'rgba(0,0,0,0.3)', color: 'white', fontSize: '0.9rem' }}
+                                        style={{ width: '100%', padding: '8px', borderRadius: '6px', border: '1px solid var(--glass-border)', background: availability.gas ? 'rgba(0,0,0,0.3)' : 'rgba(0,0,0,0.5)', opacity: availability.gas ? 1 : 0.3, color: 'white', fontSize: '0.9rem' }}
                                     />
                                 </div>
                             </div>
                         </div>
                     </div>
+                ) : (
+                    <div style={{ padding: '20px', textAlign: 'center', opacity: 0.5, border: '1px dashed var(--glass-border)', borderRadius: '8px', marginBottom: '20px' }}>
+                        Station will be marked as <strong>Inactive (No Fuel)</strong>.
+                    </div>
                 )}
 
                 <button
-                    disabled={!status}
                     onClick={handleSubmit}
                     className="btn btn-primary"
                     style={{
                         width: '100%', padding: '14px',
-                        opacity: !status ? 0.5 : 1,
-                        cursor: !status ? 'not-allowed' : 'pointer',
-                        justifyContent: 'center', fontWeight: 'bold'
+                        justifyContent: 'center', fontWeight: 'bold',
+                        background: derivedStatus === 'active' ? 'var(--color-active)' : 'var(--color-inactive)',
+                        color: derivedStatus === 'active' ? 'black' : 'white'
                     }}
                 >
-                    {status ? 'Submit Report' : 'Select Availability First'}
+                    {derivedStatus === 'active' ? 'Submit Active Update' : 'Report No Fuel'}
                 </button>
 
             </div>
