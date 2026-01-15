@@ -57,49 +57,7 @@ function App() {
     searchQuery: ''
   });
 
-  // Calculate distances for all stations whenever location or stations change
-  const stationsWithDistance = React.useMemo(() => {
-    if (!stations) return [];
-    if (!userLocation) return stations;
 
-    const { lat, lng } = userLocation;
-    const R = 6371; // Earth radius in km
-
-    return stations.map(station => {
-      if (!station.lat || !station.lng) return { ...station, distance: Infinity };
-
-      const dLat = (station.lat - lat) * (Math.PI / 180);
-      const dLon = (station.lng - lng) * (Math.PI / 180);
-      const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-        Math.cos(lat * (Math.PI / 180)) * Math.cos(station.lat * (Math.PI / 180)) *
-        Math.sin(dLon / 2) * Math.sin(dLon / 2);
-      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-      const d = R * c;
-      return { ...station, distance: d };
-    });
-  }, [stations, userLocation]);
-
-
-  // Filter Logic (now using stationsWithDistance)
-  const filteredStations = stationsWithDistance.filter(station => {
-    // 1. Status Filter
-    if (filters.status !== 'all' && station.status !== filters.status) return false;
-
-    // 2. Fuel Type Filter
-    if (filters.fuelType !== 'all') {
-      if (!station.prices || !station.prices[filters.fuelType]) return false;
-    }
-
-    // 3. Search Query
-    if (filters.searchQuery) {
-      const query = filters.searchQuery.toLowerCase();
-      const name = (station.name || '').toLowerCase();
-      const address = (station.address || '').toLowerCase();
-      if (!name.includes(query) && !address.includes(query)) return false;
-    }
-
-    return true;
-  });
 
   // Listen for auth changes
   useEffect(() => {
@@ -414,6 +372,51 @@ function App() {
       findAndSelectNearest(userLocation, stations);
     }
   };
+
+
+  // Calculate distances for all stations whenever location or stations change
+  const stationsWithDistance = React.useMemo(() => {
+    if (!stations) return [];
+    if (!userLocation) return stations;
+
+    const { lat, lng } = userLocation;
+    const R = 6371; // Earth radius in km
+
+    return stations.map(station => {
+      if (!station.lat || !station.lng) return { ...station, distance: Infinity };
+
+      const dLat = (station.lat - lat) * (Math.PI / 180);
+      const dLon = (station.lng - lng) * (Math.PI / 180);
+      const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(lat * (Math.PI / 180)) * Math.cos(station.lat * (Math.PI / 180)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      const d = R * c;
+      return { ...station, distance: d };
+    });
+  }, [stations, userLocation]);
+
+
+  // Filter Logic (now using stationsWithDistance)
+  const filteredStations = stationsWithDistance.filter(station => {
+    // 1. Status Filter
+    if (filters.status !== 'all' && station.status !== filters.status) return false;
+
+    // 2. Fuel Type Filter
+    if (filters.fuelType !== 'all') {
+      if (!station.prices || !station.prices[filters.fuelType]) return false;
+    }
+
+    // 3. Search Query
+    if (filters.searchQuery) {
+      const query = filters.searchQuery.toLowerCase();
+      const name = (station.name || '').toLowerCase();
+      const address = (station.address || '').toLowerCase();
+      if (!name.includes(query) && !address.includes(query)) return false;
+    }
+
+    return true;
+  });
 
   // Dev Mode State
   const [isDevMode, setIsDevMode] = useState(false);
