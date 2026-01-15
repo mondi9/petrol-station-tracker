@@ -76,7 +76,34 @@ const StationList = ({ stations, onSelect, onViewDetails, selectedStationId, onI
                     }}
                 />
 
-                <div style={{ marginTop: '16px' }}>
+                <div style={{ display: 'flex', gap: '8px', marginTop: '12px', overflowX: 'auto', paddingBottom: '4px' }}>
+                    {/* Sort Controls */}
+                    {[
+                        { id: 'distance', label: '📍 Nearest' },
+                        { id: 'price', label: '💰 Cheapest' },
+                        { id: 'queue', label: '⏱️ Fastest' }
+                    ].map(opt => (
+                        <button
+                            key={opt.id}
+                            onClick={() => setSortBy(opt.id)}
+                            style={{
+                                flex: 1,
+                                padding: '6px 12px',
+                                fontSize: '0.8rem',
+                                borderRadius: '20px',
+                                border: sortBy === opt.id ? '1px solid var(--color-active)' : '1px solid var(--glass-border)',
+                                background: sortBy === opt.id ? 'rgba(34, 197, 94, 0.1)' : 'transparent',
+                                color: sortBy === opt.id ? 'var(--color-active)' : 'rgba(255,255,255,0.7)',
+                                cursor: 'pointer',
+                                whiteSpace: 'nowrap'
+                            }}
+                        >
+                            {opt.label}
+                        </button>
+                    ))}
+                </div>
+
+                <div style={{ marginTop: '12px' }}>
                     <FilterBar filters={filters} onFilterChange={onFilterChange} />
                 </div>
             </div>
