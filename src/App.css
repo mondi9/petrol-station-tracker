@@ -48,28 +48,63 @@
 
 /* Mobile Layout (Tablets and Phones) */
 @media (max-width: 768px) {
+
+    /* Mobile Layout: Full Screen Toggle */
     .app-container {
-        flex-direction: column-reverse;
-        /* Sidebar at bottom, Map at top */
+        flex-direction: column;
+        /* Sidebar and Map utilize absolute positioning or full flex depending on view */
     }
 
     .sidebar {
         width: 100%;
-        height: 65vh;
-        /* Increased from 50vh */
+        height: 100%;
         border-right: none;
-        border-top: 1px solid var(--glass-border);
-        border-radius: 20px 20px 0 0;
-        box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.3);
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 600;
+        /* Above map */
+        border-radius: 0;
+        display: none;
+        /* Hidden by default if map is active */
+    }
+
+    .sidebar.visible {
+        display: flex;
     }
 
     .map-container-wrapper {
-        height: 35vh;
-        /* Reduced from 50vh */
+        height: 100%;
+        width: 100%;
         flex: none;
+        position: absolute;
+        top: 0;
+        left: 0;
+        z-index: 400;
     }
 
     /* Adjust modal padding for mobile */
+    .glass-panel {
+        max-width: 95% !important;
+        padding: 20px !important;
+    }
+
+    /* Hide map when list is explicitly active?
+       Actually, keep map rendered in background to avoid re-render cost/flashing.
+       Sidebar z-index 600 covers it.
+    */
+    .mobile-hidden {
+        /* If we wanted to hide map completely: display: none; */
+        /* But simple z-index is likely enough if sidebar covers it. */
+    }
+
+    /* Show Toggle Button */
+    .mobile-toggle-btn {
+        display: flex !important;
+    }
+
+    /* Adjust modal padding for mobile */
+
     .glass-panel {
         max-width: 95% !important;
         padding: 20px !important;

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import './App.css';
+import { Map, List } from 'lucide-react'; // Import icons for FAB
 import MapComponent from './components/MapContainer';
 import StationList from './components/StationList';
 import ReportModal from './components/ReportModal';
@@ -43,6 +44,9 @@ function App() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isAddStationModalOpen, setIsAddStationModalOpen] = useState(false);
   const [isAdminDashboardOpen, setIsAdminDashboardOpen] = useState(false);
+
+  // Mobile View State
+  const [viewMode, setViewMode] = useState('map'); // 'map' | 'list'
 
   // ... existing hooks ...
 
@@ -256,6 +260,10 @@ function App() {
 
   const handleStationSelect = (station) => {
     setSelectedStation(station);
+    // On mobile, switch to map view when selecting from list
+    if (window.innerWidth <= 768) {
+      setViewMode('map');
+    }
   };
 
   const handleViewDetails = (station) => {
@@ -392,47 +400,69 @@ function App() {
 
   return (
     <div className="app-container">
-      <StationList
-        stations={filteredStations}
-        onSelect={handleStationSelect}
-        onViewDetails={handleViewDetails}
-        selectedStationId={activeSelectedStation?.id}
-        onImport={handleImportOSM}
-        onFixAddresses={handleFixAddresses}
-        onRestore={handleRestoreMissing}
-        importStatus={importStatus}
-        user={appUser}
-        onLogin={() => setIsAuthModalOpen(true)}
-        onLogout={handleLogout}
-        onAddStation={() => setIsAddStationModalOpen(true)}
-        onOpenAdminDashboard={() => setIsAdminDashboardOpen(true)}
+      {/* Sidebar (List View) */}
+      <div className={`sidebar ${viewMode === 'list' ? 'visible' : ''}`}>
+        <StationList
+          stations={filteredStations}
+          onSelect={handleStationSelect}
+          onViewDetails={handleViewDetails}
+          selectedStationId={activeSelectedStation?.id}
+          onImport={handleImportOSM}
+          onFixAddresses={handleFixAddresses}
+          onRestore={handleRestoreMissing}
+          importStatus={importStatus}
+          user={appUser}
+          onLogin={() => setIsAuthModalOpen(true)}
+          onLogout={handleLogout}
+          onAddStation={() => setIsAddStationModalOpen(true)}
+          onOpenAdminDashboard={() => setIsAdminDashboardOpen(true)}
 
-        // Filter Props
-        filters={filters}
-        onFilterChange={setFilters}
-      />
+          // Filter Props
+          filters={filters}
+          onFilterChange={setFilters}
+        />
+      </div>
 
-      {/* Dev Mode Toggle */}
+      {/* Mobile Toggle FAB */}
       <button
-        onClick={() => setIsDevMode(!isDevMode)}
+        className="mobile-toggle-btn"
+        onClick={() => setViewMode(viewMode === 'map' ? 'list' : 'map')}
         style={{
-          position: 'fixed',
-          bottom: '10px',
-          right: '10px',
-          background: isDevMode ? 'red' : 'rgba(0,0,0,0.5)',
-          color: 'white',
-          border: 'none',
-          fontSize: '10px',
-          padding: '5px',
-          borderRadius: '4px',
-          zIndex: 9999,
+          position: 'fixed', bottom: '24px', left: '50%', transform: 'translateX(-50%)',
+          zIndex: 900,
+          display: 'none', // Hidden on desktop via CSS 
+          alignItems: 'center', gap: '8px',
+          padding: '12px 24px', borderRadius: '30px',
+          background: 'var(--color-active)', color: 'black',
+          border: 'none', fontWeight: 'bold', boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
           cursor: 'pointer'
         }}
       >
-        {isDevMode ? "DEV ADMIN ON" : "Dev Mode"}
+        {viewMode === 'map' ? <><List size={18} /> List</> : <><Map size={18} /> Map</>}
       </button>
 
-      <div className="map-container-wrapper">
+      {/* Map Container */}
+      <div className={`map-container-wrapper ${viewMode === 'list' ? 'mobile-hidden' : ''}`}>
+        {/* Dev Mode Toggle */}
+        <button
+          onClick={() => setIsDevMode(!isDevMode)}
+          style={{
+            position: 'fixed',
+            bottom: '10px',
+            right: '10px',
+            background: isDevMode ? 'red' : 'rgba(0,0,0,0.5)',
+            color: 'white',
+            border: 'none',
+            fontSize: '10px',
+            padding: '5px',
+            borderRadius: '4px',
+            zIndex: 9999,
+            cursor: 'pointer'
+          }}
+        >
+          {isDevMode ? "DEV ADMIN ON" : "Dev Mode"}
+        </button>
+
         {isLoading && (
           <div style={{
             position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%, -50%)',
@@ -453,7 +483,7 @@ function App() {
         />
       </div>
 
-      {/* Details Modal with Reviews */}
+      {/* Modals & Overlays */}
       <StationDetailsModal
         isOpen={!!viewingStation}
         onClose={() => setViewingStation(null)}
