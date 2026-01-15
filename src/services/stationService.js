@@ -1,5 +1,5 @@
 import { db } from './firebase';
-import { collection, onSnapshot, doc, updateDoc, setDoc, query, addDoc, serverTimestamp, getDocs, where } from 'firebase/firestore';
+import { collection, onSnapshot, doc, updateDoc, setDoc, query, addDoc, serverTimestamp, getDocs, where, arrayUnion, arrayRemove } from 'firebase/firestore';
 
 const COLLECTION_NAME = 'stations';
 
@@ -32,9 +32,12 @@ export const updateStationStatus = async (stationId, status, queueStatus = null,
     const stationRef = doc(db, COLLECTION_NAME, stationId);
 
     // 1. Prepare Main Station Update
+    // RESET confirmations and flags on new status update
     const updateData = {
         status: status,
-        lastUpdated: new Date().toISOString()
+        lastUpdated: new Date().toISOString(),
+        confirmations: userId ? [userId] : [], // Reporter confirms their own report
+        flags: []
     };
 
     if (queueStatus) {
@@ -204,5 +207,27 @@ export const getLiveVisitors = async (stationId) => {
     } catch (e) {
         console.error("Error active visitors:", e);
         return 0;
+    }
+};
+/**
+ * Verifies or flags a station report.
+ * @param {string} stationId 
+ * @param {'confirm' | 'flag'} type 
+ * @param {string} userId 
+ */
+export const verifyStation = async (stationId, type, userId) => {
+    if (!userId) return; // Must be logged in
+    const stationRef = doc(db, COLLECTION_NAME, stationId);
+
+    if (type === 'confirm') {
+        await updateDoc(stationRef, {
+            confirmations: arrayUnion(userId),
+            flags: arrayRemove(userId)
+        });
+    } else {
+        await updateDoc(stationRef, {
+            flags: arrayUnion(userId),
+            confirmations: arrayRemove(userId)
+        });
     }
 };

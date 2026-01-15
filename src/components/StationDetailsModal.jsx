@@ -3,7 +3,9 @@ import { X, MapPin, Clock, Navigation } from 'lucide-react';
 import ReviewList from './ReviewList';
 import AddReviewModal from './AddReviewModal';
 import { addReview } from '../services/reviewService';
-import { formatTimeAgo, formatPrice } from '../services/stationService';
+import { addReview } from '../services/reviewService';
+import { formatTimeAgo, formatPrice, verifyStation } from '../services/stationService';
+import { CheckCircle, AlertTriangle, ThumbsUp, ThumbsDown } from 'lucide-react';
 
 const StationDetailsModal = ({ isOpen, onClose, station, user, onLoginRequest, userLocation }) => {
     const [isReviewOpen, setIsReviewOpen] = useState(false);
@@ -12,8 +14,23 @@ const StationDetailsModal = ({ isOpen, onClose, station, user, onLoginRequest, u
 
     const handleAddReview = async (data) => {
         await addReview(station.id, data, user);
-        // ReviewList will auto-update via subscription
     };
+
+    const handleVerify = async (type) => {
+        if (!user) {
+            onLoginRequest();
+            return;
+        }
+        await verifyStation(station.id, type, user.uid);
+    };
+
+    const confirmCount = station.confirmations?.length || 0;
+    const flagCount = station.flags?.length || 0;
+    const isVerified = confirmCount >= 5;
+    const isDisputed = flagCount >= 3 && flagCount > confirmCount;
+    // Check if current user has already voted
+    const hasConfirmed = user && station.confirmations?.includes(user.uid);
+    const hasFlagged = user && station.flags?.includes(user.uid);
 
     const handleWriteReviewClick = () => {
         if (!user) {
@@ -107,6 +124,52 @@ const StationDetailsModal = ({ isOpen, onClose, station, user, onLoginRequest, u
                             <X size={28} />
                         </button>
                     </div>
+
+                    {/* Verification Section */}
+                    {station.status === 'active' && (
+                        <div style={{ padding: '16px 24px', background: 'rgba(255,255,255,0.03)', borderBottom: '1px solid var(--glass-border)' }}>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                                <div>
+                                    <h4 style={{ margin: 0, fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                        Is this status accurate?
+                                        {isVerified && <span style={{ color: '#4ade80', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(34, 197, 94, 0.1)', padding: '2px 6px', borderRadius: '4px' }}><CheckCircle size={12} /> Verified</span>}
+                                        {isDisputed && <span style={{ color: '#ef4444', fontSize: '0.75rem', display: 'flex', alignItems: 'center', gap: '4px', background: 'rgba(239, 68, 68, 0.1)', padding: '2px 6px', borderRadius: '4px' }}><AlertTriangle size={12} /> Disputed</span>}
+                                    </h4>
+                                    <p style={{ margin: '4px 0 0', fontSize: '0.75rem', opacity: 0.5 }}>Help the community by verifying this report.</p>
+                                </div>
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                    <button
+                                        onClick={() => handleVerify('confirm')}
+                                        disabled={hasConfirmed}
+                                        style={{
+                                            display: 'flex', alignItems: 'center', gap: '6px',
+                                            padding: '8px 12px', borderRadius: '20px',
+                                            border: hasConfirmed ? '1px solid var(--color-active)' : '1px solid var(--glass-border)',
+                                            background: hasConfirmed ? 'rgba(34, 197, 94, 0.2)' : 'transparent',
+                                            color: hasConfirmed ? 'var(--color-active)' : 'rgba(255,255,255,0.7)',
+                                            cursor: hasConfirmed ? 'default' : 'pointer'
+                                        }}
+                                    >
+                                        <ThumbsUp size={14} /> Confirm <span style={{ opacity: 0.5, fontSize: '0.8rem' }}>{confirmCount}</span>
+                                    </button>
+                                    <button
+                                        onClick={() => handleVerify('flag')}
+                                        disabled={hasFlagged}
+                                        style={{
+                                            display: 'flex', alignItems: 'center', gap: '6px',
+                                            padding: '8px 12px', borderRadius: '20px',
+                                            border: hasFlagged ? '1px solid #ef4444' : '1px solid var(--glass-border)',
+                                            background: hasFlagged ? 'rgba(239, 68, 68, 0.2)' : 'transparent',
+                                            color: hasFlagged ? '#ef4444' : 'rgba(255,255,255,0.7)',
+                                            cursor: hasFlagged ? 'default' : 'pointer'
+                                        }}
+                                    >
+                                        <ThumbsDown size={14} /> Flag <span style={{ opacity: 0.5, fontSize: '0.8rem' }}>{flagCount}</span>
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
 
                     {/* Actions Row */}
                     <div style={{ padding: '16px 24px', display: 'flex', gap: '12px', borderBottom: '1px solid var(--glass-border)', background: 'rgba(0,0,0,0.1)' }}>
