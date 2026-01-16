@@ -28,51 +28,57 @@ export const subscribeToStations = (onUpdate, onError) => {
 };
 
 // Update a station's status and log the report
-export const updateStationStatus = async (stationId, status, queueStatus = null, prices = null, availability = null, userId = null) => {
+export const updateStationStatus = async (stationId, reportData, userId = null) => {
     const stationRef = doc(db, COLLECTION_NAME, stationId);
+    // reportData = { fuelType, availability, queueLength, price, reporterName }
 
     // 1. Prepare Main Station Update
-    // RESET confirmations and flags on new status update
-    const updateData = {
-        status: status,
+    // We update the specific availability for the reported fuel type.
+    // Logic: If 'availability' is 'empty', we set that fuel to false/empty? 
+    // Previous schema was { petrol: true/false }. New schema needs 'available' | 'low' | 'empty'.
+    // Let's migrate/adapt the schema on the fly.
+    // 'availablity' field in DB will now be { petrol: 'available', diesel: 'low', ... } instead of boolean?
+    // Or we keep simple boolean for 'active' filter but add 'statusDetails'?
+    // Let's go with a robust nested update.
+
+    // We will use dot notation for nested updates to avoid overwriting other fields
+    // e.g. "availability.petrol": "low"
+
+    const updatePayload = {
         lastUpdated: new Date().toISOString(),
-        confirmations: userId ? [userId] : [], // Reporter confirms their own report
+        [`availability.${reportData.fuelType}`]: reportData.availability, // 'available' | 'low' | 'empty'
+        [`queue.${reportData.fuelType}`]: reportData.queueLength,
+        confirmations: userId ? [userId] : [],
         flags: []
     };
 
-    if (queueStatus) {
-        updateData.queueStatus = queueStatus;
-    } else if (status === 'inactive') {
-        updateData.queueStatus = null;
+    // Update overall station status
+    // If ANY fuel is available or low, station is 'active'. If ALL are empty, 'inactive'.
+    // Since we don't know the others without reading, we optimistically set to 'active' if this report is 'available'/'low'.
+    if (reportData.availability !== 'empty') {
+        updatePayload.status = 'active';
     }
+    // If report is 'empty', we might flip to inactive if others are known empty? 
+    // For now, let's keep it simple: If submitting a positive report, ensure active.
 
-    if (prices) {
-        updateData.prices = prices;
-        updateData.lastPriceUpdate = new Date().toISOString();
-    }
-
-    if (availability) {
-        updateData.availability = availability; // { petrol: true, diesel: false, ... }
+    // Update Price if provided
+    if (reportData.price) {
+        updatePayload[`prices.${reportData.fuelType}`] = reportData.price;
+        updatePayload.lastPriceUpdate = new Date().toISOString();
     }
 
     // 2. Add to Reports Subcollection (Audit History)
-    const reportData = {
+    const historyData = {
         timestamp: serverTimestamp(),
         userId: userId || 'anonymous',
-        status,
-        queueStatus,
-        prices,
-        availability,
+        ...reportData,
         device: 'web'
     };
 
-    // Perform both writes
-    // We use a batch? Or just await both. For simplicity/speed in this context, await active promise.
-    // Actually, updateDoc for the snapshot users see, addDoc for history.
-
+    // Perform writes
     await Promise.all([
-        updateDoc(stationRef, updateData),
-        addDoc(collection(db, COLLECTION_NAME, stationId, 'reports'), reportData)
+        updateDoc(stationRef, updatePayload),
+        addDoc(collection(db, COLLECTION_NAME, stationId, 'reports'), historyData)
     ]);
 };
 
