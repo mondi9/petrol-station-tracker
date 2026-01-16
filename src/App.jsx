@@ -12,9 +12,12 @@ import { importLagosStationsV3, enrichStationData } from './services/osmService'
 import { subscribeToAuth, logout } from './services/authService';
 import { grantAdminRole } from './services/userService';
 import AuthModal from './components/AuthModal';
+import UserProfileModal from './components/UserProfileModal';
+import MobileBottomNav from './components/MobileBottomNav';
 import AddStationModal from './components/AddStationModal';
 import StationDetailsModal from './components/StationDetailsModal';
 import AdminDashboard from './components/AdminDashboard';
+import FleetDashboard from './components/FleetDashboard';
 
 // Temporary Initial Data for Seeding
 const INITIAL_DATA_SEED = [
@@ -38,12 +41,15 @@ function App() {
   const [viewingStation, setViewingStation] = useState(null);
   const [reportModalData, setReportModalData] = useState({ isOpen: false, station: null });
   const [isLoading, setIsLoading] = useState(true);
+  const [isLocating, setIsLocating] = useState(false);
 
   // Auth State
   const [user, setUser] = useState(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isAddStationModalOpen, setIsAddStationModalOpen] = useState(false);
   const [isAdminDashboardOpen, setIsAdminDashboardOpen] = useState(false);
+  const [isFleetDashboardOpen, setIsFleetDashboardOpen] = useState(false);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
   // Mobile View State
   const [viewMode, setViewMode] = useState('map'); // 'map' | 'list'
@@ -287,10 +293,10 @@ function App() {
             lng: position.coords.longitude
           };
           setUserLocation(loc);
-          // Auto-route only if we have stations loaded
-          if (stations.length > 0) {
-            findAndSelectNearest(loc, stations);
-          }
+          // Auto-route disabled per user request to make the button more useful
+          // if (stations.length > 0) {
+          //   findAndSelectNearest(loc, stations);
+          // }
         },
         (error) => {
           console.log("Auto-location failed, using default for demo:", error);
@@ -360,13 +366,19 @@ function App() {
         alert("Geolocation not supported");
         return;
       }
+      setIsLocating(true);
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           const loc = { lat: pos.coords.latitude, lng: pos.coords.longitude };
           setUserLocation(loc);
           findAndSelectNearest(loc, stations);
+          setIsLocating(false);
         },
-        (err) => alert("Location access denied")
+        (err) => {
+          alert("Location access denied or unavailable.");
+          setIsLocating(false);
+        },
+        { timeout: 10000, enableHighAccuracy: true }
       );
     } else {
       findAndSelectNearest(userLocation, stations);
@@ -443,29 +455,31 @@ function App() {
           onAddStation={() => setIsAddStationModalOpen(true)}
           onOpenAdminDashboard={() => setIsAdminDashboardOpen(true)}
 
+          /* Custom Prop Injection for Fleet Dashboard Button (if StationList supported it) */
+          /* Since StationList doesn't support 'onOpenFleetDashboard' prop yet, 
+             we will rely on a temporary button in App.jsx or update StationList.
+             Let's update StationList to accept 'onOpenFleetDashboard' and show it for admins/devs.
+          */
+          onOpenFleetDashboard={() => setIsFleetDashboardOpen(true)}
+
+          /* User Profile */
+          onOpenProfile={() => setIsProfileModalOpen(true)} // StationList updated next to use this
+
           // Filter Props
           filters={filters}
           onFilterChange={setFilters}
         />
       </div>
 
-      {/* Mobile Toggle FAB */}
-      <button
-        className="mobile-toggle-btn"
-        onClick={() => setViewMode(viewMode === 'map' ? 'list' : 'map')}
-        style={{
-          position: 'fixed', bottom: '24px', left: '50%', transform: 'translateX(-50%)',
-          zIndex: 900,
-          display: 'none', // Hidden on desktop via CSS 
-          alignItems: 'center', gap: '8px',
-          padding: '12px 24px', borderRadius: '30px',
-          background: 'var(--color-active)', color: 'black',
-          border: 'none', fontWeight: 'bold', boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
-          cursor: 'pointer'
-        }}
-      >
-        {viewMode === 'map' ? <><List size={18} /> List</> : <><Map size={18} /> Map</>}
-      </button>
+      {/* Mobile Bottom Navigation (Previously FAB) */}
+      <div className="mobile-only">
+        <MobileBottomNav
+          viewMode={viewMode}
+          setViewMode={setViewMode}
+          onOpenFleet={() => setIsFleetDashboardOpen(true)}
+          onOpenProfile={() => setIsProfileModalOpen(true)}
+        />
+      </div>
 
       {/* Map Container */}
       <div className={`map-container-wrapper ${viewMode === 'list' ? 'mobile-hidden' : ''}`}>
@@ -506,8 +520,17 @@ function App() {
           onReportClick={handleReportClick}
           onFindNearest={handleFindNearest}
           userLocation={userLocation}
+          isLocating={isLocating}
         />
       </div>
+
+      {/* Fleet Dashboard Overlay */}
+      {isFleetDashboardOpen && (
+        <FleetDashboard
+          stations={stations}
+          onClose={() => setIsFleetDashboardOpen(false)}
+        />
+      )}
 
       {/* Modals & Overlays */}
       <StationDetailsModal
@@ -529,6 +552,13 @@ function App() {
       <AuthModal
         isOpen={isAuthModalOpen}
         onClose={() => setIsAuthModalOpen(false)}
+      />
+
+      <UserProfileModal
+        isOpen={isProfileModalOpen}
+        onClose={() => setIsProfileModalOpen(false)}
+        user={user}
+        stats={{ contributions: 12, reviews: 5 }} // Mock stats for demo
       />
 
       <AddStationModal

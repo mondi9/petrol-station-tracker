@@ -151,7 +151,7 @@ const RoutingController = ({ selectedStation, userLocation }) => {
     ) : null;
 };
 
-const MapComponent = ({ stations, onStationSelect, onViewDetails, selectedStation, onReportClick, onFindNearest, userLocation }) => {
+const MapComponent = ({ stations, onStationSelect, onViewDetails, selectedStation, onReportClick, onFindNearest, userLocation, isLocating }) => {
     const position = [6.5244, 3.3792]; // Default Lagos center
 
     return (
@@ -176,8 +176,6 @@ const MapComponent = ({ stations, onStationSelect, onViewDetails, selectedStatio
                     url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
                 />
                 <RoutingController selectedStation={selectedStation} userLocation={userLocation} />
-
-                <LocationButton onFindNearest={onFindNearest} />
 
                 {stations.map(station => (
                     <Marker
@@ -226,45 +224,58 @@ const MapComponent = ({ stations, onStationSelect, onViewDetails, selectedStatio
                     </Marker>
                 ))}
             </MapContainer>
+
+            <LocationButton onFindNearest={onFindNearest} isLocating={isLocating} />
         </div>
     );
 };
 
-const LocationButton = ({ onFindNearest }) => {
-    const map = useMap();
-
-    const handleNearMe = () => {
-        if (!navigator.geolocation) {
-            alert("Geolocation is not supported by your browser");
-            return;
-        }
-
-        navigator.geolocation.getCurrentPosition(
-            (position) => {
-                const { latitude, longitude } = position.coords;
-                map.flyTo([latitude, longitude], 14, { duration: 1.5 });
-            },
-            () => {
-                alert("Unable to retrieve your location");
-            }
-        );
-    };
-
+const LocationButton = ({ onFindNearest, isLocating }) => {
     return (
         <div style={{ position: 'absolute', bottom: '24px', right: '24px', zIndex: 1000, display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <button
-                onClick={onFindNearest}
+                onClick={(e) => {
+                    e.stopPropagation();
+                    if (!isLocating) onFindNearest();
+                }}
                 className="glass-panel"
                 style={{
                     width: '48px', height: '48px', borderRadius: '50%',
-                    background: 'var(--color-active)', color: 'black', border: 'none',
+                    background: isLocating ? 'var(--bg-secondary)' : 'var(--color-active)',
+                    color: isLocating ? 'var(--text-secondary)' : 'black',
+                    border: 'none',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    cursor: 'pointer', boxShadow: '0 4px 12px rgba(0,0,0,0.5)'
+                    cursor: isLocating ? 'wait' : 'pointer',
+                    boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
+                    transition: 'all 0.3s ease',
+                    animation: isLocating ? 'spin 1s linear infinite' : 'pulse-attention 1.5s infinite'
                 }}
                 title="Find Nearest Station"
+                disabled={isLocating}
             >
-                <Navigation size={24} fill="black" />
+                {isLocating ? (
+                    <div className="spinner" style={{
+                        width: '20px', height: '20px',
+                        border: '2px solid rgba(255,255,255,0.3)',
+                        borderTop: '2px solid white',
+                        borderRadius: '50%',
+                        animation: 'spin 1s linear infinite'
+                    }} />
+                ) : (
+                    <Navigation size={24} fill="currentColor" />
+                )}
             </button>
+            <style>{`
+                @keyframes spin {
+                    0% { transform: rotate(0deg); }
+                    100% { transform: rotate(360deg); }
+                }
+                @keyframes pulse-attention {
+                    0% { transform: scale(1); box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+                    50% { transform: scale(1.15); box-shadow: 0 0 25px var(--color-active-glow); }
+                    100% { transform: scale(1); box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+                }
+            `}</style>
         </div>
     );
 };
