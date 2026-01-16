@@ -71,6 +71,19 @@
 
     .sidebar.visible {
         display: flex;
+        animation: fadeIn 0.3s ease-in-out;
+    }
+
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(10px);
+        }
+
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
     }
 
     .map-container-wrapper {
@@ -89,14 +102,7 @@
         padding: 20px !important;
     }
 
-    /* Hide map when list is explicitly active?
-       Actually, keep map rendered in background to avoid re-render cost/flashing.
-       Sidebar z-index 600 covers it.
-    */
-    .mobile-hidden {
-        /* If we wanted to hide map completely: display: none; */
-        /* But simple z-index is likely enough if sidebar covers it. */
-    }
+
 
     /* Mobile Bottom Nav Visibility */
     .mobile-only {

@@ -185,7 +185,7 @@ const StationDetailsModal = ({ isOpen, onClose, station, user, onLoginRequest, u
                     )}
 
                     {/* Actions Row */}
-                    <div style={{ padding: '16px 24px', display: 'flex', gap: '12px', borderBottom: '1px solid var(--glass-border)', background: 'rgba(0,0,0,0.1)' }}>
+                    <div style={{ padding: '16px 24px', display: 'flex', flexWrap: 'wrap', gap: '12px', borderBottom: '1px solid var(--glass-border)', background: 'rgba(0,0,0,0.1)' }}>
                         <a
                             href={`https://www.google.com/maps/dir/?api=1&destination=${station.lat},${station.lng}`}
                             target="_blank"
