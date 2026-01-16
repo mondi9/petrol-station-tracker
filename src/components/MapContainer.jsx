@@ -2,8 +2,8 @@ import React, { useEffect } from 'react';
 import { MapContainer, TileLayer, Marker, Popup, useMap, Polyline } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { getStatusColor, formatTimeAgo } from '../services/stationService';
-import { Fuel, Navigation, Clock } from 'lucide-react';
+import { formatTimeAgo } from '../services/stationService';
+import { Navigation, Clock } from 'lucide-react';
 
 // Fix for default Leaflet icon issues in React
 import icon from 'leaflet/dist/images/marker-icon.png';
