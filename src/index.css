@@ -3,20 +3,20 @@
   --bg-secondary: #171717;
   --text-primary: #ededed;
   --text-secondary: #a1a1aa;
-  
+
   --color-active: #22c55e;
   --color-active-glow: rgba(34, 197, 94, 0.4);
   --color-inactive: #ef4444;
   --color-inactive-glow: rgba(239, 68, 68, 0.4);
-  
+
   --glass-panel: rgba(23, 23, 23, 0.7);
   --glass-border: rgba(255, 255, 255, 0.1);
   --backdrop-blur: 12px;
-  
+
   --radius-sm: 8px;
   --radius-md: 12px;
   --radius-lg: 16px;
-  
+
   --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
 }
 
@@ -30,7 +30,8 @@ body {
   font-family: var(--font-sans);
   background-color: var(--bg-primary);
   color: var(--text-primary);
-  overflow: hidden; /* App-like feel */
+  overflow: hidden;
+  /* App-like feel */
   -webkit-font-smoothing: antialiased;
 }
 
@@ -116,4 +117,46 @@ body {
 
 .leaflet-popup-tip {
   background: var(--bg-secondary);
+}
+
+/* Fuel Badges in Map Popup */
+.fuel-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 8px;
+  border-radius: 4px;
+  font-size: 0.7rem;
+  font-weight: 600;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.fuel-badge .fuel-label {
+  opacity: 0.7;
+  text-transform: uppercase;
+  font-size: 0.65rem;
+}
+
+.fuel-badge.petrol {
+  background: rgba(34, 197, 94, 0.15);
+  color: #22c55e;
+  border-color: rgba(34, 197, 94, 0.3);
+}
+
+.fuel-badge.diesel {
+  background: rgba(234, 179, 8, 0.15);
+  color: #eab308;
+  border-color: rgba(234, 179, 8, 0.3);
+}
+
+.fuel-badge.gas {
+  background: rgba(59, 130, 246, 0.15);
+  color: #3b82f6;
+  border-color: rgba(59, 130, 246, 0.3);
+}
+
+.fuel-badge.unknown {
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--text-secondary);
+  font-style: italic;
 }

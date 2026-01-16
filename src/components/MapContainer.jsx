@@ -200,6 +200,37 @@ const MapComponent = ({ stations, onStationSelect, onViewDetails, selectedStatio
                                     </span>
                                 </div>
 
+                                {/* Fuel Availability Badges */}
+                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginBottom: '12px' }}>
+                                    {station.prices && (
+                                        <>
+                                            {station.prices.petrol && (
+                                                <div className="fuel-badge petrol">
+                                                    <span className="fuel-label">PMS</span>
+                                                    <span className="fuel-price">₦{station.prices.petrol}</span>
+                                                </div>
+                                            )}
+                                            {station.prices.diesel && (
+                                                <div className="fuel-badge diesel">
+                                                    <span className="fuel-label">AGO</span>
+                                                    <span className="fuel-price">₦{station.prices.diesel}</span>
+                                                </div>
+                                            )}
+                                            {station.prices.gas && (
+                                                <div className="fuel-badge gas">
+                                                    <span className="fuel-label">LPG</span>
+                                                    <span className="fuel-price">₦{station.prices.gas}</span>
+                                                </div>
+                                            )}
+                                        </>
+                                    )}
+                                    {(!station.prices || Object.keys(station.prices).length === 0) && (
+                                        <div className="fuel-badge unknown">
+                                            <span className="fuel-label">No Price Data</span>
+                                        </div>
+                                    )}
+                                </div>
+
                                 <div style={{ display: 'grid', gap: '8px', gridTemplateColumns: '1fr 1fr' }}>
                                     <button
                                         className="btn btn-primary"
