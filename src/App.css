@@ -15,7 +15,7 @@
 
 /* Sidebar (Desktop Default) */
 .sidebar {
-    width: 380px;
+    width: 450px;
     height: 100%;
     display: flex;
     flex-direction: column;
@@ -98,15 +98,21 @@
         /* But simple z-index is likely enough if sidebar covers it. */
     }
 
-    /* Show Toggle Button */
-    .mobile-toggle-btn {
-        display: flex !important;
+    /* Mobile Bottom Nav Visibility */
+    .mobile-only {
+        display: block !important;
     }
 
     /* Adjust modal padding for mobile */
-
     .glass-panel {
         max-width: 95% !important;
         padding: 20px !important;
+        /* Ensure modals don't get covered by bottom nav if they are full height */
+        margin-bottom: 60px;
     }
+}
+
+/* Helper for Bottom Nav */
+.mobile-only {
+    display: none;
 }

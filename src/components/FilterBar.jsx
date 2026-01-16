@@ -6,12 +6,12 @@ const FilterBar = ({ filters, onFilterChange }) => {
 
     return (
         <div className="glass" style={{
-            padding: '12px',
+            padding: '8px',
             borderRadius: '12px',
-            marginBottom: '16px',
+            marginBottom: '8px',
             display: 'flex',
             flexDirection: 'column',
-            gap: '12px'
+            gap: '8px'
         }}>
             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', fontWeight: '600', opacity: 0.7 }}>
                 <Filter size={14} />

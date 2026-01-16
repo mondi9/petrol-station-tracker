@@ -1,10 +1,9 @@
 import React, { useState } from 'react';
-import { X, MapPin, Clock, Navigation } from 'lucide-react';
+import { X, MapPin, Clock, Navigation, Star } from 'lucide-react';
 import ReviewList from './ReviewList';
 import AddReviewModal from './AddReviewModal';
 import { addReview } from '../services/reviewService';
-import { addReview } from '../services/reviewService';
-import { formatTimeAgo, formatPrice, verifyStation } from '../services/stationService';
+import { formatTimeAgo, formatPrice, verifyStation, calculateTravelTime } from '../services/stationService';
 import { CheckCircle, AlertTriangle, ThumbsUp, ThumbsDown } from 'lucide-react';
 
 const StationDetailsModal = ({ isOpen, onClose, station, user, onLoginRequest, userLocation }) => {
@@ -79,25 +78,36 @@ const StationDetailsModal = ({ isOpen, onClose, station, user, onLoginRequest, u
                             )}
 
                             {/* Price Ticker */}
-                            {station.prices && (
-                                <div style={{ display: 'flex', gap: '8px', marginBottom: '8px', flexWrap: 'wrap' }}>
-                                    {station.prices.petrol && (
-                                        <div style={{ background: 'rgba(34, 197, 94, 0.1)', padding: '4px 8px', borderRadius: '4px', border: '1px solid rgba(34, 197, 94, 0.3)', color: '#4ade80', fontSize: '0.85rem' }}>
-                                            <span style={{ opacity: 0.7 }}>PMS:</span> <strong>{formatPrice(station.prices.petrol)}</strong>
-                                        </div>
-                                    )}
-                                    {station.prices.diesel && (
-                                        <div style={{ background: 'rgba(234, 179, 8, 0.1)', padding: '4px 8px', borderRadius: '4px', border: '1px solid rgba(234, 179, 8, 0.3)', color: '#facc15', fontSize: '0.85rem' }}>
-                                            <span style={{ opacity: 0.7 }}>AGO:</span> <strong>{formatPrice(station.prices.diesel)}</strong>
-                                        </div>
-                                    )}
-                                    {station.prices.gas && (
-                                        <div style={{ background: 'rgba(56, 189, 248, 0.1)', padding: '4px 8px', borderRadius: '4px', border: '1px solid rgba(56, 189, 248, 0.3)', color: '#38bdf8', fontSize: '0.85rem' }}>
-                                            <span style={{ opacity: 0.7 }}>LPG:</span> <strong>{formatPrice(station.prices.gas)}</strong>
-                                        </div>
-                                    )}
-                                </div>
-                            )}
+                            <div style={{ display: 'flex', gap: '8px', marginBottom: '8px', flexWrap: 'wrap' }}>
+                                {station.prices && (station.prices.petrol || station.prices.diesel || station.prices.gas) ? (
+                                    <>
+                                        {station.prices.petrol && (
+                                            <div style={{ background: 'rgba(34, 197, 94, 0.1)', padding: '4px 8px', borderRadius: '4px', border: '1px solid rgba(34, 197, 94, 0.3)', color: '#4ade80', fontSize: '0.9rem' }}>
+                                                <span style={{ opacity: 0.7 }}>PMS:</span> <strong>{formatPrice(station.prices.petrol)}</strong>
+                                            </div>
+                                        )}
+                                        {station.prices.diesel && (
+                                            <div style={{ background: 'rgba(234, 179, 8, 0.1)', padding: '4px 8px', borderRadius: '4px', border: '1px solid rgba(234, 179, 8, 0.3)', color: '#facc15', fontSize: '0.9rem' }}>
+                                                <span style={{ opacity: 0.7 }}>AGO:</span> <strong>{formatPrice(station.prices.diesel)}</strong>
+                                            </div>
+                                        )}
+                                        {station.prices.gas && (
+                                            <div style={{ background: 'rgba(56, 189, 248, 0.1)', padding: '4px 8px', borderRadius: '4px', border: '1px solid rgba(56, 189, 248, 0.3)', color: '#38bdf8', fontSize: '0.9rem' }}>
+                                                <span style={{ opacity: 0.7 }}>LPG:</span> <strong>{formatPrice(station.prices.gas)}</strong>
+                                            </div>
+                                        )}
+                                    </>
+                                ) : (
+                                    <div style={{
+                                        padding: '4px 8px', borderRadius: '4px',
+                                        border: '1px dashed var(--glass-border)',
+                                        color: 'var(--text-secondary)', fontSize: '0.8rem',
+                                        background: 'rgba(255,255,255,0.05)'
+                                    }}>
+                                        No prices reported yet
+                                    </div>
+                                )}
+                            </div>
 
                             <h2 style={{ fontSize: '1.8rem', fontWeight: '800', margin: 0 }}>{station.name}</h2>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', opacity: 0.7, marginTop: '8px', fontSize: '0.95rem' }}>
@@ -114,8 +124,11 @@ const StationDetailsModal = ({ isOpen, onClose, station, user, onLoginRequest, u
                                                 Math.cos(userLocation.lat * (Math.PI / 180)) * Math.cos(station.lat * (Math.PI / 180)) *
                                                 Math.sin(dLon / 2) * Math.sin(dLon / 2);
                                             const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-                                            return (R * c).toFixed(1);
-                                        })()} km away
+                                            const dist = R * c;
+                                            // Calculate Time
+                                            const time = calculateTravelTime(dist);
+                                            return `${dist.toFixed(1)} km away ${time ? `(~${time} min drive)` : ''}`;
+                                        })()}
                                     </span>
                                 )}
                             </div>
@@ -202,9 +215,17 @@ const StationDetailsModal = ({ isOpen, onClose, station, user, onLoginRequest, u
                         <button
                             className="btn"
                             onClick={handleWriteReviewClick}
-                            style={{ flex: 1, justifyContent: 'center', background: 'var(--bg-secondary)', border: '1px solid var(--glass-border)' }}
+                            style={{
+                                flex: 1,
+                                justifyContent: 'center',
+                                background: '#f59e0b',
+                                color: 'black',
+                                border: 'none',
+                                fontWeight: 'bold',
+                                gap: '8px'
+                            }}
                         >
-                            Write a Review
+                            <Star size={16} fill="black" /> Write Review
                         </button>
                     </div>
 

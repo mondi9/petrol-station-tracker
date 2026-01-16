@@ -169,6 +169,13 @@ export const calculateDistance = (lat1, lon1, lat2, lon2) => {
     return parseFloat(d.toFixed(1)); // Return 1 decimal place
 };
 
+// Calculate estimated travel time in minutes
+export const calculateTravelTime = (distanceKm, speedKmH = 30) => {
+    if (!distanceKm) return null;
+    const hours = distanceKm / speedKmH;
+    return Math.ceil(hours * 60);
+};
+
 /**
  * Records a user's presence at a station (Ping).
  * This allows us to estimate live crowd size.
@@ -230,4 +237,43 @@ export const verifyStation = async (stationId, type, userId) => {
             confirmations: arrayRemove(userId)
         });
     }
+};
+
+/**
+ * Exports station data to a CSV blob and triggers download.
+ * @param {Array} stations 
+ */
+export const exportStationsToCSV = (stations) => {
+    if (!stations || stations.length === 0) return;
+
+    // Define CSV Headers
+    const headers = ['Name', 'Address', 'Status', 'Petrol Price', 'Diesel Price', 'Gas Price', 'Last Updated'];
+
+    // Map data to rows
+    const rows = stations.map(s => [
+        `"${s.name}"`, // Quote strings to handle commas
+        `"${s.address}"`,
+        s.status,
+        s.prices?.petrol || 'N/A',
+        s.prices?.diesel || 'N/A',
+        s.prices?.gas || 'N/A',
+        new Date(s.lastUpdated).toLocaleString()
+    ]);
+
+    // Combine headers and rows
+    const csvContent = [
+        headers.join(','),
+        ...rows.map(r => r.join(','))
+    ].join('\n');
+
+    // Create Blob and Link
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', `petrol_stations_export_${new Date().toISOString().split('T')[0]}.csv`);
+    link.style.visibility = 'hidden';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
 };
