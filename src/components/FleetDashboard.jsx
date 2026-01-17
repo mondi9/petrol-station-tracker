@@ -43,24 +43,18 @@ const FleetDashboard = ({ stations, onClose }) => {
     };
 
     return (
-        <div style={{
-            position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-            background: 'var(--bg-primary)', zIndex: 2000,
-            display: 'flex', flexDirection: 'column'
-        }}>
+        <div className="fleet-dashboard">
             {/* Top Bar */}
-            <div style={{
-                height: '60px', borderBottom: '1px solid var(--glass-border)',
-                display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                padding: '0 24px', background: 'rgba(0,0,0,0.2)'
-            }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-                    <div style={{ background: '#3b82f6', padding: '8px', borderRadius: '8px' }}>
-                        <Warehouse size={20} color="white" />
+            <div className="fleet-header">
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', flexWrap: 'wrap' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div style={{ background: '#3b82f6', padding: '8px', borderRadius: '8px' }}>
+                            <Warehouse size={20} color="white" />
+                        </div>
+                        <h1 style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>Fleet Command</h1>
                     </div>
-                    <h1 style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>Fleet Command Center</h1>
 
-                    <div style={{ display: 'flex', background: 'rgba(255,255,255,0.1)', borderRadius: '8px', padding: '2px', marginLeft: '24px' }}>
+                    <div className="fleet-tabs" style={{ display: 'flex', background: 'rgba(255,255,255,0.1)', borderRadius: '8px', padding: '2px' }}>
                         <button
                             onClick={() => setActiveTab('overview')}
                             style={{
@@ -89,17 +83,18 @@ const FleetDashboard = ({ stations, onClose }) => {
 
                 </div>
 
-                <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                <div className="fleet-controls w-full-mobile mt-2-mobile" style={{ display: 'flex', gap: '12px', alignItems: 'center', justifyContent: 'space-between' }}>
                     <select
                         value={selectedDepot.id}
                         onChange={(e) => setSelectedDepot(MOCK_DEPOTS.find(d => d.id === e.target.value))}
+                        className="flex-1-mobile"
                         style={{ padding: '8px', borderRadius: '8px', background: 'rgba(255,255,255,0.1)', color: 'white', border: '1px solid var(--glass-border)' }}
                     >
                         {MOCK_DEPOTS.map(d => <option key={d.id} value={d.id}>Depot: {d.name}</option>)}
                     </select>
 
-                    <button className="btn" onClick={handleExport} style={{ gap: '8px', background: '#10b981', border: 'none', color: 'white' }}>
-                        <Download size={16} /> Export CSV
+                    <button className="btn" onClick={handleExport} style={{ gap: '8px', background: '#10b981', border: 'none', color: 'white', padding: '8px' }} title="Export CSV">
+                        <Download size={16} /> <span className="hide-on-mobile">Export</span>
                     </button>
                     <button onClick={onClose} style={{ background: 'transparent', border: 'none', color: 'white', cursor: 'pointer' }}>
                         <X size={24} />
@@ -108,19 +103,19 @@ const FleetDashboard = ({ stations, onClose }) => {
             </div>
 
             {/* Main Content */}
-            <div style={{ flex: 1, display: 'flex', overflow: 'hidden' }}>
+            <div className="fleet-content">
                 {/* Left: Table */}
-                <div style={{ flex: 1, overflowY: 'auto', borderRight: '1px solid var(--glass-border)', padding: '24px' }}>
+                <div className="fleet-sidebar">
 
                     {/* Filters */}
-                    <div style={{ display: 'flex', gap: '12px', marginBottom: '24px' }}>
+                    <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', flexWrap: 'wrap' }}>
                         <input
                             type="text" placeholder="Search stations..."
                             value={searchQuery}
                             onChange={(e) => setSearchQuery(e.target.value)}
-                            style={{ padding: '10px', borderRadius: '8px', background: 'rgba(255,255,255,0.1)', border: '1px solid var(--glass-border)', color: 'white', flex: 1 }}
+                            style={{ padding: '10px', borderRadius: '8px', background: 'rgba(255,255,255,0.1)', border: '1px solid var(--glass-border)', color: 'white', flex: 1, minWidth: '200px' }}
                         />
-                        <div style={{ display: 'flex', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', padding: '4px' }}>
+                        <div style={{ display: 'flex', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', padding: '4px', overflowX: 'auto' }}>
                             {['all', 'diesel', 'petrol'].map(type => (
                                 <button
                                     key={type}
@@ -144,27 +139,32 @@ const FleetDashboard = ({ stations, onClose }) => {
                             <tr>
                                 <th style={{ padding: '12px' }}>Station</th>
                                 <th style={{ padding: '12px' }}>Status</th>
-                                <th style={{ padding: '12px' }}>Dist. from Depot</th>
+                                <th className="hide-on-mobile" style={{ padding: '12px' }}>Dist.</th>
                                 <th style={{ padding: '12px' }}>Queue</th>
-                                <th style={{ padding: '12px' }}>Prices</th>
+                                <th className="hide-on-mobile" style={{ padding: '12px' }}>Prices</th>
                             </tr>
                         </thead>
                         <tbody>
                             {filteredStations.map(station => (
                                 <tr key={station.id} style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-                                    <td style={{ padding: '12px', fontWeight: 'bold' }}>{station.name}</td>
+                                    <td style={{ padding: '12px', fontWeight: 'bold' }}>
+                                        {station.name}
+                                        <div className="show-on-mobile" style={{ fontSize: '0.75rem', opacity: 0.7, fontWeight: 'normal', display: 'none' }}>
+                                            {station.distanceFromDepot ? `${station.distanceFromDepot.toFixed(1)} km` : '-'}
+                                        </div>
+                                    </td>
                                     <td style={{ padding: '12px' }}>
                                         <span className={`status-badge status-${station.status}`}>{station.status}</span>
                                     </td>
-                                    <td style={{ padding: '12px' }}>
+                                    <td className="hide-on-mobile" style={{ padding: '12px' }}>
                                         {station.distanceFromDepot ? `${station.distanceFromDepot.toFixed(1)} km` : '-'}
                                     </td>
                                     <td style={{ padding: '12px' }}>
                                         {station.queueStatus === 'long' ? (
-                                            <span style={{ color: '#ef4444', fontWeight: 'bold' }}>HIGH DEMAND</span>
+                                            <span style={{ color: '#ef4444', fontWeight: 'bold' }}>HIGH</span>
                                         ) : station.queueStatus || '-'}
                                     </td>
-                                    <td style={{ padding: '12px', display: 'flex', gap: '8px' }}>
+                                    <td className="hide-on-mobile" style={{ padding: '12px', gap: '8px' }}>
                                         {station.prices?.diesel && <span style={{ color: '#facc15' }}>AGO: {formatPrice(station.prices.diesel)}</span>}
                                         {station.prices?.petrol && <span style={{ color: '#4ade80' }}>PMS: {formatPrice(station.prices.petrol)}</span>}
                                     </td>
@@ -175,7 +175,7 @@ const FleetDashboard = ({ stations, onClose }) => {
                 </div>
 
                 {/* Right: Map or Analytics */}
-                <div style={{ flex: 1, background: '#1a1a1a', position: 'relative', overflow: 'hidden' }}>
+                <div className="fleet-map-area">
 
                     {activeTab === 'analytics' ? (
                         <FleetAnalytics stations={stations} />

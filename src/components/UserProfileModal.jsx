@@ -28,7 +28,7 @@ const UserProfileModal = ({ isOpen, onClose, user, stats = { contributions: 0, r
         <div style={{
             position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
             background: 'rgba(0,0,0,0.8)', zIndex: 3000,
-            display: 'flex', alignItems: 'center', justifyContent: 'center', pading: '20px'
+            display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px'
         }}>
             <div className="glass-panel" style={{
                 width: '100%', maxWidth: '400px',
@@ -36,6 +36,8 @@ const UserProfileModal = ({ isOpen, onClose, user, stats = { contributions: 0, r
                 borderRadius: '16px',
                 border: '1px solid var(--glass-border)',
                 overflow: 'hidden',
+                display: 'flex', flexDirection: 'column',
+                maxHeight: '85vh',
                 animation: 'slideUp 0.3s ease-out'
             }}>
                 {/* Header */}
@@ -52,8 +54,8 @@ const UserProfileModal = ({ isOpen, onClose, user, stats = { contributions: 0, r
                     </button>
                 </div>
 
-                {/* Body */}
-                <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '24px', alignItems: 'center' }}>
+                {/* Body - Scrollable */}
+                <div style={{ padding: '24px', display: 'flex', flexDirection: 'column', gap: '24px', alignItems: 'center', overflowY: 'auto' }}>
 
                     {/* Avatar Circle */}
                     <div style={{

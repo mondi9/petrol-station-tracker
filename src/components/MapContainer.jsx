@@ -200,52 +200,54 @@ const MapComponent = ({ stations, onStationSelect, onViewDetails, selectedStatio
                                     </span>
                                 </div>
 
+                                {/* Detailed Status & Reporter Info */}
+                                <div style={{ marginBottom: '12px', fontSize: '0.75rem', color: 'var(--text-secondary)', background: 'rgba(255,255,255,0.03)', padding: '6px', borderRadius: '6px' }}>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                                        <span>Queue:</span>
+                                        <span style={{
+                                            fontWeight: 'bold',
+                                            color: station.queueStatus === 'short' ? '#4ade80' : station.queueStatus === 'medium' ? '#facc15' : station.queueStatus === 'long' ? '#f87171' : 'inherit'
+                                        }}>
+                                            {station.queueStatus ? (station.queueStatus.charAt(0).toUpperCase() + station.queueStatus.slice(1)) : 'Unknown'}
+                                        </span>
+                                    </div>
+                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                        <span>Updated by:</span>
+                                        <span style={{ fontWeight: '500', color: 'var(--text-primary)' }}>
+                                            {station.lastReporter || 'Anonymous'}
+                                        </span>
+                                    </div>
+                                </div>
+
                                 {/* Fuel Availability Badges (Enhanced) */}
                                 <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginBottom: '12px' }}>
                                     {['petrol', 'diesel', 'premium'].map(type => {
                                         const price = station.prices?.[type];
-                                        const status = station.availability?.[type]; // 'available', 'low', 'empty' or true/false (legacy)
-                                        const queue = station.queue?.[type];
+                                        const status = station.availability?.[type]; // 'available', 'low', 'empty'
 
-                                        if (!price && !status) return null;
+                                        if (!price && !status && station.status !== 'active') return null;
 
                                         let colorClass = 'unknown';
-                                        let statusText = '';
 
-                                        // Map status/type to color
                                         if (type === 'petrol') colorClass = 'petrol';
                                         if (type === 'diesel') colorClass = 'diesel';
-                                        if (type === 'premium') colorClass = 'gas'; // Reusing gas color for premium or add new
+                                        if (type === 'premium') colorClass = 'gas';
 
-                                        // Status Indicator
-                                        let statusColor = 'inherit';
-                                        if (status === 'low') statusColor = '#eab308';
-                                        if (status === 'empty' || status === false) statusColor = '#ef4444';
-
-                                        // Label map
                                         const label = type === 'petrol' ? 'PMS' : type === 'diesel' ? 'AGO' : 'PREM';
 
                                         return (
-                                            <div key={type} className={`fuel-badge ${colorClass}`} style={{ opacity: status === 'empty' ? 0.6 : 1 }}>
-                                                <span className="fuel-label">{label}</span>
-                                                {price && <span className="fuel-price">₦{price}</span>}
-                                                {status === 'low' && <span style={{ fontSize: '0.6rem', color: '#eab308', border: '1px solid #eab308', padding: '0 2px', borderRadius: '2px' }}>LOW</span>}
-                                                {queue > 0 && <span style={{ fontSize: '0.6rem', opacity: 0.7 }}>| {queue}m Q</span>}
+                                            <div key={type} className={`fuel-badge ${colorClass}`} style={{ flex: '1 0 40%' }}>
+                                                <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                                                    <span className="fuel-label">{label}</span>
+                                                    {price && <span className="fuel-price" style={{ fontWeight: 'bold' }}>₦{price}</span>}
+                                                </div>
                                             </div>
                                         );
                                     })}
 
-                                    {/* Legacy/Fallback for Gas if still used or if array map missed it */}
-                                    {station.prices && station.prices.gas && (
-                                        <div className="fuel-badge gas">
-                                            <span className="fuel-label">LPG</span>
-                                            <span className="fuel-price">₦{station.prices.gas}</span>
-                                        </div>
-                                    )}
-
                                     {(!station.prices || Object.keys(station.prices).length === 0) && (
-                                        <div className="fuel-badge unknown">
-                                            <span className="fuel-label">No Reported Data</span>
+                                        <div className="fuel-badge unknown" style={{ width: '100%', justifyContent: 'center' }}>
+                                            <span className="fuel-label">No Price Data</span>
                                         </div>
                                     )}
                                 </div>

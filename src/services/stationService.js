@@ -67,6 +67,11 @@ export const updateStationStatus = async (stationId, reportData, userId = null) 
         updatePayload.lastPriceUpdate = new Date().toISOString();
     }
 
+    // Add Reporter Name to Main Document for easier display
+    if (reportData.reporterName) {
+        updatePayload.lastReporter = reportData.reporterName;
+    }
+
     // 2. Add to Reports Subcollection (Audit History)
     const historyData = {
         timestamp: serverTimestamp(),

@@ -324,7 +324,12 @@ function App() {
         </div>
       </div>
 
-      <MobileBottomNav viewMode={viewMode} setViewMode={setViewMode} />
+      <MobileBottomNav
+        viewMode={viewMode}
+        setViewMode={setViewMode}
+        onOpenFleet={() => setIsFleetDashboardOpen(true)}
+        onOpenProfile={() => setIsProfileModalOpen(true)}
+      />
 
       {/* Floating Action Buttons */}
       <div style={{ position: 'fixed', bottom: '80px', right: '20px', display: 'flex', flexDirection: 'column', gap: '12px', zIndex: 1000 }}>
@@ -395,6 +400,13 @@ function App() {
         stations={stations}
         user={user}
       />
+
+      {isFleetDashboardOpen && (
+        <FleetDashboard
+          stations={stations}
+          onClose={() => setIsFleetDashboardOpen(false)}
+        />
+      )}
 
       <ReloadPrompt />
     </div>

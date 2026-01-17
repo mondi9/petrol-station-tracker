@@ -2,6 +2,15 @@
 
 All notable changes to the "Lagos Petrol Pulse" project will be documented in this file.
 
+## [0.7.0] - 2026-01-17
+### Added
+- **Enhanced Map Popups**: Now shows reporter name, color-coded queue status, and clearer price list.
+- **Fleet Dashboard**: Fully responsive mobile layout (stackable view).
+
+### Changed
+- **Mobile Navigation**: More compact footer with larger touch targets for better responsiveness.
+- **UI Polish**: Fixed duplicate filter bars, improved Profile Modal responsiveness.
+
 ## [0.6.0] - 2026-01-14
 ### Added
 - **Smart Navigation**: Added "Near Me" button to center map on user location.
