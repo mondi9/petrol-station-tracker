@@ -18,6 +18,7 @@ import AddStationModal from './components/AddStationModal';
 import StationDetailsModal from './components/StationDetailsModal';
 import AdminDashboard from './components/AdminDashboard';
 import FleetDashboard from './components/FleetDashboard';
+import FilterBar from './components/FilterBar.jsx';
 
 // Temporary Initial Data for Seeding
 const INITIAL_DATA_SEED = [
@@ -42,6 +43,7 @@ function App() {
   const [reportModalData, setReportModalData] = useState({ isOpen: false, station: null });
   const [isLoading, setIsLoading] = useState(true);
   const [isLocating, setIsLocating] = useState(false);
+  const [userLocation, setUserLocation] = useState(null);
 
   // Auth State
   const [user, setUser] = useState(null);
@@ -54,16 +56,12 @@ function App() {
   // Mobile View State
   const [viewMode, setViewMode] = useState('map'); // 'map' | 'list'
 
-  // ... existing hooks ...
-
   // Filter State
   const [filters, setFilters] = useState({
     status: 'all',
     fuelType: 'all',
     searchQuery: ''
   });
-
-
 
   // Listen for auth changes
   useEffect(() => {
@@ -80,20 +78,6 @@ function App() {
       console.error("Logout failed", e);
     }
   };
-
-  /*
-  const handleSeedData = async () => {
-    if (confirm("This will upload sample stations to your database. Continue?")) {
-      try {
-        await seedInitialData(INITIAL_DATA_SEED);
-        alert("Data uploaded successfully!");
-      } catch (e) {
-        console.error(e);
-        alert("Error uploading data. Check console.");
-      }
-    }
-  };
-  */
 
   const handleAddStation = async (data) => {
     try {
@@ -209,41 +193,7 @@ function App() {
     );
 
     return () => unsubscribe();
-  }, [selectedStation]); // Dependency on selectedStation to ensure we keep it updated? No, effect should rely on functional updates or ref, but simple find works.
-  // Actually, standard pattern is just [] and handle selected update inside callback using prev state or ref, 
-  // but rebuilding subscription on selection change is wasteful.
-  // Better approach:
-  // Use a separate effect or just update it when rendering.
-  // But for simple list, the callback closure capturing 'selectedStation' is the issue.
-  // Let's stick to the simple 'setStations' and handle selectedStation syncing in a separate effect if needed, 
-  // OR just select from 'stations' list when passing to children.
-
-  // Revised approach for simplicity and correctness:
-  // Just setStations. Child components receiving 'selectedStationId' + 'stations' list is cleaner,
-  // but MapComponent takes 'selectedStation' object. We can update that object reference when 'stations' changes.
-
-  // Let's refine the useEffect:
-  /*
-  useEffect(() => {
-    const unsubscribe = subscribeToStations((data) => {
-        setStations(data);
-        setIsLoading(false);
-    });
-    return () => unsubscribe();
-  }, []);
-  
-  // Sync selectedStation reference when stations list updates
-  useEffect(() => {
-      if (selectedStation) {
-          const updated = stations.find(s => s.id === selectedStation.id);
-          if (updated && updated !== selectedStation) {
-              setSelectedStation(updated);
-          }
-      }
-  }, [stations]);
-  */
-
-  // Implementation:
+  }, [selectedStation]);
 
   const handleStationSelect = (station) => {
     setSelectedStation(station);
@@ -278,15 +228,124 @@ function App() {
   // derived state for selected station to ensure it's always fresh
   const activeSelectedStation = stations.find(s => s.id === selectedStation?.id) || selectedStation;
 
-  // ... existing code ...
+  const handleFindNearest = () => {
+    if (!navigator.geolocation) {
+      alert("Geolocation is not supported by your browser");
+      return;
+    }
 
-  const [userLocation, setUserLocation] = useState(null);
+    setIsLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (position) => {
+        const { latitude, longitude } = position.coords;
+        setUserLocation({ lat: latitude, lng: longitude });
+        setIsLocating(false);
 
-  // ... (keepinglines 286-544 unchanged visually)
+        // Find nearest station
+        if (stations.length > 0) {
+          // simple distance check to find nearest
+          let nearest = null;
+          let minDistance = Infinity;
+
+          stations.forEach(station => {
+            const dist = Math.sqrt(Math.pow(station.lat - latitude, 2) + Math.pow(station.lng - longitude, 2));
+            if (dist < minDistance) {
+              minDistance = dist;
+              nearest = station;
+            }
+          });
+
+          if (nearest) {
+            setSelectedStation(nearest);
+            // if mobile, switch to map
+            if (window.innerWidth <= 768) {
+              setViewMode('map');
+            }
+          }
+        }
+      },
+      (error) => {
+        console.error("Error getting location", error);
+        alert("Unable to retrieve your location");
+        setIsLocating(false);
+      }
+    );
+  };
 
   return (
     <div className="app-container">
-      {/* ... previous JSX ... */}
+      <div className="main-content" style={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden' }}>
+
+        {/* Sidebar / List View */}
+        <div className="sidebar" style={{
+          width: '400px',
+          background: 'var(--bg-secondary)',
+          borderRight: '1px solid var(--glass-border)',
+          display: viewMode === 'map' && window.innerWidth <= 768 ? 'none' : 'flex',
+          flexDirection: 'column',
+          zIndex: 20,
+          flexShrink: 0
+        }}>
+          <StationList
+            stations={stations}
+            isLoading={isLoading}
+            selectedStation={selectedStation}
+            onSelect={handleStationSelect}
+            filters={filters}
+          />
+        </div>
+
+        {/* Map Container */}
+        <div className="map-wrapper" style={{
+          flex: 1,
+          position: 'relative',
+          display: viewMode === 'list' && window.innerWidth <= 768 ? 'none' : 'block'
+        }}>
+          <MapComponent
+            stations={stations}
+            selectedStation={activeSelectedStation}
+            onStationSelect={handleStationSelect}
+            onViewDetails={handleViewDetails}
+            onReportClick={handleReportClick}
+            onFindNearest={handleFindNearest}
+            userLocation={userLocation}
+            isLocating={isLocating}
+          />
+        </div>
+      </div>
+
+      {/* Mobile Elements */}
+      <div className="mobile-overlays" style={{ pointerEvents: 'none', position: 'absolute', inset: 0, zIndex: 1001 }}>
+        <div style={{ pointerEvents: 'auto', position: 'absolute', top: 0, left: 0, right: 0, padding: '10px' }} className="mobile-filters">
+          {/* Mobile only filter bar handled by CSS media queries usually, but for now rendering simple wrapper */}
+          {window.innerWidth <= 768 && viewMode === 'map' && (
+            <FilterBar filters={filters} onFilterChange={setFilters} />
+          )}
+        </div>
+      </div>
+
+      <MobileBottomNav viewMode={viewMode} setViewMode={setViewMode} />
+
+      {/* Floating Action Buttons */}
+      <div style={{ position: 'fixed', bottom: '80px', right: '20px', display: 'flex', flexDirection: 'column', gap: '12px', zIndex: 1000 }}>
+        {user && (
+          <button className="btn btn-primary" style={{ borderRadius: '50%', width: '56px', height: '56px', padding: 0, justifyContent: 'center', boxShadow: '0 4px 20px rgba(34, 197, 94, 0.4)' }}
+            onClick={() => setIsAddStationModalOpen(true)} title="Add Station">
+            <span style={{ fontSize: '24px' }}>+</span>
+          </button>
+        )}
+
+        <button className="glass" style={{ borderRadius: '50%', width: '48px', height: '48px', padding: 0, justifyContent: 'center', overflow: 'hidden', cursor: 'pointer' }}
+          onClick={() => user ? setIsProfileModalOpen(true) : setIsAuthModalOpen(true)} title={user ? "Profile" : "Login"}>
+          {user ? (
+            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--color-active)', fontWeight: 'bold' }}>
+              {user.email[0].toUpperCase()}
+            </div>
+          ) : (
+            <span style={{ fontSize: '20px' }}>👤</span>
+          )}
+        </button>
+      </div>
 
       {/* Modals & Overlays */}
       <StationDetailsModal

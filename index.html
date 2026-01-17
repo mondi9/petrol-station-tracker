@@ -9,6 +9,44 @@
   <meta name="description" content="Lagos Petrol Pulse - Real-time fuel availability tracker" />
   <link rel="apple-touch-icon" href="/pwa-192x192.png" />
   <title>Lagos Petrol Pulse</title>
+  <script>
+    window.onerror = function (message, source, lineno, colno, error) {
+      const errorOverlay = document.createElement('div');
+      errorOverlay.style.position = 'fixed';
+      errorOverlay.style.top = '0';
+      errorOverlay.style.left = '0';
+      errorOverlay.style.width = '100%';
+      errorOverlay.style.background = '#990000';
+      errorOverlay.style.color = '#ffffff';
+      errorOverlay.style.padding = '20px';
+      errorOverlay.style.zIndex = '99999';
+      errorOverlay.style.fontSize = '16px';
+      errorOverlay.style.fontFamily = 'monospace';
+      errorOverlay.innerHTML = '<h3>Runtime Error</h3><pre>' + message + '\n' + source + ':' + lineno + ':' + colno + '</pre>';
+      if (error && error.stack) {
+        errorOverlay.innerHTML += '<pre>' + error.stack + '</pre>';
+      }
+      document.body.appendChild(errorOverlay);
+    };
+    window.onunhandledrejection = function (event) {
+      const errorOverlay = document.createElement('div');
+      errorOverlay.style.position = 'fixed';
+      errorOverlay.style.bottom = '0';
+      errorOverlay.style.left = '0';
+      errorOverlay.style.width = '100%';
+      errorOverlay.style.background = '#994400';
+      errorOverlay.style.color = '#ffffff';
+      errorOverlay.style.padding = '20px';
+      errorOverlay.style.zIndex = '99999';
+      errorOverlay.style.fontSize = '16px';
+      errorOverlay.style.fontFamily = 'monospace';
+      errorOverlay.innerHTML = '<h3>Unhandled Promise Rejection</h3><pre>' + (event.reason ? (event.reason.message || event.reason) : 'Unknown reason') + '</pre>';
+      if (event.reason && event.reason.stack) {
+        errorOverlay.innerHTML += '<pre>' + event.reason.stack + '</pre>';
+      }
+      document.body.appendChild(errorOverlay);
+    };
+  </script>
 </head>
 
 <body>

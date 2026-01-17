@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Fuel, CheckCircle, AlertTriangle, Ban } from 'lucide-react';
+import { X, Fuel, CheckCircle, TriangleAlert, Ban } from 'lucide-react';
 
 const ReportModal = ({ isOpen, onClose, onSubmit, station, user }) => {
     // Form State
@@ -101,7 +101,7 @@ const ReportModal = ({ isOpen, onClose, onSubmit, station, user }) => {
                         <div style={{ display: 'flex', gap: '8px' }}>
                             {[
                                 { val: 'available', label: 'Available', color: 'var(--color-active)', icon: CheckCircle },
-                                { val: 'low', label: 'Low', color: '#eab308', icon: AlertTriangle },
+                                { val: 'low', label: 'Low', color: '#eab308', icon: TriangleAlert },
                                 { val: 'empty', label: 'Empty', color: '#ef4444', icon: Ban }
                             ].map(opt => (
                                 <button
