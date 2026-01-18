@@ -12,6 +12,7 @@ const MOCK_DEPOTS = [
 ];
 
 const FleetDashboard = ({ stations, onClose }) => {
+    const [mobileView, setMobileView] = useState('map'); // 'list' or 'map'
     const [filterType, setFilterType] = useState('all'); // 'all', 'diesel', 'petrol'
     const [searchQuery, setSearchQuery] = useState('');
     const [selectedDepot, setSelectedDepot] = useState(MOCK_DEPOTS[0]);
@@ -54,31 +55,52 @@ const FleetDashboard = ({ stations, onClose }) => {
                         <h1 style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>Fleet Command</h1>
                     </div>
 
-                    <div className="fleet-tabs" style={{ display: 'flex', background: 'rgba(255,255,255,0.1)', borderRadius: '8px', padding: '2px' }}>
-                        <button
-                            onClick={() => setActiveTab('overview')}
-                            style={{
-                                display: 'flex', alignItems: 'center', gap: '6px',
-                                padding: '6px 12px', border: 'none', borderRadius: '6px',
-                                background: activeTab === 'overview' ? 'var(--color-active)' : 'transparent',
-                                color: activeTab === 'overview' ? 'black' : 'rgba(255,255,255,0.6)',
-                                cursor: 'pointer', fontWeight: 'bold'
-                            }}
-                        >
-                            <Layout size={16} /> Overview
-                        </button>
-                        <button
-                            onClick={() => setActiveTab('analytics')}
-                            style={{
-                                display: 'flex', alignItems: 'center', gap: '6px',
-                                padding: '6px 12px', border: 'none', borderRadius: '6px',
-                                background: activeTab === 'analytics' ? 'var(--color-active)' : 'transparent',
-                                color: activeTab === 'analytics' ? 'black' : 'rgba(255,255,255,0.6)',
-                                cursor: 'pointer', fontWeight: 'bold'
-                            }}
-                        >
-                            <BarChart2 size={16} /> Analytics
-                        </button>
+                    <div className="fleet-tabs" style={{ display: 'flex', background: 'rgba(255,255,255,0.1)', borderRadius: '8px', padding: '2px', marginLeft: 'auto' }}>
+                        {/* Mobile Only Toggles */}
+                        <div className="show-on-mobile" style={{ display: 'none', gap: '4px' }}>
+                            <button
+                                className={`btn ${mobileView === 'list' ? 'btn-primary' : ''}`}
+                                onClick={() => setMobileView('list')}
+                                style={{ padding: '6px 12px', fontSize: '0.8rem', background: mobileView === 'list' ? 'var(--color-active)' : 'transparent', color: mobileView === 'list' ? 'black' : 'white', border: 'none', borderRadius: '6px' }}
+                            >
+                                List
+                            </button>
+                            <button
+                                className={`btn ${mobileView === 'map' ? 'btn-primary' : ''}`}
+                                onClick={() => setMobileView('map')}
+                                style={{ padding: '6px 12px', fontSize: '0.8rem', background: mobileView === 'map' ? 'var(--color-active)' : 'transparent', color: mobileView === 'map' ? 'black' : 'white', border: 'none', borderRadius: '6px' }}
+                            >
+                                Map
+                            </button>
+                        </div>
+
+                        {/* Desktop Tabs */}
+                        <div className="hide-on-mobile" style={{ display: 'flex' }}>
+                            <button
+                                onClick={() => setActiveTab('overview')}
+                                style={{
+                                    display: 'flex', alignItems: 'center', gap: '6px',
+                                    padding: '6px 12px', border: 'none', borderRadius: '6px',
+                                    background: activeTab === 'overview' ? 'var(--color-active)' : 'transparent',
+                                    color: activeTab === 'overview' ? 'black' : 'rgba(255,255,255,0.6)',
+                                    cursor: 'pointer', fontWeight: 'bold'
+                                }}
+                            >
+                                <Layout size={16} /> Overview
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('analytics')}
+                                style={{
+                                    display: 'flex', alignItems: 'center', gap: '6px',
+                                    padding: '6px 12px', border: 'none', borderRadius: '6px',
+                                    background: activeTab === 'analytics' ? 'var(--color-active)' : 'transparent',
+                                    color: activeTab === 'analytics' ? 'black' : 'rgba(255,255,255,0.6)',
+                                    cursor: 'pointer', fontWeight: 'bold'
+                                }}
+                            >
+                                <BarChart2 size={16} /> Analytics
+                            </button>
+                        </div>
                     </div>
 
                 </div>
@@ -105,7 +127,9 @@ const FleetDashboard = ({ stations, onClose }) => {
             {/* Main Content */}
             <div className="fleet-content">
                 {/* Left: Table */}
-                <div className="fleet-sidebar">
+                <div className="fleet-sidebar" style={{
+                    display: window.innerWidth <= 768 && mobileView !== 'list' ? 'none' : 'block'
+                }}>
 
                     {/* Filters */}
                     <div style={{ display: 'flex', gap: '12px', marginBottom: '24px', flexWrap: 'wrap' }}>
@@ -175,7 +199,13 @@ const FleetDashboard = ({ stations, onClose }) => {
                 </div>
 
                 {/* Right: Map or Analytics */}
-                <div className="fleet-map-area" style={{ flex: 1, minHeight: '400px', height: '100%', position: 'relative' }}>
+                <div className="fleet-map-area" style={{
+                    flex: 1,
+                    minHeight: '400px',
+                    height: '100%',
+                    position: 'relative',
+                    display: window.innerWidth <= 768 && mobileView !== 'map' ? 'none' : 'block'
+                }}>
 
                     {activeTab === 'analytics' ? (
                         <FleetAnalytics stations={stations} />

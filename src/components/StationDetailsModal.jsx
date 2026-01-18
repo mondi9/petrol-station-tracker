@@ -9,7 +9,23 @@ import { CheckCircle, AlertTriangle, ThumbsUp, ThumbsDown } from 'lucide-react';
 const StationDetailsModal = ({ isOpen, onClose, station, user, onLoginRequest, userLocation }) => {
     const [isReviewOpen, setIsReviewOpen] = useState(false);
 
-    if (!isOpen || !station) return null;
+    if (!isOpen) return null;
+
+    // Safety check for empty station object
+    if (!station) {
+        return (
+            <div style={{
+                position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                backgroundColor: 'rgba(0, 0, 0, 0.6)',
+                zIndex: 3000, backdropFilter: 'blur(3px)',
+                display: 'flex', justifyContent: 'center', alignItems: 'center'
+            }} onClick={onClose}>
+                <div className="glass-panel" style={{ padding: '20px', color: 'white' }}>
+                    Loading station details...
+                </div>
+            </div>
+        );
+    }
 
     const handleAddReview = async (data) => {
         await addReview(station.id, data, user);
@@ -48,11 +64,14 @@ const StationDetailsModal = ({ isOpen, onClose, station, user, onLoginRequest, u
                 zIndex: 1000, backdropFilter: 'blur(3px)'
             }} onClick={onClose}>
                 <div className="glass-panel" style={{
-                    width: '100%', maxWidth: '600px', height: '85vh',
+                    width: '100%', maxWidth: '600px',
+                    maxHeight: '90vh', // Increased max height
                     borderRadius: '16px', position: 'relative',
                     border: '1px solid var(--glass-border)',
                     display: 'flex', flexDirection: 'column',
-                    overflow: 'hidden'
+                    overflow: 'hidden',
+                    backgroundColor: 'var(--bg-secondary)', // Ensure opaque background
+                    margin: '10px' // Margin for mobile safety
                 }} onClick={e => e.stopPropagation()}>
 
                     {/* Header */}
