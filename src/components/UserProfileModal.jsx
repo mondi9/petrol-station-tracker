@@ -31,13 +31,13 @@ const UserProfileModal = ({ isOpen, onClose, user, stats = { contributions: 0, r
             display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px'
         }}>
             <div className="glass-panel" style={{
-                width: '90%', maxWidth: '400px',
+                width: 'calc(100% - 32px)', maxWidth: '400px',
                 background: 'var(--bg-secondary)',
                 borderRadius: '16px',
                 border: '1px solid var(--glass-border)',
                 overflow: 'hidden',
                 display: 'flex', flexDirection: 'column',
-                maxHeight: '85vh',
+                maxHeight: '80vh',
                 animation: 'slideUp 0.3s ease-out'
             }}>
                 {/* Header */}
