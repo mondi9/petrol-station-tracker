@@ -199,9 +199,9 @@ function App() {
     setSelectedStation(station);
     // On mobile, we want to see details immediately, not just the map popup
     if (window.innerWidth <= 768) {
-      // alert("Debug: Station clicked. Modal is DISABLED. If this didn't crash, the Modal was the killer.");
-      setViewingStation(station);
-      setViewMode('map');
+      alert("Debug: Station clicked. About to switch view.");
+      // setViewingStation(station);
+      // setViewMode('map');
     }
   };
 
