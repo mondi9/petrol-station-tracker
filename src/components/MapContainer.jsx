@@ -81,64 +81,20 @@ const createCustomIcon = (status, queueStatus) => {
 
 const RoutingController = ({ selectedStation, userLocation }) => {
     const map = useMap();
-    const [route, setRoute] = React.useState(null);
 
-    // Debug active props
+    // Fix: Invalidate size when map becomes visible/resizes
     useEffect(() => {
-        console.log("RoutingController Update:", { selectedStation, userLocation });
-    }, [selectedStation, userLocation]);
+        const resizeObserver = new ResizeObserver(() => {
+            map.invalidateSize();
+        });
+        resizeObserver.observe(map.getContainer());
 
-    useEffect(() => {
-        if (!selectedStation || !userLocation) {
-            console.log("Routing: Missing selectedStation or userLocation");
-            setRoute(null);
-            return;
-        }
+        // Also force checks on mount/updates
+        setTimeout(() => map.invalidateSize(), 100);
+        setTimeout(() => map.invalidateSize(), 500);
 
-        const fetchRoute = async () => {
-            console.log("Routing: Fetching route...");
-            try {
-                // OSRM: lon,lat;lon,lat
-                const url = `https://router.project-osrm.org/route/v1/driving/${userLocation.lng},${userLocation.lat};${selectedStation.lng},${selectedStation.lat}?overview=full&geometries=geojson`;
-                const response = await fetch(url);
-                const data = await response.json();
-
-                if (data.routes && data.routes.length > 0) {
-                    // OSRM is Lon,Lat. Leaflet is Lat,Lon. Swap 'em.
-                    const coords = data.routes[0].geometry.coordinates.map(c => [c[1], c[0]]);
-                    setRoute(coords);
-                    console.log("Routing: Route found and set", coords);
-
-                    // Fit bounds to show route
-                    const bounds = L.latLngBounds(coords);
-                    map.fitBounds(bounds, { padding: [50, 50] });
-                } else {
-                    console.log("Routing: No routes found in response", data);
-                }
-            } catch (e) {
-                console.error("Routing failed", e);
-                // Fallback: fly to station
-                map.flyTo([selectedStation.lat, selectedStation.lng], 15);
-            }
-        };
-
-        fetchRoute();
-
-    }, [selectedStation, userLocation, map]);
-
-    // Determine Route Color based on Queue Status
-    let routeColor = '#3b82f6'; // Default Blue
-    if (selectedStation) {
-        if (selectedStation.status === 'active') {
-            if (selectedStation.queueStatus === 'short') routeColor = '#22c55e'; // Green
-            else if (selectedStation.queueStatus === 'medium') routeColor = '#eab308'; // Yellow
-            else if (selectedStation.queueStatus === 'long') routeColor = '#ef4444'; // Red
-        } else {
-            routeColor = '#64748b'; // Inactive/Grey
-        }
-    }
-
-    console.log("Routing: Rendering Polyline?", !!route, "Color:", routeColor);
+        return () => resizeObserver.disconnect();
+    }, [map]);
 
     return route ? (
         <Polyline

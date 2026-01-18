@@ -175,7 +175,7 @@ const FleetDashboard = ({ stations, onClose }) => {
                 </div>
 
                 {/* Right: Map or Analytics */}
-                <div className="fleet-map-area">
+                <div className="fleet-map-area" style={{ flex: 1, minHeight: '400px', height: '100%', position: 'relative' }}>
 
                     {activeTab === 'analytics' ? (
                         <FleetAnalytics stations={stations} />

@@ -197,8 +197,9 @@ function App() {
 
   const handleStationSelect = (station) => {
     setSelectedStation(station);
-    // On mobile, switch to map view when selecting from list
+    // On mobile, we want to see details immediately, not just the map popup
     if (window.innerWidth <= 768) {
+      setViewingStation(station);
       setViewMode('map');
     }
   };

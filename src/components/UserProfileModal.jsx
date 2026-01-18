@@ -31,7 +31,7 @@ const UserProfileModal = ({ isOpen, onClose, user, stats = { contributions: 0, r
             display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '20px'
         }}>
             <div className="glass-panel" style={{
-                width: '100%', maxWidth: '400px',
+                width: '90%', maxWidth: '400px',
                 background: 'var(--bg-secondary)',
                 borderRadius: '16px',
                 border: '1px solid var(--glass-border)',
