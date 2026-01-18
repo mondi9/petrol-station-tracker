@@ -66,7 +66,14 @@ const ReviewList = ({ stationId, user }) => {
                                 </div>
                             </div>
                             <div style={{ fontSize: '0.75rem', opacity: 0.5 }}>
-                                {formatTimeAgo(review.createdAt?.toDate ? review.createdAt.toDate().toISOString() : new Date().toISOString())}
+                                {(() => {
+                                    try {
+                                        const date = review.createdAt?.toDate ? review.createdAt.toDate() : new Date();
+                                        return formatTimeAgo(date.toISOString());
+                                    } catch (e) {
+                                        return 'Just now';
+                                    }
+                                })()}
                             </div>
                         </div>
 

@@ -261,7 +261,8 @@ const StationDetailsModal = ({ isOpen, onClose, station, user, onLoginRequest, u
                                 Last status update: {formatTimeAgo(station.lastUpdated)}
                             </div>
 
-                            <ReviewList stationId={station.id} user={user} />
+                            {/* <ReviewList stationId={station.id} user={user} /> */}
+                            <div style={{ padding: '20px', textAlign: 'center', opacity: 0.6 }}>Reviews validation in progress...</div>
                         </div>
                     </div>
                 </div>
