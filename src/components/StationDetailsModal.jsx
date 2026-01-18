@@ -136,17 +136,22 @@ const StationDetailsModal = ({ isOpen, onClose, station, user, onLoginRequest, u
                                 {userLocation && station.lat && station.lng && (
                                     <span style={{ marginLeft: '8px', fontWeight: 'bold', color: 'var(--color-active)' }}>
                                         • {(() => {
-                                            const R = 6371;
-                                            const dLat = (station.lat - userLocation.lat) * (Math.PI / 180);
-                                            const dLon = (station.lng - userLocation.lng) * (Math.PI / 180);
-                                            const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-                                                Math.cos(userLocation.lat * (Math.PI / 180)) * Math.cos(station.lat * (Math.PI / 180)) *
-                                                Math.sin(dLon / 2) * Math.sin(dLon / 2);
-                                            const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-                                            const dist = R * c;
-                                            // Calculate Time
-                                            const time = calculateTravelTime(dist);
-                                            return `${dist.toFixed(1)} km away ${time ? `(~${time} min drive)` : ''}`;
+                                            try {
+                                                const R = 6371;
+                                                const dLat = (station.lat - userLocation.lat) * (Math.PI / 180);
+                                                const dLon = (station.lng - userLocation.lng) * (Math.PI / 180);
+                                                const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                                                    Math.cos(userLocation.lat * (Math.PI / 180)) * Math.cos(station.lat * (Math.PI / 180)) *
+                                                    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+                                                const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+                                                const dist = R * c;
+                                                // Calculate Time
+                                                const time = calculateTravelTime(dist);
+                                                return `${dist.toFixed(1)} km away ${time ? `(~${time} min drive)` : ''}`;
+                                            } catch (err) {
+                                                console.error("Distance calc error", err);
+                                                return '';
+                                            }
                                         })()}
                                     </span>
                                 )}
