@@ -199,6 +199,7 @@ function App() {
     setSelectedStation(station);
     // On mobile, we want to see details immediately, not just the map popup
     if (window.innerWidth <= 768) {
+      // alert("Debug: Station clicked. Modal is DISABLED. If this didn't crash, the Modal was the killer.");
       setViewingStation(station);
       setViewMode('map');
     }
@@ -354,14 +355,14 @@ function App() {
       </div>
 
       {/* Modals & Overlays */}
-      <StationDetailsModal
+      {/* <StationDetailsModal
         isOpen={!!viewingStation}
         onClose={() => setViewingStation(null)}
         station={viewingStation}
         user={user}
         userLocation={userLocation}
         onLoginRequest={() => setIsAuthModalOpen(true)}
-      />
+      /> */}
 
       <ReportModal
         isOpen={reportModalData.isOpen}
