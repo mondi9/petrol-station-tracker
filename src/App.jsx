@@ -227,6 +227,33 @@ function App() {
     setReportModalData({ isOpen: false, station: null });
   };
 
+  // Filter Logic
+  const filteredStations = React.useMemo(() => {
+    return stations.filter(station => {
+      // 1. Search Query
+      if (filters.searchQuery) {
+        const query = filters.searchQuery.toLowerCase();
+        const name = (station.name || '').toLowerCase();
+        const address = (station.address || '').toLowerCase();
+        if (!name.includes(query) && !address.includes(query)) return false;
+      }
+
+      // 2. Status Filter
+      if (filters.status !== 'all') {
+        if (station.status !== filters.status) return false;
+      }
+
+      // 3. Fuel Type Filter
+      if (filters.fuelType !== 'all') {
+        const price = station.prices?.[filters.fuelType];
+        // Assume if price is listed, it's available. Or maybe just strictly check existence.
+        if (!price) return false;
+      }
+
+      return true;
+    });
+  }, [stations, filters]);
+
   // derived state for selected station to ensure it's always fresh
   const activeSelectedStation = stations.find(s => s.id === selectedStation?.id) || selectedStation;
 
@@ -289,7 +316,7 @@ function App() {
           flexShrink: 0
         }}>
           <StationList
-            stations={stations}
+            stations={filteredStations}
             onSelect={handleStationSelect}
             filters={filters}
             onFilterChange={setFilters}
@@ -316,7 +343,7 @@ function App() {
           display: viewMode === 'list' && window.innerWidth <= 768 ? 'none' : 'block'
         }}>
           <MapComponent
-            stations={stations}
+            stations={filteredStations}
             selectedStation={activeSelectedStation}
             onStationSelect={handleStationSelect}
             onViewDetails={handleViewDetails}
