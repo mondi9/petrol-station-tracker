@@ -290,10 +290,22 @@ function App() {
         }}>
           <StationList
             stations={stations}
-            isLoading={isLoading}
-            selectedStation={selectedStation}
             onSelect={handleStationSelect}
             filters={filters}
+            onFilterChange={setFilters}
+            onViewDetails={handleViewDetails}
+            selectedStationId={selectedStation?.id}
+            user={user}
+            onLogin={() => setIsAuthModalOpen(true)}
+            onLogout={handleLogout}
+            onOpenProfile={() => setIsProfileModalOpen(true)}
+            onOpenAdminDashboard={() => setIsAdminDashboardOpen(true)}
+            onOpenFleetDashboard={() => setIsFleetDashboardOpen(true)}
+            onAddStation={() => setIsAddStationModalOpen(true)}
+            importStatus={importStatus}
+            onImport={handleImportOSM}
+            onFixAddresses={handleFixAddresses}
+            onRestore={handleRestoreMissing}
           />
         </div>
 
