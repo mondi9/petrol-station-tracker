@@ -98,6 +98,14 @@ export const formatPrice = (amount) => {
     return '₦' + amount.toLocaleString();
 };
 
+// Format distance for display
+export const formatDistance = (km) => {
+    if (!km) return 'N/A';
+    if (km < 1) return `${Math.round(km * 1000)}m`;
+    return `${km.toFixed(1)}km`;
+};
+
+
 // Add a new station (Manual)
 export const addStation = async (stationData) => {
     // 1. Geocode if coordinates are missing but address is present

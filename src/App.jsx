@@ -5,7 +5,7 @@ import MapComponent from './components/MapContainer';
 import StationList from './components/StationList';
 import ReportModal from './components/ReportModal';
 import ReloadPrompt from './components/ReloadPrompt';
-import { subscribeToStations, updateStationStatus, seedInitialData, addStation, recordUserPresence } from './services/stationService';
+import { subscribeToStations, updateStationStatus, seedInitialData, addStation, recordUserPresence, calculateDistance, formatDistance, calculateTravelTime } from './services/stationService';
 
 import { importLagosStationsV3, enrichStationData } from './services/osmService';
 
@@ -276,15 +276,14 @@ function App() {
         setUserLocation({ lat: latitude, lng: longitude });
         setIsLocating(false);
 
-        // Find nearest station
+        // Find nearest station using proper distance calculation
         if (stations.length > 0) {
-          // simple distance check to find nearest
           let nearest = null;
           let minDistance = Infinity;
 
           stations.forEach(station => {
-            const dist = Math.sqrt(Math.pow(station.lat - latitude, 2) + Math.pow(station.lng - longitude, 2));
-            if (dist < minDistance) {
+            const dist = calculateDistance(latitude, longitude, station.lat, station.lng);
+            if (dist && dist < minDistance) {
               minDistance = dist;
               nearest = station;
             }
@@ -292,6 +291,43 @@ function App() {
 
           if (nearest) {
             setSelectedStation(nearest);
+
+            // Show notification with distance and travel time
+            const distanceText = formatDistance(minDistance);
+            const travelTime = calculateTravelTime(minDistance);
+
+            // Create toast notification
+            const toast = document.createElement('div');
+            toast.style.cssText = `
+                            position: fixed;
+                            top: 80px;
+                            left: 50%;
+                            transform: translateX(-50%);
+                            background: linear-gradient(135deg, #10b981, #059669);
+                            color: white;
+                            padding: 16px 24px;
+                            border-radius: 12px;
+                            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                            z-index: 10000;
+                            font-weight: 600;
+                            max-width: 90%;
+                            text-align: center;
+                        `;
+            toast.innerHTML = `
+                            📍 <strong>Nearest Station:</strong> ${nearest.name}<br/>
+                            <span style="opacity: 0.9; font-size: 0.9em;">
+                                ${distanceText} away • ~${travelTime} min drive
+                            </span>
+                        `;
+            document.body.appendChild(toast);
+
+            // Remove toast after 4 seconds
+            setTimeout(() => {
+              toast.style.opacity = '0';
+              toast.style.transition = 'opacity 0.3s';
+              setTimeout(() => toast.remove(), 300);
+            }, 4000);
+
             // if mobile, switch to map
             if (window.innerWidth <= 768) {
               setViewMode('map');

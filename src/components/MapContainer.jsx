@@ -1,9 +1,9 @@
 import React, { useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap, Polyline } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap, Polyline, Circle } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
-import { formatTimeAgo } from '../services/stationService';
-import { Navigation, Clock } from 'lucide-react';
+import { formatTimeAgo, formatDistance, calculateDistance } from '../services/stationService';
+import { Navigation, Clock, MapPin } from 'lucide-react';
 
 // Fix for default Leaflet icon issues in React
 import icon from 'leaflet/dist/images/marker-icon.png';
@@ -82,6 +82,42 @@ const createCustomIcon = (station) => {
         iconSize: [60, 40],
         iconAnchor: [30, 40], // Anchor at bottom tip
         popupAnchor: [0, -40]
+    });
+};
+
+// Create user location marker (blue pulsing dot)
+const createUserLocationIcon = () => {
+    const htmlContent = `
+        <div style="
+             display: flex;
+             flex-direction: column;
+             align-items: center;
+             transform: translateY(-50%);
+        ">
+            <div style="
+                 width: 20px;
+                 height: 20px;
+                 background-color: #3b82f6;
+                 border-radius: 50%;
+                 border: 3px solid white;
+                 box-shadow: 0 0 10px rgba(59, 130, 246, 0.8), 0 0 20px rgba(59, 130, 246, 0.4);
+                 animation: pulse-location 2s infinite;
+            "></div>
+        </div>
+        <style>
+            @keyframes pulse-location {
+                0%, 100% { transform: scale(1); opacity: 1; }
+                50% { transform: scale(1.2); opacity: 0.8; }
+            }
+        </style>
+    `;
+
+    return L.divIcon({
+        className: 'user-location-marker',
+        html: htmlContent,
+        iconSize: [26, 26],
+        iconAnchor: [13, 13],
+        popupAnchor: [0, -13]
     });
 };
 
@@ -194,6 +230,38 @@ const MapComponent = ({ stations, onStationSelect, onViewDetails, selectedStatio
                     url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
                 />
                 {/* <RoutingController selectedStation={selectedStation} userLocation={userLocation} /> */}
+
+                {/* User Location Marker */}
+                {userLocation && (
+                    <>
+                        <Marker
+                            position={[userLocation.lat, userLocation.lng]}
+                            icon={createUserLocationIcon()}
+                            zIndexOffset={1000}
+                        >
+                            <Popup className="custom-popup">
+                                <div style={{ padding: '4px', textAlign: 'center' }}>
+                                    <h3 style={{ marginBottom: '4px', fontSize: '1rem', display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'center' }}>
+                                        <MapPin size={16} />
+                                        Your Location
+                                    </h3>
+                                    <p style={{ opacity: 0.7, fontSize: '0.85rem', margin: 0 }}>You are here</p>
+                                </div>
+                            </Popup>
+                        </Marker>
+                        {/* Accuracy circle */}
+                        <Circle
+                            center={[userLocation.lat, userLocation.lng]}
+                            radius={50}
+                            pathOptions={{
+                                color: '#3b82f6',
+                                fillColor: '#3b82f6',
+                                fillOpacity: 0.1,
+                                weight: 1
+                            }}
+                        />
+                    </>
+                )}
 
                 {stations.map(station => (
                     <Marker
