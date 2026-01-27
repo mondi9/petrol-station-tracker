@@ -2,6 +2,7 @@ import React from 'react';
 import { MapPin, Fuel, Clock, Info } from 'lucide-react';
 import { formatTimeAgo, formatPrice, calculateTravelTime } from '../services/stationService';
 import FilterBar from './FilterBar';
+import PriceDisplay from './PriceDisplay';
 
 const StationList = ({ stations, onSelect, onViewDetails, selectedStationId, onImport, onFixAddresses, onRestore, onAddStation, onOpenAdminDashboard, onOpenFleetDashboard, onOpenProfile, importStatus, user, onLogin, onLogout, filters, onFilterChange }) => {
     // ... matching existing code ...
@@ -181,25 +182,12 @@ const StationList = ({ stations, onSelect, onViewDetails, selectedStationId, onI
 
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px' }}>
                                 <div style={{ display: 'flex', gap: '6px' }}>
-                                    <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap' }}>
-                                        {station.prices?.petrol && (
-                                            <div style={{ fontSize: '0.8rem', fontWeight: 'bold', color: '#4ade80', background: 'rgba(34, 197, 94, 0.1)', padding: '2px 6px', borderRadius: '4px' }}>
-                                                P: {formatPrice(station.prices.petrol)}
-                                            </div>
-                                        )}
-                                        {station.prices?.diesel && (
-                                            <div style={{ fontSize: '0.8rem', fontWeight: 'bold', color: '#facc15', background: 'rgba(234, 179, 8, 0.1)', padding: '2px 6px', borderRadius: '4px' }}>
-                                                D: {formatPrice(station.prices.diesel)}
-                                            </div>
-                                        )}
-                                        {station.prices?.gas && (
-                                            <div style={{ fontSize: '0.8rem', fontWeight: 'bold', color: '#38bdf8', background: 'rgba(56, 189, 248, 0.1)', padding: '2px 6px', borderRadius: '4px' }}>
-                                                G: {formatPrice(station.prices.gas)}
-                                            </div>
-                                        )}
-                                        {!station.prices?.petrol && !station.prices?.diesel && !station.prices?.gas && (
-                                            <span style={{ fontSize: '0.8rem', opacity: 0.3 }}>No Price</span>
-                                        )}
+                                    <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', alignItems: 'center' }}>
+                                        <PriceDisplay
+                                            prices={station.prices}
+                                            lastPriceUpdate={station.lastPriceUpdate}
+                                            compact={true}
+                                        />
                                     </div>
 
                                     {station.status === 'active' && station.queueStatus && (

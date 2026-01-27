@@ -1,66 +1,53 @@
-# Deploying to Google Play Store (TWA)
+# Hacking the Planet: Your Android Build Guide
 
-This guide explains how to package your Petrol Station Tracker as a Trusted Web Activity (TWA) for the Google Play Store.
+You are now the proud owner of a hybrid Android application project. This guide will help you take the code generated in the `android/` folder and turn it into a real `.apk` that you can install on your phone.
 
 ## Prerequisites
 
-1.  **Deployment**: Your app MUST be deployed to a public HTTPS URL (e.g., via Netlify or Vercel).
-    *   Example: `https://my-petrol-tracker.netlify.app`
-2.  **Node.js**: Installed on your computer.
-3.  **Android Studio** (Optional but recommended for SDKs) OR just the Android Command Line Tools installed.
+- **Android Studio**: You MUST have this installed. It includes the Android SDK and build tools. [Download here](https://developer.android.com/studio).
+- **Physical Device**: Recommended for testing GPS and maps properly. Connect it to your PC via USB and enable "USB Debugging" in Developer Options.
+- **OR Android Emulator**: Built into Android Studio.
 
-## Step 1: Install Bubblewrap
+## Steps to Build & Run
 
-Run this command in your terminal to install the Google tool for TWA generation:
-
-```bash
-npm i -g @bubblewrap/cli
-```
-
-## Step 2: Initialize the Android Project
-
-1.  Create a new folder for the Android project:
-    ```bash
-    mkdir android-app
-    cd android-app
-    ```
-
-2.  Run the initialization command:
-    ```bash
-    bubblewrap init --manifest https://YOUR-APP-URL.netlify.app/manifest.webmanifest
-    ```
-    *(Replace `YOUR-APP-URL` with your actual live URL)*
-
-3.  **Answer the questions**:
-    *   **Domain**: `your-app.netlify.app`
-    *   **App Name**: Lagos Petrol Pulse
-    *   **Application ID**: `com.petrolpulse.app` (or similar)
-    *   **KeyStore**: If you don't have one, Bubblewrap will create one for you. **SAVE THIS FILE!** You need it to update the app later.
-
-## Step 3: Build the App
-
-Once initialized, run:
+### 1. Open in Android Studio
+The easiest way to open the project is to run this command in your terminal:
 
 ```bash
-bubblewrap build
+npx cap open android
 ```
 
-This will generate two files in the folder:
-*   `app-release-bundle.aab` (Upload this to Google Play)
-*   `app-release-signed.apk` (Install this on your phone to test)
+Alternatively, open Android Studio, select **Open**, and navigate to:
+`c:\Users\USER\.gemini\antigravity\scratch\petrol-station-tracker\android`
 
-## Step 4: Asset Links (Verification)
+### 2. Wait for Gradle Sync
+When you first open the project, Android Studio will start "syncing" Gradle files. This downloads all the native dependencies. **Wait for the progress bar in the bottom right to finish.**
 
-To prove you own the website, Bubblewrap will create a file called `assetlinks.json`.
+### 3. Run the App
+- **Connect your phone** or create a virtual device (AVD).
+- Select your device in the toolbar dropdown at the top.
+- Click the green **Play** (▶) button.
+- The app will build, install, and launch on your device!
 
-1.  Take this file from the `android-app` folder.
-2.  Put it in your web project at: `public/.well-known/assetlinks.json`
-3.  Deploy your web app again.
-4.  Google Play will now verify your app works.
+### 4. Build a Release APK (for sharing)
+To create an APK file you can send to friends:
+1. In Android Studio, go to **Build > Build Bundle(s) / APK(s) > Build APK(s)**.
+2. Wait for the build to finish.
+3. A popup will appear saying "APK(s) generated successfully". Click **locate** to find the file (usually in `android/app/build/outputs/apk/debug/`).
 
-## Step 5: Upload to Console
+## Updating the App
+If you make changes to your React code (e.g., in `src/App.jsx`), you need to update the Android version:
 
-1.  Go to [Google Play Console](https://play.google.com/console).
-2.  Create App.
-3.  Upload the `.aab` file from Step 3.
-4.  Fill in store details and screenshots.
+1. **Rebuild the web app**:
+   ```bash
+   npm run build
+   ```
+2. **Sync changes to Android**:
+   ```bash
+   npx cap sync
+   ```
+3. **Re-run** from Android Studio (or just hit the Play button again if it's open).
+
+## Troubleshooting
+- **"SDK location not found"**: Make sure you have the Android SDK installed via Android Studio.
+- **"Grade sync failed"**: Often due to internet issues or missing SDK tools. Check the error log in Android Studio and click the "Install missing..." links if they appear.

@@ -14,6 +14,7 @@ import { grantAdminRole } from './services/userService';
 import AuthModal from './components/AuthModal';
 import UserProfileModal from './components/UserProfileModal';
 import MobileBottomNav from './components/MobileBottomNav';
+import StationBottomSheet from './components/StationBottomSheet.jsx';
 import AddStationModal from './components/AddStationModal';
 import StationDetailsModal from './components/StationDetailsModal';
 import AdminDashboard from './components/AdminDashboard';
@@ -198,10 +199,9 @@ function App() {
   const handleStationSelect = (station) => {
     setSelectedStation(station);
     // On mobile, we want to see details immediately, not just the map popup
+    // BUT we want to keep map view active to see the bottom sheet
     if (window.innerWidth <= 768) {
-      alert("Debug: Station clicked. About to switch view.");
-      // setViewingStation(station);
-      // setViewMode('map');
+      // setViewMode('map'); // Ensure we stay on map
     }
   };
 
@@ -225,6 +225,12 @@ function App() {
     }
 
     setReportModalData({ isOpen: false, station: null });
+  };
+
+  const handleNavigate = (station) => {
+    if (!station) return;
+    const url = `https://www.google.com/maps/dir/?api=1&destination=${station.lat},${station.lng}`;
+    window.open(url, '_blank');
   };
 
   // Filter Logic
@@ -307,7 +313,7 @@ function App() {
 
         {/* Sidebar / List View */}
         <div className="sidebar" style={{
-          width: '400px',
+          width: window.innerWidth <= 768 ? '100%' : '400px',
           background: 'var(--bg-secondary)',
           borderRight: '1px solid var(--glass-border)',
           display: viewMode === 'map' && window.innerWidth <= 768 ? 'none' : 'flex',
@@ -363,6 +369,20 @@ function App() {
             <FilterBar filters={filters} onFilterChange={setFilters} />
           )}
         </div>
+
+        {/* Mobile Bottom Sheet */}
+        <div className="mobile-sheet-container" style={{ pointerEvents: 'none', position: 'absolute', inset: 0 }}>
+          {activeSelectedStation && window.innerWidth <= 768 && viewMode === 'map' && (
+            <div style={{ pointerEvents: 'auto' }}>
+              <StationBottomSheet
+                station={activeSelectedStation}
+                onClose={() => setSelectedStation(null)}
+                onNavigate={handleNavigate}
+              />
+            </div>
+          )}
+        </div>
+
       </div>
 
       <MobileBottomNav

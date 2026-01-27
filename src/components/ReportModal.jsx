@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { X, Fuel, CheckCircle, TriangleAlert, Ban } from 'lucide-react';
+import { X, Fuel, CheckCircle, TriangleAlert, Ban, DollarSign } from 'lucide-react';
+import { validatePrice } from '../services/priceService';
 
 const ReportModal = ({ isOpen, onClose, onSubmit, station, user }) => {
     // Form State
@@ -8,6 +9,7 @@ const ReportModal = ({ isOpen, onClose, onSubmit, station, user }) => {
     const [queueLength, setQueueLength] = useState(0); // number (minutes or cars)
     const [price, setPrice] = useState('');
     const [guestName, setGuestName] = useState('');
+    const [priceError, setPriceError] = useState('');
 
     // Reset on open
     useEffect(() => {
@@ -17,6 +19,7 @@ const ReportModal = ({ isOpen, onClose, onSubmit, station, user }) => {
             setQueueLength(0);
             setPrice('');
             setGuestName('');
+            setPriceError('');
         }
     }, [isOpen]);
 
@@ -28,6 +31,13 @@ const ReportModal = ({ isOpen, onClose, onSubmit, station, user }) => {
             alert("Queue length cannot be negative.");
             return;
         }
+
+        // Validate price if provided
+        if (price && !validatePrice(parseInt(price), fuelType)) {
+            setPriceError('Price seems unrealistic. Please check.');
+            return;
+        }
+
         if (!user && !guestName.trim()) {
             // Optional per request ("optional for guest"), but improved UX usually asks for it.
             // Requirement said "Name (Text input, optional for guest)".
@@ -45,6 +55,14 @@ const ReportModal = ({ isOpen, onClose, onSubmit, station, user }) => {
 
         onSubmit(reportData);
     };
+
+    const handlePriceChange = (e) => {
+        setPrice(e.target.value);
+        setPriceError(''); // Clear error on change
+    };
+
+    // Get last reported price for this fuel type
+    const lastPrice = station.prices?.[fuelType];
 
     return (
         <div style={{
@@ -140,18 +158,37 @@ const ReportModal = ({ isOpen, onClose, onSubmit, station, user }) => {
                             />
                         </div>
                         <div>
-                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', fontWeight: '500' }}>Price (₦)</label>
+                            <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px', fontSize: '0.9rem', fontWeight: '500' }}>
+                                <DollarSign size={16} style={{ color: '#22c55e' }} />
+                                Price (₦)
+                                {lastPrice && (
+                                    <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 'normal' }}>
+                                        Last: ₦{lastPrice}
+                                    </span>
+                                )}
+                            </label>
                             <input
                                 type="number"
-                                placeholder="Optional"
+                                placeholder={lastPrice ? `e.g., ${lastPrice}` : "e.g., 950"}
                                 value={price}
-                                onChange={(e) => setPrice(e.target.value)}
+                                onChange={handlePriceChange}
                                 style={{
                                     width: '100%', padding: '12px', borderRadius: '8px',
-                                    background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)',
+                                    background: 'rgba(255,255,255,0.05)',
+                                    border: priceError ? '1px solid #ef4444' : '1px solid var(--glass-border)',
                                     color: 'white', fontSize: '1rem'
                                 }}
                             />
+                            {priceError && (
+                                <span style={{ fontSize: '0.75rem', color: '#ef4444', marginTop: '4px', display: 'block' }}>
+                                    {priceError}
+                                </span>
+                            )}
+                            {!priceError && (
+                                <span style={{ fontSize: '0.7rem', color: '#64748b', marginTop: '4px', display: 'block' }}>
+                                    💡 Help others save money!
+                                </span>
+                            )}
                         </div>
                     </div>
 

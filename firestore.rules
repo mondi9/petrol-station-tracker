@@ -27,11 +27,11 @@ service cloud.firestore {
       
       // UPDATE: 
       // Admins can update anything.
-      // Users can only update 'status', 'lastUpdated', and 'waitTime'.
+      // Users can only update 'status', 'lastUpdated', 'waitTime', 'prices', 'lastPriceUpdate', 'availability', 'queue', 'confirmations', 'flags', 'lastReporter'.
       allow update: if isAdmin() || (
         isAuth() && 
         request.resource.data.diff(resource.data).affectedKeys()
-        .hasOnly(['status', 'lastUpdated', 'waitTime', 'reports'])
+        .hasOnly(['status', 'lastUpdated', 'waitTime', 'reports', 'prices', 'lastPriceUpdate', 'availability', 'queue', 'confirmations', 'flags', 'lastReporter'])
       );
 
       // Reviews Subcollection

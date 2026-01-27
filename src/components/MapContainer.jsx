@@ -16,66 +16,72 @@ const DefaultIcon = L.icon({
     iconAnchor: [12, 41]
 });
 
-// Custom marker generator (Traffic Dot Style)
-const createCustomIcon = (status, queueStatus) => {
+// Custom marker generator (Price Bubble + Queue Status)
+const createCustomIcon = (station) => {
+    const status = station.status;
+    const queueStatus = station.queueStatus;
+    const price = station.prices?.petrol;
+
     let color = '#64748b'; // Default Grey (Inactive)
-    let glowColor = 'rgba(100, 116, 139, 0.4)';
-    let size = 24; // Increased size for visibility
-    let pulseClass = '';
-    let label = '';
+    let borderColor = 'white';
     let textColor = 'white';
+    let label = price ? `₦${price}` : '⛽';
 
     if (status === 'active') {
         if (!queueStatus || queueStatus === 'short') {
-            color = '#22c55e'; // Green
-            glowColor = 'rgba(34, 197, 94, 0.5)';
-            label = 'S';
+            color = '#16a34a'; // Green
         } else if (queueStatus === 'medium') {
-            color = '#eab308'; // Yellow
-            glowColor = 'rgba(234, 179, 8, 0.5)';
-            label = 'M';
-            textColor = 'black';
+            color = '#ca8a04'; // Dark Yellow
         } else if (queueStatus === 'long') {
-            color = '#ef4444'; // Red
-            glowColor = 'rgba(239, 68, 68, 0.6)';
-            size = 28; // Slightly larger
-            pulseClass = 'pulse-animation';
-            label = 'L';
+            color = '#dc2626'; // Red
         } else {
-            label = 'A'; // Just Active
+            color = '#16a34a'; // Assume green if active but unknown queue
         }
     } else {
-        size = 18; // Smaller for inactive
+        label = 'Inactive';
     }
 
-    // Traffic Dot: Circle with Glow + Label
+    // CSS for the marker
     const htmlContent = `
         <div style="
-             width: ${size}px;
-             height: ${size}px;
-             background-color: ${color};
-             border-radius: 50%;
-             border: 2px solid white;
-             box-shadow: 0 0 10px ${glowColor}, 0 0 20px ${glowColor};
-             position: relative;
              display: flex;
+             flex-direction: column;
              align-items: center;
-             justify-content: center;
-             color: ${textColor};
-             font-weight: 800;
-             font-size: ${size * 0.5}px;
-             font-family: sans-serif;
-        " class="${pulseClass}">
-            ${label}
+             transform: translateY(-50%);
+        ">
+            <div style="
+                 background-color: ${color};
+                 color: ${textColor};
+                 padding: 4px 8px;
+                 border-radius: 12px;
+                 border: 2px solid ${borderColor};
+                 box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                 font-weight: bold;
+                 font-size: 12px;
+                 white-space: nowrap;
+                 display: flex;
+                 align-items: center;
+                 gap: 4px;
+            ">
+                ${label}
+            </div>
+            <div style="
+                width: 0; 
+                height: 0; 
+                border-left: 6px solid transparent;
+                border-right: 6px solid transparent;
+                border-top: 6px solid ${color};
+                margin-top: -1px;
+            "></div>
         </div>
     `;
 
     return L.divIcon({
-        className: 'custom-traffic-marker',
+        className: 'custom-price-marker',
         html: htmlContent,
-        iconSize: [size, size],
-        iconAnchor: [size / 2, size / 2], // Center anchor
-        popupAnchor: [0, -size / 2]
+        iconSize: [60, 40],
+        iconAnchor: [30, 40], // Anchor at bottom tip
+        popupAnchor: [0, -40]
     });
 };
 
@@ -193,7 +199,7 @@ const MapComponent = ({ stations, onStationSelect, onViewDetails, selectedStatio
                     <Marker
                         key={station.id}
                         position={[station.lat, station.lng]}
-                        icon={createCustomIcon(station.status, station.queueStatus)}
+                        icon={createCustomIcon(station)}
                         eventHandlers={{
                             click: () => onStationSelect(station),
                         }}
