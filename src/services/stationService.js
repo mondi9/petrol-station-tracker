@@ -1,5 +1,5 @@
 import { db } from './firebase';
-import { collection, doc, updateDoc, addDoc, getDocs, query, where, serverTimestamp, getDoc } from 'firebase/firestore';
+import { collection, doc, updateDoc, addDoc, getDocs, query, where, serverTimestamp, getDoc, onSnapshot } from 'firebase/firestore';
 import { checkPriceAlerts } from './alertService';
 
 const COLLECTION_NAME = 'stations';
