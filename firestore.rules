@@ -53,5 +53,20 @@ service cloud.firestore {
       // Users can write to their own doc (create/update), but cannot change 'role' unless they are admin
       allow write: if isAdmin() || (isAuth() && request.auth.uid == userId);
     }
+
+    // Price Alerts Collection
+    match /priceAlerts/{alertId} {
+      // Users can read their own alerts
+      allow read: if isAuth() && request.auth.uid == resource.data.userId;
+      
+      // Users can create alerts for themselves
+      allow create: if isAuth() && request.auth.uid == request.resource.data.userId;
+      
+      // Users can delete their own alerts
+      allow delete: if isAuth() && request.auth.uid == resource.data.userId;
+      
+      // Users can update their own alerts (mark as triggered, etc.)
+      allow update: if isAuth() && request.auth.uid == resource.data.userId;
+    }
   }
 }

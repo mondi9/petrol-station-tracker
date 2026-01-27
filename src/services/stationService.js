@@ -1,5 +1,6 @@
 import { db } from './firebase';
-import { collection, onSnapshot, doc, updateDoc, setDoc, query, addDoc, serverTimestamp, getDocs, where, arrayUnion, arrayRemove } from 'firebase/firestore';
+import { collection, doc, updateDoc, addDoc, getDocs, query, where, serverTimestamp, getDoc } from 'firebase/firestore';
+import { checkPriceAlerts } from './alertService';
 
 const COLLECTION_NAME = 'stations';
 
@@ -85,6 +86,11 @@ export const updateStationStatus = async (stationId, reportData, userId = null) 
         updateDoc(stationRef, updatePayload),
         addDoc(collection(db, COLLECTION_NAME, stationId, 'reports'), historyData)
     ]);
+
+    // Check if any price alerts should trigger
+    if (reportData.price && reportData.fuelType) {
+        await checkPriceAlerts(stationId, reportData.fuelType, reportData.price);
+    }
 };
 
 export const formatPrice = (amount) => {

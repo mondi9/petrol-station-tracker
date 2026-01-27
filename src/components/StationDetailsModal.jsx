@@ -1,14 +1,16 @@
 import React, { useState } from 'react';
-import { X, MapPin, Clock, Navigation, Star, TrendingUp } from 'lucide-react';
+import { X, MapPin, Clock, Navigation, Star, TrendingUp, Bell } from 'lucide-react';
 import ReviewList from './ReviewList';
 import AddReviewModal from './AddReviewModal';
 import PriceDisplay from './PriceDisplay';
+import PriceAlertModal from './PriceAlertModal';
 import { addReview } from '../services/reviewService';
 import { formatTimeAgo, calculateTravelTime, verifyStation } from '../services/stationService';
 import { CheckCircle, AlertTriangle, ThumbsUp, ThumbsDown } from 'lucide-react';
 
 const StationDetailsModal = ({ isOpen, onClose, station, user, onLoginRequest, userLocation }) => {
     const [isReviewOpen, setIsReviewOpen] = useState(false);
+    const [isAlertOpen, setIsAlertOpen] = useState(false);
 
     if (!isOpen) return null;
 
@@ -156,20 +158,42 @@ const StationDetailsModal = ({ isOpen, onClose, station, user, onLoginRequest, u
 
                         {/* Price Section */}
                         <div style={{ marginBottom: '20px' }}>
-                            <h3 style={{
-                                fontSize: '0.9rem',
-                                fontWeight: '600',
-                                marginBottom: '12px',
-                                color: '#94a3b8',
-                                textTransform: 'uppercase',
-                                letterSpacing: '0.5px',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '8px'
-                            }}>
-                                <TrendingUp size={16} />
-                                Fuel Prices
-                            </h3>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                                <h3 style={{
+                                    fontSize: '0.9rem',
+                                    fontWeight: '600',
+                                    margin: 0,
+                                    color: '#94a3b8',
+                                    textTransform: 'uppercase',
+                                    letterSpacing: '0.5px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '8px'
+                                }}>
+                                    <TrendingUp size={16} />
+                                    Fuel Prices
+                                </h3>
+                                <button
+                                    onClick={() => user ? setIsAlertOpen(true) : onLoginRequest()}
+                                    style={{
+                                        padding: '6px 12px',
+                                        borderRadius: '6px',
+                                        border: '1px solid rgba(34, 197, 94, 0.5)',
+                                        background: 'rgba(34, 197, 94, 0.1)',
+                                        color: '#22c55e',
+                                        cursor: 'pointer',
+                                        fontSize: '0.8rem',
+                                        fontWeight: '600',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        gap: '6px',
+                                        transition: 'all 0.2s'
+                                    }}
+                                >
+                                    <Bell size={14} />
+                                    Set Alert
+                                </button>
+                            </div>
                             <PriceDisplay
                                 prices={station.prices}
                                 lastPriceUpdate={station.lastPriceUpdate}
@@ -283,6 +307,17 @@ const StationDetailsModal = ({ isOpen, onClose, station, user, onLoginRequest, u
                 onClose={() => setIsReviewOpen(false)}
                 onSubmit={handleAddReview}
                 stationName={station.name}
+            />
+
+            <PriceAlertModal
+                isOpen={isAlertOpen}
+                onClose={() => setIsAlertOpen(false)}
+                station={station}
+                user={user}
+                onSuccess={() => {
+                    // Could show success message or refresh alerts
+                    console.log('Alert created successfully');
+                }}
             />
         </>
     );
