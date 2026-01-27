@@ -235,7 +235,7 @@ function App() {
 
   // Filter Logic
   const filteredStations = React.useMemo(() => {
-    return stations.filter(station => {
+    let result = stations.filter(station => {
       // 1. Search Query
       if (filters.searchQuery) {
         const query = filters.searchQuery.toLowerCase();
@@ -258,7 +258,17 @@ function App() {
 
       return true;
     });
-  }, [stations, filters]);
+
+    // Add distance to each station if user location is available
+    if (userLocation) {
+      result = result.map(station => ({
+        ...station,
+        distance: calculateDistance(userLocation.lat, userLocation.lng, station.lat, station.lng)
+      }));
+    }
+
+    return result;
+  }, [stations, filters, userLocation]);
 
   // derived state for selected station to ensure it's always fresh
   const activeSelectedStation = stations.find(s => s.id === selectedStation?.id) || selectedStation;
@@ -281,13 +291,21 @@ function App() {
           let nearest = null;
           let minDistance = Infinity;
 
+          // Debug: Log all distances
+          console.log('=== Finding Nearest Station ===');
+          console.log('Your location:', { lat: latitude, lng: longitude });
+
           stations.forEach(station => {
             const dist = calculateDistance(latitude, longitude, station.lat, station.lng);
+            console.log(`${station.name}: ${dist?.toFixed(2)}km`, { lat: station.lat, lng: station.lng });
+
             if (dist && dist < minDistance) {
               minDistance = dist;
               nearest = station;
             }
           });
+
+          console.log('Nearest station selected:', nearest?.name, minDistance.toFixed(2) + 'km');
 
           if (nearest) {
             setSelectedStation(nearest);
@@ -375,6 +393,7 @@ function App() {
             onImport={handleImportOSM}
             onFixAddresses={handleFixAddresses}
             onRestore={handleRestoreMissing}
+            userLocation={userLocation}
           />
         </div>
 

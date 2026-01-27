@@ -1,10 +1,10 @@
 import React from 'react';
 import { MapPin, Fuel, Clock, Info } from 'lucide-react';
-import { formatTimeAgo, formatPrice, calculateTravelTime } from '../services/stationService';
+import { formatTimeAgo, formatPrice, calculateTravelTime, formatDistance } from '../services/stationService';
 import FilterBar from './FilterBar';
 import PriceDisplay from './PriceDisplay';
 
-const StationList = ({ stations, onSelect, onViewDetails, selectedStationId, onImport, onFixAddresses, onRestore, onAddStation, onOpenAdminDashboard, onOpenFleetDashboard, onOpenProfile, importStatus, user, onLogin, onLogout, filters, onFilterChange }) => {
+const StationList = ({ stations, onSelect, onViewDetails, selectedStationId, onImport, onFixAddresses, onRestore, onAddStation, onOpenAdminDashboard, onOpenFleetDashboard, onOpenProfile, importStatus, user, onLogin, onLogout, filters, onFilterChange, userLocation }) => {
     // ... matching existing code ...
     // Local State for sorting only
     const [sortBy, setSortBy] = React.useState('distance'); // 'distance', 'price', 'queue'

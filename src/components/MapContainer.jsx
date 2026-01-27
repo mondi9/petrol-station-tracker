@@ -16,16 +16,24 @@ const DefaultIcon = L.icon({
     iconAnchor: [12, 41]
 });
 
-// Custom marker generator (Price Bubble + Queue Status)
-const createCustomIcon = (station) => {
+// Custom marker generator (Price Bubble + Queue Status + Distance)
+const createCustomIcon = (station, userLocation) => {
     const status = station.status;
     const queueStatus = station.queueStatus;
     const price = station.prices?.petrol;
+    const distance = station.distance;
 
     let color = '#64748b'; // Default Grey (Inactive)
     let borderColor = 'white';
     let textColor = 'white';
     let label = price ? `₦${price}` : '⛽';
+
+    // Add distance to label if available
+    if (distance && distance < 10) {
+        label = `${distance.toFixed(1)}km`;
+    } else if (price) {
+        label = `₦${price}`;
+    }
 
     if (status === 'active') {
         if (!queueStatus || queueStatus === 'short') {
