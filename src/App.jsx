@@ -429,7 +429,7 @@ function App() {
       />
 
       {/* Floating Action Buttons */}
-      <div style={{ position: 'fixed', bottom: '80px', right: '20px', display: 'flex', flexDirection: 'column', gap: '12px', zIndex: 1000 }}>
+      <div style={{ position: 'fixed', bottom: '80px', left: '20px', display: 'flex', flexDirection: 'column', gap: '12px', zIndex: 1000 }}>
         {user && (
           <button className="btn btn-primary" style={{ borderRadius: '50%', width: '56px', height: '56px', padding: 0, justifyContent: 'center', boxShadow: '0 4px 20px rgba(34, 197, 94, 0.4)' }}
             onClick={() => setIsAddStationModalOpen(true)} title="Add Station">
