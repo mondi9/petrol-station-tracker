@@ -20,7 +20,7 @@ const MobileBottomNav = ({ viewMode, setViewMode, onOpenFleet, onOpenProfile, un
                     display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px',
                     color: viewMode === 'map' ? 'var(--color-active)' : 'rgba(255,255,255,0.5)',
                     cursor: 'pointer', flex: 1,
-                    padding: '10px 0'
+                    padding: '6px 0'
                 }}
             >
                 <Map size={20} strokeWidth={viewMode === 'map' ? 2.5 : 2} />
@@ -34,7 +34,7 @@ const MobileBottomNav = ({ viewMode, setViewMode, onOpenFleet, onOpenProfile, un
                     display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px',
                     color: viewMode === 'list' ? 'var(--color-active)' : 'rgba(255,255,255,0.5)',
                     cursor: 'pointer', flex: 1,
-                    padding: '10px 0'
+                    padding: '6px 0'
                 }}
             >
                 <List size={20} strokeWidth={viewMode === 'list' ? 2.5 : 2} />
@@ -48,7 +48,7 @@ const MobileBottomNav = ({ viewMode, setViewMode, onOpenFleet, onOpenProfile, un
                     display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px',
                     color: 'rgba(255,255,255,0.5)',
                     cursor: 'pointer', flex: 1,
-                    padding: '10px 0'
+                    padding: '6px 0'
                 }}
             >
                 <Fuel size={20} />
@@ -62,7 +62,7 @@ const MobileBottomNav = ({ viewMode, setViewMode, onOpenFleet, onOpenProfile, un
                     display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px',
                     color: 'rgba(255,255,255,0.5)',
                     cursor: 'pointer', flex: 1, position: 'relative',
-                    padding: '10px 0'
+                    padding: '6px 0'
                 }}
             >
                 <User size={20} />
