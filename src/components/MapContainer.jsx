@@ -370,7 +370,7 @@ const MapComponent = ({ stations, onStationSelect, onViewDetails, selectedStatio
 
 const LocationButton = ({ onFindNearest, isLocating }) => {
     return (
-        <div style={{ position: 'absolute', bottom: '24px', right: '24px', zIndex: 1000, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <div style={{ position: 'absolute', bottom: '80px', right: '24px', zIndex: 1000, display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <button
                 onClick={(e) => {
                     e.stopPropagation();
