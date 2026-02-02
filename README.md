@@ -2,6 +2,10 @@
 
 A modern, real-time web application to track the operational status of petrol stations in Lagos. Built with React, Leaflet, and Firebase.
 
+## 🌐 Live Demo
+
+**[🚀 Open App](https://petrol-station-tracker.netlify.app/)** | [![Netlify Status](https://api.netlify.com/api/v1/badges/YOUR_SITE_ID/deploy-status)](https://app.netlify.com/sites/petrol-station-tracker/deploys)
+
 ![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)
 ![Firebase](https://img.shields.io/badge/Firebase-039BE5?style=for-the-badge&logo=Firebase&logoColor=white)
 ![Leaflet](https://img.shields.io/badge/Leaflet-199900?style=for-the-badge&logo=Leaflet&logoColor=white)
