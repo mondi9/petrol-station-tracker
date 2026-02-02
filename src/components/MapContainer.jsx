@@ -488,7 +488,7 @@ const MapComponent = ({ stations, onStationSelect, onViewDetails, selectedStatio
 
 const LocationButton = ({ onFindNearest, isLocating }) => {
     return (
-        <div style={{ position: 'absolute', bottom: '80px', right: '24px', zIndex: 1000, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <div style={{ position: 'absolute', bottom: '100px', right: '20px', zIndex: 1000, display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <button
                 onClick={(e) => {
                     e.stopPropagation();
@@ -496,7 +496,7 @@ const LocationButton = ({ onFindNearest, isLocating }) => {
                 }}
                 className="glass-panel"
                 style={{
-                    width: '48px', height: '48px', borderRadius: '50%',
+                    width: '44px', height: '44px', borderRadius: '50%',
                     background: isLocating ? 'var(--bg-secondary)' : 'var(--color-active)',
                     color: isLocating ? 'var(--text-secondary)' : 'black',
                     border: 'none',
@@ -511,14 +511,14 @@ const LocationButton = ({ onFindNearest, isLocating }) => {
             >
                 {isLocating ? (
                     <div className="spinner" style={{
-                        width: '20px', height: '20px',
+                        width: '18px', height: '18px',
                         border: '2px solid rgba(255,255,255,0.3)',
                         borderTop: '2px solid white',
                         borderRadius: '50%',
                         animation: 'spin 1s linear infinite'
                     }} />
                 ) : (
-                    <Navigation size={24} fill="currentColor" />
+                    <Navigation size={22} fill="currentColor" />
                 )}
             </button>
             <style>{`
