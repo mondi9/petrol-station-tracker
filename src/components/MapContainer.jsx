@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, useMap, Polyline, Circle } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents, Polyline, Circle } from 'react-leaflet';
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { formatTimeAgo, formatDistance, calculateDistance } from '../services/stationService';
@@ -29,24 +29,35 @@ const createCustomIcon = (station, userLocation) => {
     let label = price ? `₦${price}` : '⛽';
 
     // Add distance to label if available
-    if (distance && distance < 10) {
-        label = `${distance.toFixed(1)}km`;
+    if (distance !== undefined && distance !== null && distance < 10) {
+        if (distance < 1) {
+            label = `${Math.round(distance * 1000)}m`;
+        } else {
+            label = `${distance.toFixed(1)}km`;
+        }
     } else if (price) {
         label = `₦${price}`;
     }
 
+    let queueIcon = '';
+
     if (status === 'active') {
         if (!queueStatus || queueStatus === 'short') {
             color = '#16a34a'; // Green
+            queueIcon = '✅';
         } else if (queueStatus === 'medium') {
             color = '#ca8a04'; // Dark Yellow
+            queueIcon = '⏳';
         } else if (queueStatus === 'long') {
             color = '#dc2626'; // Red
+            queueIcon = '🚨';
         } else {
             color = '#16a34a'; // Assume green if active but unknown queue
+            queueIcon = '✅';
         }
     } else {
         label = 'Inactive';
+        queueIcon = '⚪';
     }
 
     // CSS for the marker
@@ -60,25 +71,26 @@ const createCustomIcon = (station, userLocation) => {
             <div style="
                  background-color: ${color};
                  color: ${textColor};
-                 padding: 4px 8px;
-                 border-radius: 12px;
-                 border: 2px solid ${borderColor};
-                 box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+                 padding: 2px 5px;
+                 border-radius: 8px;
+                 border: 1px solid ${borderColor};
+                 box-shadow: 0 1px 3px rgba(0,0,0,0.4);
                  font-weight: bold;
-                 font-size: 12px;
+                 font-size: 10px;
                  white-space: nowrap;
                  display: flex;
                  align-items: center;
-                 gap: 4px;
+                 gap: 2px;
             ">
+                ${queueIcon ? `<span style="font-size: 10px; margin-right: 2px;">${queueIcon}</span>` : ''}
                 ${label}
             </div>
             <div style="
                 width: 0; 
                 height: 0; 
-                border-left: 6px solid transparent;
-                border-right: 6px solid transparent;
-                border-top: 6px solid ${color};
+                border-left: 4px solid transparent;
+                border-right: 4px solid transparent;
+                border-top: 4px solid ${color};
                 margin-top: -1px;
             "></div>
         </div>
@@ -87,14 +99,64 @@ const createCustomIcon = (station, userLocation) => {
     return L.divIcon({
         className: 'custom-price-marker',
         html: htmlContent,
-        iconSize: [60, 40],
-        iconAnchor: [30, 40], // Anchor at bottom tip
-        popupAnchor: [0, -40]
+        iconSize: [40, 30],
+        iconAnchor: [20, 30], // Anchor at bottom tip
+        popupAnchor: [0, -30]
     });
+};
+
+const MapLegend = () => {
+    return (
+        <div style={{
+            position: 'absolute',
+            bottom: '150px',
+            right: '24px',
+            left: 'auto',
+            zIndex: 1000,
+            padding: '12px',
+            borderRadius: '12px',
+            background: 'rgba(31, 41, 55, 0.85)',
+            backdropFilter: 'blur(8px)',
+            border: '1px solid rgba(255, 255, 255, 0.1)',
+            color: 'white',
+            fontSize: '0.75rem',
+            width: '140px',
+            boxShadow: '0 10px 25px rgba(0,0,0,0.5)',
+            pointerEvents: 'auto',
+            animation: 'slideInRight 0.5s ease-out'
+        }}>
+            <h4 style={{ margin: '0 0 8px 0', fontSize: '0.8rem', opacity: 0.9, fontWeight: 700 }}>Map Legend</h4>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '6px' }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ width: '12px', height: '12px', borderRadius: '3px', background: '#16a34a', border: '1px solid white' }}></div>
+                    <span>Short Queue ✅</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ width: '12px', height: '12px', borderRadius: '3px', background: '#ca8a04', border: '1px solid white' }}></div>
+                    <span>Medium Queue ⏳</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                    <div style={{ width: '12px', height: '12px', borderRadius: '3px', background: '#dc2626', border: '1px solid white' }}></div>
+                    <span>Long Queue 🚨</span>
+                </div>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', opacity: 0.6 }}>
+                    <div style={{ width: '12px', height: '12px', borderRadius: '3px', background: '#64748b', border: '1px solid white' }}></div>
+                    <span>Inactive ⚪</span>
+                </div>
+            </div>
+            <style>{`
+                @keyframes slideInRight {
+                    from { transform: translateX(20px); opacity: 0; }
+                    to { transform: translateX(0); opacity: 1; }
+                }
+            `}</style>
+        </div>
+    );
 };
 
 // Create user location marker (blue pulsing dot)
 const createUserLocationIcon = () => {
+    // ... same as before ...
     const htmlContent = `
         <div style="
              display: flex;
@@ -127,6 +189,39 @@ const createUserLocationIcon = () => {
         iconAnchor: [13, 13],
         popupAnchor: [0, -13]
     });
+};
+
+const MapEvents = ({ onMapClick }) => {
+    const map = useMapEvents({
+        click: (e) => {
+            if (onMapClick) onMapClick(e.latlng);
+        },
+    });
+    return null;
+};
+
+const MapViewUpdater = ({ selectedStation, userLocation }) => {
+    const map = useMap();
+
+    useEffect(() => {
+        if (selectedStation) {
+            console.log("Map: Flying to selected station", selectedStation.name);
+            map.flyTo([selectedStation.lat, selectedStation.lng], 16, {
+                duration: 1.5,
+                easeLinearity: 0.25
+            });
+        }
+    }, [selectedStation, map]);
+
+    // Initial center on user location once it's found
+    useEffect(() => {
+        if (userLocation && !selectedStation) {
+            console.log("Map: Centering on user location");
+            map.setView([userLocation.lat, userLocation.lng], 15);
+        }
+    }, [userLocation, map, !!selectedStation]);
+
+    return null;
 };
 
 const RoutingController = ({ selectedStation, userLocation }) => {
@@ -213,7 +308,7 @@ const RoutingController = ({ selectedStation, userLocation }) => {
     ) : null;
 };
 
-const MapComponent = ({ stations, onStationSelect, onViewDetails, selectedStation, onReportClick, onFindNearest, userLocation, isLocating }) => {
+const MapComponent = ({ stations, onStationSelect, onViewDetails, selectedStation, onReportClick, onFindNearest, userLocation, isLocating, onMapClick }) => {
     const position = [6.5244, 3.3792]; // Default Lagos center
 
     return (
@@ -237,6 +332,8 @@ const MapComponent = ({ stations, onStationSelect, onViewDetails, selectedStatio
                     attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
                     url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
                 />
+                <MapEvents onMapClick={onMapClick} />
+                <MapViewUpdater selectedStation={selectedStation} userLocation={userLocation} />
                 {/* <RoutingController selectedStation={selectedStation} userLocation={userLocation} /> */}
 
                 {/* User Location Marker */}
@@ -271,107 +368,120 @@ const MapComponent = ({ stations, onStationSelect, onViewDetails, selectedStatio
                     </>
                 )}
 
-                {stations.map(station => (
-                    <Marker
-                        key={station.id}
-                        position={[station.lat, station.lng]}
-                        icon={createCustomIcon(station)}
-                        eventHandlers={{
-                            click: () => onStationSelect(station),
-                        }}
-                    >
-                        <Popup className="custom-popup">
-                            <div style={{ padding: '4px' }}>
-                                <h3 style={{ marginBottom: '4px', fontSize: '1rem' }}>{station.name}</h3>
-                                <p style={{ opacity: 0.7, fontSize: '0.85rem', marginBottom: '8px' }}>{station.address}</p>
+                {stations.map((station, index) => {
+                    // Calculate z-index: active stations on top, then by queue status
+                    let zOffset = 0;
+                    if (station.status === 'active') {
+                        zOffset = 100;
+                        if (station.queueStatus === 'short') zOffset += 30;
+                        else if (station.queueStatus === 'medium') zOffset += 20;
+                        else if (station.queueStatus === 'long') zOffset += 10;
+                    }
 
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
-                                    <span className={`status-badge status-${station.status}`}>
-                                        {station.status === 'active' ? 'Active' : 'Inactive'}
-                                    </span>
-                                    <span style={{ fontSize: '0.75rem', opacity: 0.5, display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                        <Clock size={12} /> {formatTimeAgo(station.lastUpdated)}
-                                    </span>
-                                </div>
+                    return (
+                        <Marker
+                            key={station.id}
+                            position={[station.lat, station.lng]}
+                            icon={createCustomIcon(station, userLocation)}
+                            zIndexOffset={zOffset}
+                            eventHandlers={{
+                                click: () => onStationSelect(station),
+                            }}
+                        >
+                            <Popup className="custom-popup">
+                                <div style={{ padding: '4px' }}>
+                                    <h3 style={{ marginBottom: '4px', fontSize: '1rem' }}>{station.name}</h3>
+                                    <p style={{ opacity: 0.7, fontSize: '0.85rem', marginBottom: '8px' }}>{station.address}</p>
 
-                                {/* Detailed Status & Reporter Info */}
-                                <div style={{ marginBottom: '12px', fontSize: '0.75rem', color: 'var(--text-secondary)', background: 'rgba(255,255,255,0.03)', padding: '6px', borderRadius: '6px' }}>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                                        <span>Queue:</span>
-                                        <span style={{
-                                            fontWeight: 'bold',
-                                            color: station.queueStatus === 'short' ? '#4ade80' : station.queueStatus === 'medium' ? '#facc15' : station.queueStatus === 'long' ? '#f87171' : 'inherit'
-                                        }}>
-                                            {station.queueStatus ? (station.queueStatus.charAt(0).toUpperCase() + station.queueStatus.slice(1)) : 'Unknown'}
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
+                                        <span className={`status-badge status-${station.status}`}>
+                                            {station.status === 'active' ? 'Active' : 'Inactive'}
+                                        </span>
+                                        <span style={{ fontSize: '0.75rem', opacity: 0.5, display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                            <Clock size={12} /> {formatTimeAgo(station.lastUpdated)}
                                         </span>
                                     </div>
-                                    <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                        <span>Updated by:</span>
-                                        <span style={{ fontWeight: '500', color: 'var(--text-primary)' }}>
-                                            {station.lastReporter || 'Anonymous'}
-                                        </span>
-                                    </div>
-                                </div>
 
-                                {/* Fuel Availability Badges (Enhanced) */}
-                                <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginBottom: '12px' }}>
-                                    {['petrol', 'diesel', 'premium'].map(type => {
-                                        const price = station.prices?.[type];
-                                        const status = station.availability?.[type]; // 'available', 'low', 'empty'
-
-                                        if (!price && !status && station.status !== 'active') return null;
-
-                                        let colorClass = 'unknown';
-
-                                        if (type === 'petrol') colorClass = 'petrol';
-                                        if (type === 'diesel') colorClass = 'diesel';
-                                        if (type === 'premium') colorClass = 'gas';
-
-                                        const label = type === 'petrol' ? 'PMS' : type === 'diesel' ? 'AGO' : 'PREM';
-
-                                        return (
-                                            <div key={type} className={`fuel-badge ${colorClass}`} style={{ flex: '1 0 40%' }}>
-                                                <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
-                                                    <span className="fuel-label">{label}</span>
-                                                    {price && <span className="fuel-price" style={{ fontWeight: 'bold' }}>₦{price}</span>}
-                                                </div>
-                                            </div>
-                                        );
-                                    })}
-
-                                    {(!station.prices || Object.keys(station.prices).length === 0) && (
-                                        <div className="fuel-badge unknown" style={{ width: '100%', justifyContent: 'center' }}>
-                                            <span className="fuel-label">No Price Data</span>
+                                    {/* Detailed Status & Reporter Info */}
+                                    <div style={{ marginBottom: '12px', fontSize: '0.75rem', color: 'var(--text-secondary)', background: 'rgba(255,255,255,0.03)', padding: '6px', borderRadius: '6px' }}>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                                            <span>Queue:</span>
+                                            <span style={{
+                                                fontWeight: 'bold',
+                                                color: station.queueStatus === 'short' ? '#4ade80' : station.queueStatus === 'medium' ? '#facc15' : station.queueStatus === 'long' ? '#f87171' : 'inherit'
+                                            }}>
+                                                {station.queueStatus ? (station.queueStatus.charAt(0).toUpperCase() + station.queueStatus.slice(1)) : 'Unknown'}
+                                            </span>
                                         </div>
-                                    )}
-                                </div>
+                                        <div style={{ display: 'flex', justifyContent: 'space-between' }}>
+                                            <span>Updated by:</span>
+                                            <span style={{ fontWeight: '500', color: 'var(--text-primary)' }}>
+                                                {station.lastReporter || 'Anonymous'}
+                                            </span>
+                                        </div>
+                                    </div>
 
-                                <div style={{ display: 'grid', gap: '8px', gridTemplateColumns: '1fr 1fr' }}>
-                                    <button
-                                        className="btn btn-primary"
-                                        style={{ width: '100%', padding: '8px', fontSize: '0.75rem', justifyContent: 'center' }}
-                                        onClick={() => onReportClick(station)}
-                                    >
-                                        Report Status
-                                    </button>
-                                    <button
-                                        className="btn"
-                                        style={{ width: '100%', padding: '8px', fontSize: '0.75rem', justifyContent: 'center', background: 'var(--bg-secondary)', border: '1px solid var(--glass-border)' }}
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            onViewDetails(station);
-                                        }}
-                                    >
-                                        Reviews & Info
-                                    </button>
+                                    {/* Fuel Availability Badges (Enhanced) */}
+                                    <div style={{ display: 'flex', flexWrap: 'wrap', gap: '4px', marginBottom: '12px' }}>
+                                        {['petrol', 'diesel', 'premium'].map(type => {
+                                            const price = station.prices?.[type];
+                                            const status = station.availability?.[type]; // 'available', 'low', 'empty'
+
+                                            if (!price && !status && station.status !== 'active') return null;
+
+                                            let colorClass = 'unknown';
+
+                                            if (type === 'petrol') colorClass = 'petrol';
+                                            if (type === 'diesel') colorClass = 'diesel';
+                                            if (type === 'premium') colorClass = 'gas';
+
+                                            const label = type === 'petrol' ? 'PMS' : type === 'diesel' ? 'AGO' : 'PREM';
+
+                                            return (
+                                                <div key={type} className={`fuel-badge ${colorClass}`} style={{ flex: '1 0 40%' }}>
+                                                    <div style={{ display: 'flex', justifyContent: 'space-between', width: '100%' }}>
+                                                        <span className="fuel-label">{label}</span>
+                                                        {price && <span className="fuel-price" style={{ fontWeight: 'bold' }}>₦{price}</span>}
+                                                    </div>
+                                                </div>
+                                            );
+                                        })}
+
+                                        {(!station.prices || Object.keys(station.prices).length === 0) && (
+                                            <div className="fuel-badge unknown" style={{ width: '100%', justifyContent: 'center' }}>
+                                                <span className="fuel-label">No Price Data</span>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div style={{ display: 'grid', gap: '8px', gridTemplateColumns: '1fr 1fr' }}>
+                                        <button
+                                            className="btn btn-primary"
+                                            style={{ width: '100%', padding: '8px', fontSize: '0.75rem', justifyContent: 'center' }}
+                                            onClick={() => onReportClick(station)}
+                                        >
+                                            Report Status
+                                        </button>
+                                        <button
+                                            className="btn"
+                                            style={{ width: '100%', padding: '8px', fontSize: '0.75rem', justifyContent: 'center', background: 'var(--bg-secondary)', border: '1px solid var(--glass-border)' }}
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                onViewDetails(station);
+                                            }}
+                                        >
+                                            Reviews & Info
+                                        </button>
+                                    </div>
                                 </div>
-                            </div>
-                        </Popup>
-                    </Marker>
-                ))}
+                            </Popup>
+                        </Marker>
+                    );
+                })}
             </MapContainer>
 
             <LocationButton onFindNearest={onFindNearest} isLocating={isLocating} />
+            <MapLegend />
         </div>
     );
 };
