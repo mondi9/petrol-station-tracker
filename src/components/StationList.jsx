@@ -1,6 +1,6 @@
 import React from 'react';
 import { MapPin, Fuel, Clock, Info } from 'lucide-react';
-import { formatTimeAgo, formatPrice, calculateTravelTime, formatDistance } from '../services/stationService';
+import { formatTimeAgo, formatPrice, calculateTravelTime, formatDistance, getQueueFreshness } from '../services/stationService';
 import FilterBar from './FilterBar';
 import PriceDisplay from './PriceDisplay';
 

@@ -306,3 +306,39 @@ export const exportStationsToCSV = (stations) => {
     link.click();
     document.body.removeChild(link);
 };
+
+/**
+ * Calculate queue status from queue length in minutes
+ * @param {number} queueMinutes - Queue wait time in minutes
+ * @returns {'short' | 'medium' | 'long'}
+ */
+export const calculateQueueStatus = (queueMinutes) => {
+    if (queueMinutes === null || queueMinutes === undefined) return null;
+    if (queueMinutes <= 15) return 'short';
+    if (queueMinutes <= 30) return 'medium';
+    return 'long';
+};
+
+/**
+ * Get freshness indicator for queue report
+ * @param {string} timestamp - ISO timestamp of last queue update
+ * @returns {object} - { level: 'fresh'|'moderate'|'stale', color: string, icon: string, text: string }
+ */
+export const getQueueFreshness = (timestamp) => {
+    if (!timestamp) return { level: 'unknown', color: '#64748b', icon: '⚪', text: 'No data' };
+
+    const now = new Date();
+    const reportTime = new Date(timestamp);
+    const minutesAgo = Math.floor((now - reportTime) / (1000 * 60));
+
+    if (minutesAgo < 30) {
+        return { level: 'fresh', color: '#22c55e', icon: '🟢', text: `${minutesAgo}m ago`, minutesAgo };
+    } else if (minutesAgo < 60) {
+        return { level: 'moderate', color: '#eab308', icon: '🟡', text: `${minutesAgo}m ago`, minutesAgo };
+    } else if (minutesAgo < 120) {
+        const hoursAgo = Math.floor(minutesAgo / 60);
+        return { level: 'stale', color: '#ef4444', icon: '🔴', text: `${hoursAgo}h ago`, minutesAgo };
+    } else {
+        return { level: 'stale', color: '#64748b', icon: '⚪', text: 'Outdated', minutesAgo };
+    }
+};
