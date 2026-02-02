@@ -1,6 +1,6 @@
 # Changelog
 
-All notable changes to the "Lagos Petrol Pulse" project will be documented in this file.
+All notable changes to the "FuelPulse" project will be documented in this file.
 
 ## [0.7.0] - 2026-01-17
 ### Added
@@ -56,6 +56,6 @@ All notable changes to the "Lagos Petrol Pulse" project will be documented in th
 
 ## [0.1.0] - 2025-12-29
 ### Added
-- **Initial Release**: Basic "Lagos Petrol Pulse" app.
+- **Initial Release**: Basic "FuelPulse" app.
 - **Core Features**: Map view (Leaflet), Station List, Filter by Status (Active/Inactive).
 - **Mock Data**: Initial set of Lagos petrol stations.

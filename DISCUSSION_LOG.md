@@ -62,7 +62,7 @@ Since the platform interface might not persist chat history, this file archives 
     *   Explained how to run `npm run dev`.
     *   Initialized Git repository and explained GitHub push commands.
 
-## [Session 1] - Lagos Petrol Pulse (Dec 29, 2025)
+## [Session 1] - FuelPulse (Dec 29, 2025)
 *   **Objective:** Initial Project Creation.
 *   **Actions:**
     *   Created the basic React application.

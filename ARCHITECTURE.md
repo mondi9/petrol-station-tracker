@@ -1,7 +1,7 @@
 # System Architecture
 
 ## Overview
-Lagos Petrol Pulse is a React-based Progressive Web App (PWA) designed to track the operational status of petrol stations in real-time. It uses Firebase for its backend (Authentication, Firestore Database) and Leaflet for map visualizations.
+FuelPulse is a React-based Progressive Web App (PWA) designed to track the operational status of petrol stations in real-time. It uses Firebase for its backend (Authentication, Firestore Database) and Leaflet for map visualizations.
 
 ## Technology Stack
 - **Frontend**: React (Vite), Vanilla CSS (Glassmorphism design), Leaflet Map
