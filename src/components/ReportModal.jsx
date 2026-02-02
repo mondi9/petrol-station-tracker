@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { X, Fuel, CheckCircle, TriangleAlert, Ban, DollarSign } from 'lucide-react';
+import { X, Fuel, CheckCircle, TriangleAlert, Ban, Banknote } from 'lucide-react';
 import { validatePrice } from '../services/priceService';
 
 const ReportModal = ({ isOpen, onClose, onSubmit, station, user }) => {
@@ -159,7 +159,7 @@ const ReportModal = ({ isOpen, onClose, onSubmit, station, user }) => {
                         </div>
                         <div>
                             <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px', fontSize: '0.9rem', fontWeight: '500' }}>
-                                <DollarSign size={16} style={{ color: '#22c55e' }} />
+                                <Banknote size={16} style={{ color: '#22c55e' }} />
                                 Price (₦)
                                 {lastPrice && (
                                     <span style={{ fontSize: '0.75rem', color: '#64748b', fontWeight: 'normal' }}>

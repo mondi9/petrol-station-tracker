@@ -1,5 +1,5 @@
 import React from 'react';
-import { TrendingUp, TrendingDown, Minus, DollarSign } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus, Banknote } from 'lucide-react';
 import { getPriceFreshness, formatPriceWithTrend } from '../services/priceService';
 
 /**
@@ -33,7 +33,7 @@ const PriceDisplay = ({
                 fontSize: compact ? '0.75rem' : '0.85rem',
                 color: '#94a3b8'
             }}>
-                <DollarSign size={compact ? 12 : 14} />
+                <Banknote size={compact ? 12 : 14} />
                 <span>No price data</span>
             </div>
         );
@@ -74,7 +74,7 @@ const PriceDisplay = ({
                 fontSize: '0.85rem',
                 fontWeight: '600'
             }}>
-                <DollarSign size={14} style={{ color: freshness.color }} />
+                <Banknote size={14} style={{ color: freshness.color }} />
                 <span style={{ color: 'white' }}>{priceData.formatted}</span>
                 <TrendIcon size={12} style={{ color: priceData.color }} />
                 <span style={{

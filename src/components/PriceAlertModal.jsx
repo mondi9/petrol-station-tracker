@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, Bell, DollarSign, AlertCircle } from 'lucide-react';
+import { X, Bell, Banknote, AlertCircle } from 'lucide-react';
 import { validatePrice } from '../services/priceService';
 import { createAlert } from '../services/alertService';
 
@@ -157,7 +157,7 @@ const PriceAlertModal = ({ isOpen, onClose, station, user, onSuccess }) => {
                         display: 'flex', alignItems: 'center', gap: '6px',
                         marginBottom: '8px', fontSize: '0.9rem', fontWeight: '500'
                     }}>
-                        <DollarSign size={16} style={{ color: '#22c55e' }} />
+                        <Banknote size={16} style={{ color: '#22c55e' }} />
                         Target Price (₦)
                     </label>
                     <input

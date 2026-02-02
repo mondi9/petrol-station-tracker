@@ -1,5 +1,5 @@
 import { db } from './firebase';
-import { collection, doc, updateDoc, addDoc, getDocs, query, where, serverTimestamp, getDoc, onSnapshot } from 'firebase/firestore';
+import { collection, doc, updateDoc, addDoc, getDocs, query, where, serverTimestamp, getDoc, onSnapshot, setDoc } from 'firebase/firestore';
 import { checkPriceAlerts } from './alertService';
 
 const COLLECTION_NAME = 'stations';
@@ -100,8 +100,12 @@ export const formatPrice = (amount) => {
 
 // Format distance for display
 export const formatDistance = (km) => {
-    if (!km) return 'N/A';
-    if (km < 1) return `${Math.round(km * 1000)}m`;
+    if (km === null || km === undefined) return 'N/A';
+    if (km === 0) return '0m';
+    if (km < 1) {
+        const meters = Math.round(km * 1000);
+        return meters < 1 ? '< 1m' : `${meters}m`;
+    }
     return `${km.toFixed(1)}km`;
 };
 
@@ -191,7 +195,7 @@ export const calculateDistance = (lat1, lon1, lat2, lon2) => {
         Math.sin(dLon / 2) * Math.sin(dLon / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
     const d = R * c; // Distance in km
-    return parseFloat(d.toFixed(1)); // Return 1 decimal place
+    return parseFloat(d.toFixed(3)); // Return 3 decimal places (meter precision)
 };
 
 // Calculate estimated travel time in minutes

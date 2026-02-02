@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Bell, Trash2, CheckCircle, Clock, DollarSign } from 'lucide-react';
+import { Bell, Trash2, CheckCircle, Clock, Banknote } from 'lucide-react';
 import { subscribeToUserAlerts, deleteAlert } from '../services/alertService';
 import { formatTimeAgo } from '../services/stationService';
 
@@ -113,7 +113,7 @@ const AlertsList = ({ user }) => {
                                             {alert.fuelType}
                                         </span>
                                         <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}>
-                                            <DollarSign size={12} />
+                                            <Banknote size={12} />
                                             Target: ₦{alert.targetPrice}
                                         </span>
                                         <span style={{ opacity: 0.6 }}>

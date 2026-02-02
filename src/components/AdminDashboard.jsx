@@ -2,28 +2,28 @@ import React from 'react';
 import { X, Database, MapPin, AlertTriangle, User, ShieldCheck, BarChart2 } from 'lucide-react';
 import AnalyticsPanel from './AnalyticsPanel';
 
-const AdminDashboard = ({ isOpen, onClose, onImport, onFixAddresses, onRestore, onAddStation, onGrantAdmin, importStatus, stations, user }) => {
+const AdminDashboard = ({ isOpen, onClose, onImport, onFixAddresses, onRestore, onAddStation, onGrantAdmin, onUpdateMRS, importStatus, stations, user }) => {
     if (!isOpen) return null;
     const [adminEmail, setAdminEmail] = React.useState('');
     const [activeTab, setActiveTab] = React.useState('management'); // 'management' | 'analytics'
 
     return (
         <div className="modal-overlay" onClick={onClose}>
-            <div className="modal-content glass-panel" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '600px', width: '90%' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-                    <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>Admin Dashboard</h2>
-                    <button onClick={onClose} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer' }}>
-                        <X size={24} />
+            <div className="modal-content glass-panel" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '500px', width: '90%', maxHeight: '85vh', overflowY: 'auto' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
+                    <h2 style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>Admin Dashboard</h2>
+                    <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', cursor: 'pointer', borderRadius: '50%', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }} onMouseEnter={(e) => e.target.style.background = 'rgba(255,255,255,0.2)'} onMouseLeave={(e) => e.target.style.background = 'rgba(255,255,255,0.1)'}>
+                        <X size={20} />
                     </button>
                 </div>
 
-                <div style={{ marginBottom: '20px', padding: '12px', background: 'var(--bg-secondary)', borderRadius: '8px' }}>
+                <div style={{ marginBottom: '12px', padding: '10px', background: 'var(--bg-secondary)', borderRadius: '6px' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <div>
-                            <h3 style={{ fontSize: '1rem', marginBottom: '8px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                <User size={16} /> Admin Status
+                            <h3 style={{ fontSize: '0.85rem', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <User size={14} /> Admin Status
                             </h3>
-                            <p style={{ fontSize: '0.9rem', opacity: 0.8 }}>
+                            <p style={{ fontSize: '0.75rem', opacity: 0.8 }}>
                                 Logged in as: <strong>{user?.email}</strong>
                             </p>
                         </div>
@@ -69,19 +69,19 @@ const AdminDashboard = ({ isOpen, onClose, onImport, onFixAddresses, onRestore, 
                 {activeTab === 'analytics' ? (
                     <AnalyticsPanel stations={stations} />
                 ) : (
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '16px' }}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '12px' }}>
 
                         {/* Data Management Section */}
-                        <div className="glass" style={{ padding: '16px', borderRadius: '8px' }}>
-                            <h3 style={{ fontSize: '1.1rem', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                <Database size={18} /> Data Management
+                        <div className="glass" style={{ padding: '12px', borderRadius: '6px' }}>
+                            <h3 style={{ fontSize: '0.95rem', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <Database size={16} /> Data Management
                             </h3>
 
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
                                 <button
                                     onClick={onAddStation}
                                     className="btn btn-primary"
-                                    style={{ justifyContent: 'center', background: 'var(--color-active)', color: 'black' }}
+                                    style={{ justifyContent: 'center', background: 'var(--color-active)', color: 'black', padding: '8px 12px', fontSize: '0.85rem' }}
                                 >
                                     + Add New Station
                                 </button>
@@ -112,9 +112,9 @@ const AdminDashboard = ({ isOpen, onClose, onImport, onFixAddresses, onRestore, 
                         </div>
 
                         {/* Admin Management Section */}
-                        <div className="glass" style={{ padding: '16px', borderRadius: '8px' }}>
-                            <h3 style={{ fontSize: '1.1rem', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                <ShieldCheck size={18} /> Manage Admins
+                        <div className="glass" style={{ padding: '12px', borderRadius: '6px' }}>
+                            <h3 style={{ fontSize: '0.95rem', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <ShieldCheck size={16} /> Manage Admins
                             </h3>
                             <div style={{ display: 'flex', gap: '8px', marginBottom: '8px' }}>
                                 <input
@@ -143,26 +143,43 @@ const AdminDashboard = ({ isOpen, onClose, onImport, onFixAddresses, onRestore, 
                         </div>
 
                         {/* Maintenance Section */}
-                        <div className="glass" style={{ padding: '16px', borderRadius: '8px' }}>
-                            <h3 style={{ fontSize: '1.1rem', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                                <AlertTriangle size={18} /> Maintenance
+                        <div className="glass" style={{ padding: '12px', borderRadius: '6px' }}>
+                            <h3 style={{ fontSize: '0.95rem', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <AlertTriangle size={16} /> Maintenance
                             </h3>
 
-                            <button
-                                onClick={onFixAddresses}
-                                className="btn btn-secondary"
-                                disabled={importStatus && importStatus.includes("...")}
-                                style={{
-                                    background: '#f59e0b',
-                                    color: 'black',
-                                    justifyContent: 'center',
-                                    width: '100%'
-                                }}
-                            >
-                                {importStatus && importStatus.includes("Enhancing") ? importStatus : "Fix Missing Addresses"}
-                            </button>
-                            <p style={{ fontSize: '0.75rem', opacity: 0.5, marginTop: '4px' }}>
-                                Scans for stations with missing addresses and uses Reverse Geocoding to fix them.
+                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                <button
+                                    onClick={onFixAddresses}
+                                    className="btn btn-secondary"
+                                    disabled={importStatus && importStatus.includes("...")}
+                                    style={{
+                                        background: '#f59e0b',
+                                        color: 'black',
+                                        justifyContent: 'center',
+                                        width: '100%'
+                                    }}
+                                >
+                                    {importStatus && importStatus.includes("Enhancing") ? importStatus : "Fix Missing Addresses"}
+                                </button>
+
+                                <button
+                                    onClick={onUpdateMRS}
+                                    className="btn"
+                                    style={{
+                                        background: 'rgba(255,255,255,0.1)',
+                                        border: '1px solid var(--glass-border)',
+                                        color: 'white',
+                                        justifyContent: 'center',
+                                        width: '100%'
+                                    }}
+                                >
+                                    Sync Festac Cluster Coords
+                                </button>
+                            </div>
+
+                            <p style={{ fontSize: '0.75rem', opacity: 0.5, marginTop: '8px' }}>
+                                Maintenance tools to fix data inconsistencies. The Sync button moves MRS Festac and AP to their correct physical locations.
                             </p>
                         </div>
 

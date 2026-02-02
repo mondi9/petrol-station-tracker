@@ -5,12 +5,13 @@ import MapComponent from './components/MapContainer';
 import StationList from './components/StationList';
 import ReportModal from './components/ReportModal';
 import ReloadPrompt from './components/ReloadPrompt';
-import { subscribeToStations, updateStationStatus, seedInitialData, addStation, recordUserPresence, calculateDistance, formatDistance, calculateTravelTime } from './services/stationService';
-
-import { importLagosStationsV3, enrichStationData } from './services/osmService';
+import { subscribeToStations, updateStationStatus, addStation, recordUserPresence, calculateDistance, formatDistance, calculateTravelTime } from './services/stationService';
 
 import { subscribeToAuth, logout } from './services/authService';
+import { db } from './services/firebase';
+import { importLagosStationsV3, enrichStationData } from './services/osmService';
 import { grantAdminRole } from './services/userService';
+import { seedInitialData } from './services/stationService';
 import AuthModal from './components/AuthModal';
 import UserProfileModal from './components/UserProfileModal';
 import MobileBottomNav from './components/MobileBottomNav';
@@ -28,13 +29,13 @@ const INITIAL_DATA_SEED = [
   { id: "3", name: "NNPC Mega Station", address: "Lekki-Epe Expy, Lekki", lat: 6.4323, lng: 3.4682, status: "inactive", prices: { petrol: 850, diesel: 1050 }, lastUpdated: new Date().toISOString() },
   { id: "4", name: "Conoil Yaba", address: "Herbert Macaulay Way, Yaba", lat: 6.5095, lng: 3.3711, status: "active", queueStatus: "long", prices: { petrol: 960, diesel: 1150 }, lastUpdated: new Date().toISOString() },
   { id: "5", name: "Mobil Ikeja", address: "Obafemi Awolowo Way, Ikeja", lat: 6.5966, lng: 3.3421, status: "inactive", lastUpdated: new Date().toISOString() },
-  { id: "6", name: "MRS Festac", address: "22 Rd, Festac Town", lat: 6.4808, lng: 3.2883, status: "active", queueStatus: "short", prices: { petrol: 930 }, lastUpdated: new Date().toISOString() },
+  { id: "6", name: "MRS Festac", address: "21/22 Rd Junction, Festac Town", lat: 6.4698, lng: 3.2815, status: "active", queueStatus: "short", prices: { petrol: 930 }, lastUpdated: new Date().toISOString() },
   { id: "60", name: "Mobil (11PLC)", address: "23 Road, Festac Town", lat: 6.4762, lng: 3.2750, status: "active", queueStatus: "medium", prices: { petrol: 940, gas: 750 }, lastUpdated: new Date().toISOString() },
   { id: "7", name: "NNPC Filling Station", address: "Plot 88, 21 Road, Festac Town", lat: 6.4664, lng: 3.2835, status: "active", queueStatus: "long", prices: { petrol: 890 }, lastUpdated: new Date().toISOString() },
   { id: "8", name: "TotalEnergies", address: "Amuwo/Festac Link Rd", lat: 6.4600, lng: 3.2950, status: "inactive", lastUpdated: new Date().toISOString() },
   { id: "9", name: "MRS Station", address: "770 Festac Link Rd", lat: 6.4620, lng: 3.2980, status: "active", prices: { petrol: 935 }, lastUpdated: new Date().toISOString() },
   { id: "10", name: "Capital Oil", address: "Ago Palace Link Rd", lat: 6.4800, lng: 3.2900, status: "inactive", lastUpdated: new Date().toISOString() },
-  { id: "11", name: "AP (Ardova PLC)", address: "21 Road, H Close, Festac Town", lat: 6.4680, lng: 3.2820, status: "active", prices: { petrol: 955 }, lastUpdated: new Date().toISOString() }
+  { id: "11", name: "AP (Ardova PLC)", address: "21 Road, H Close, Festac Town", lat: 6.4650, lng: 3.2840, status: "active", prices: { petrol: 955 }, lastUpdated: new Date().toISOString() }
 ];
 
 function App() {
@@ -46,13 +47,13 @@ function App() {
   const [isLocating, setIsLocating] = useState(false);
   const [userLocation, setUserLocation] = useState(null);
 
-  // Auth State
   const [user, setUser] = useState(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isAddStationModalOpen, setIsAddStationModalOpen] = useState(false);
   const [isAdminDashboardOpen, setIsAdminDashboardOpen] = useState(false);
   const [isFleetDashboardOpen, setIsFleetDashboardOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
+  const [importStatus, setImportStatus] = useState("");
 
   // Mobile View State
   const [viewMode, setViewMode] = useState('map'); // 'map' | 'list'
@@ -63,6 +64,18 @@ function App() {
     fuelType: 'all',
     searchQuery: ''
   });
+
+  // Mobile detection state
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 768);
+
+  // Listen for window resize
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth <= 768);
+    };
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   // Listen for auth changes
   useEffect(() => {
@@ -87,86 +100,6 @@ function App() {
     } catch (e) {
       console.error(e);
       alert("Error adding station");
-    }
-  };
-
-  const handleRestoreMissing = async () => {
-    if (confirm("This will restore the 12 manual stations (Festac, Mobil, etc) that OSM might have missed. Continue?")) {
-      try {
-        await seedInitialData(INITIAL_DATA_SEED);
-        alert("Restored 12 manual stations successfully!");
-      } catch (e) {
-        console.error(e);
-        alert(`Error: ${e.message}`);
-      }
-    }
-  };
-
-  const [importStatus, setImportStatus] = useState("");
-
-  const handleImportOSM = async () => {
-    if (!confirm("This will import real fuel stations for Lagos from OpenStreetMap. This may take a few seconds using your data. Continue?")) return;
-
-    try {
-      setImportStatus("Starting v3...");
-      const count = await importLagosStationsV3(setImportStatus);
-      alert(`Successfully imported ${count} stations!`);
-    } catch (e) {
-      console.error(e);
-      alert(`Import failed: ${e.message}`);
-    } finally {
-      setImportStatus(""); // Always clear status so buttons re-enable
-    }
-  };
-
-  const handleFixAddresses = async () => {
-    // Debugging checks
-    if (!stations || stations.length === 0) {
-      alert("No stations loaded to fix.");
-      return;
-    }
-
-    // Match the same logic as the service to see if we find candidates
-    const candidates = stations.filter(s => {
-      if (!s.lat || !s.lng) return false;
-      const addr = (s.address || "").toLowerCase().trim();
-      return addr === "lagos" || addr === "lagos, nigeria" || addr === "lagos nigeria" || addr.length < 15;
-    });
-
-    if (candidates.length === 0) {
-      alert("No stations found that need address fixing (according to current criteria).");
-      return;
-    }
-
-    if (!confirm(`Found ${candidates.length} stations with missing addresses. This will take about ${candidates.length * 1.5} seconds. Continue?`)) return;
-
-    setImportStatus("Enhancing addresses...");
-    try {
-      const count = await enrichStationData(stations, setImportStatus);
-      alert(`Process complete! Enhanced ${count} addresses.`);
-    } catch (e) {
-      console.error(e);
-      alert("Address enhancement stopped due to error: " + e.message);
-    }
-    setImportStatus("");
-  };
-
-  const handleGrantAdmin = async (email) => {
-    if (!confirm(`Are you sure you want to promote ${email} to Admin? This gives them full control.`)) return;
-
-    try {
-      setImportStatus("Promoting user...");
-      const success = await grantAdminRole(email);
-      if (success) {
-        alert(`Success! ${email} is now an Admin. They may need to relogin.`);
-      } else {
-        alert(`User with email ${email} not found. Ensure they have signed up first.`);
-      }
-    } catch (e) {
-      console.error(e);
-      alert("Error promoting user: " + e.message);
-    } finally {
-      setImportStatus("");
     }
   };
 
@@ -200,7 +133,7 @@ function App() {
     setSelectedStation(station);
     // On mobile, we want to see details immediately, not just the map popup
     // BUT we want to keep map view active to see the bottom sheet
-    if (window.innerWidth <= 768) {
+    if (isMobile) {
       // setViewMode('map'); // Ensure we stay on map
     }
   };
@@ -273,6 +206,79 @@ function App() {
   // derived state for selected station to ensure it's always fresh
   const activeSelectedStation = stations.find(s => s.id === selectedStation?.id) || selectedStation;
 
+  const handleUpdateMRSCoords = async () => {
+    try {
+      setImportStatus("Syncing Festac Stations...");
+      const { doc, writeBatch } = await import('firebase/firestore');
+      const batch = writeBatch(db);
+
+      // Update MRS Festac (The Junction)
+      batch.update(doc(db, 'stations', '6'), {
+        lat: 6.4698,
+        lng: 3.2815,
+        address: "21/22 Rd Junction, Festac Town"
+      });
+
+      // Update AP (Ardova PLC) - Moved further away
+      batch.update(doc(db, 'stations', '11'), {
+        lat: 6.4650,
+        lng: 3.2840,
+        address: "21 Road, H Close, Festac Town"
+      });
+
+      await batch.commit();
+      setImportStatus("✅ Festac station cluster repaired!");
+      setTimeout(() => setImportStatus(""), 3000);
+    } catch (error) {
+      console.error("Update failed", error);
+      setImportStatus("❌ Update failed: " + error.message);
+    }
+  };
+
+  const handleImport = async () => {
+    try {
+      await importLagosStationsV3((status) => setImportStatus(status));
+      setTimeout(() => setImportStatus(""), 3000);
+    } catch (error) {
+      setImportStatus("❌ Import failed: " + error.message);
+    }
+  };
+
+  const handleFixAddresses = async () => {
+    try {
+      await enrichStationData(stations, (status) => setImportStatus(status));
+      setTimeout(() => setImportStatus(""), 3000);
+    } catch (error) {
+      setImportStatus("❌ Fix failed: " + error.message);
+    }
+  };
+
+  const handleRestoreManual = async () => {
+    try {
+      setImportStatus("Restoring manual stations...");
+      await seedInitialData(INITIAL_DATA_SEED);
+      setImportStatus("✅ Manual stations restored!");
+      setTimeout(() => setImportStatus(""), 3000);
+    } catch (error) {
+      setImportStatus("❌ Restore failed: " + error.message);
+    }
+  };
+
+  const handleGrantAdmin = async (email) => {
+    try {
+      setImportStatus(`Granting admin to ${email}...`);
+      const success = await grantAdminRole(email);
+      if (success) {
+        setImportStatus(`✅ Granted admin to ${email}`);
+      } else {
+        setImportStatus(`❌ User not found: ${email}`);
+      }
+      setTimeout(() => setImportStatus(""), 3000);
+    } catch (error) {
+      setImportStatus("❌ Grant failed: " + error.message);
+    }
+  };
+
   const handleFindNearest = () => {
     if (!navigator.geolocation) {
       alert("Geolocation is not supported by your browser");
@@ -286,20 +292,24 @@ function App() {
         setUserLocation({ lat: latitude, lng: longitude });
         setIsLocating(false);
 
-        // Find nearest station using proper distance calculation
+        // Find nearest ACTIVE station using proper distance calculation
         if (stations.length > 0) {
           let nearest = null;
           let minDistance = Infinity;
 
+          // Filter for active stations only
+          const activeStations = stations.filter(s => s.status === 'active');
+
           // Debug: Log all distances
           console.log('=== Finding Nearest Station ===');
           console.log('Your location:', { lat: latitude, lng: longitude });
+          console.log(`Total stations: ${stations.length}, Active stations: ${activeStations.length}`);
 
-          stations.forEach(station => {
+          activeStations.forEach(station => {
             const dist = calculateDistance(latitude, longitude, station.lat, station.lng);
-            console.log(`${station.name}: ${dist?.toFixed(2)}km`, { lat: station.lat, lng: station.lng });
+            console.log(`${station.name} (${station.status}): ${dist?.toFixed(2)}km`, { lat: station.lat, lng: station.lng });
 
-            if (dist && dist < minDistance) {
+            if (dist !== null && dist < minDistance) {
               minDistance = dist;
               nearest = station;
             }
@@ -310,9 +320,18 @@ function App() {
           if (nearest) {
             setSelectedStation(nearest);
 
-            // Show notification with distance and travel time
-            const distanceText = formatDistance(minDistance);
-            const travelTime = calculateTravelTime(minDistance);
+            // Diagnostic Info: Top 3 closest stations
+            const top3 = activeStations
+              .map(s => ({ name: s.name, d: calculateDistance(latitude, longitude, s.lat, s.lng), lat: s.lat, lng: s.lng }))
+              .sort((a, b) => a.d - b.d)
+              .slice(0, 3);
+
+            const diagHtml = top3.map((s, idx) => `
+                <div style="font-size: 0.8rem; margin-top: 4px; display: flex; justify-content: space-between; padding: 6px; background: rgba(255,255,255,0.05); borderRadius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                  <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px;">${idx + 1}. ${s.name}</span>
+                  <strong style="color: ${idx === 0 ? '#10b981' : 'white'}">${formatDistance(s.d)}</strong>
+                </div>
+              `).join('');
 
             // Create toast notification
             const toast = document.createElement('div');
@@ -321,43 +340,75 @@ function App() {
                             top: 80px;
                             left: 50%;
                             transform: translateX(-50%);
-                            background: linear-gradient(135deg, #10b981, #059669);
+                            background: linear-gradient(135deg, #1f2937, #111827);
                             color: white;
-                            padding: 16px 24px;
-                            border-radius: 12px;
-                            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+                            padding: 24px;
+                            border-radius: 20px;
+                            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
                             z-index: 10000;
-                            font-weight: 600;
                             max-width: 90%;
-                            text-align: center;
+                            width: 340px;
+                            border: 1px solid rgba(255,255,255,0.1);
+                            animation: slideInDown 0.4s cubic-bezier(0.16, 1, 0.3, 1);
                         `;
             toast.innerHTML = `
-                            📍 <strong>Nearest Station:</strong> ${nearest.name}<br/>
-                            <span style="opacity: 0.9; font-size: 0.9em;">
-                                ${distanceText} away • ~${travelTime} min drive
-                            </span>
+                            <div style="text-align: center; margin-bottom: 16px;">
+                                <div style="font-size: 1.3rem; font-weight: 800; color: #10b981; letter-spacing: -0.5px;">📍 Results Found</div>
+                                <div style="font-size: 0.8rem; opacity: 0.6;">Relative to pinned location</div>
+                            </div>
+                            
+                            <div style="margin-bottom: 20px;">
+                                <div style="font-size: 0.75rem; opacity: 0.5; font-weight: bold; margin-bottom: 8px; text-transform: uppercase;">Closest Stations:</div>
+                                ${diagHtml}
+                            </div>
+
+                            <div style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 12px; margin-bottom: 16px;">
+                                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 4px;">
+                                    <span style="opacity: 0.6;">GPS Accuracy</span>
+                                    <span style="font-weight: bold; color: ${position.coords.accuracy < 30 ? '#10b981' : '#f59e0b'}">±${Math.round(position.coords.accuracy)}m</span>
+                                </div>
+                                <div style="font-size: 0.7rem; opacity: 0.4; font-family: monospace;">
+                                    ${latitude.toFixed(6)}, ${longitude.toFixed(6)}
+                                </div>
+                                ${position.coords.accuracy > 50 ? `<div style="margin-top: 8px; font-size: 0.7rem; color: #f59e0b; font-style: italic;">⚠️ Accuracy is low. You can click on the map to pin your exact home location.</div>` : ''}
+                            </div>
+                            
+                            <div style="display: flex; gap: 8px;">
+                                <button id="retry-gps" style="flex: 1; padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: white; cursor: pointer; font-weight: 600;">Retry GPS</button>
+                                <button id="close-toast" style="flex: 1; padding: 12px; border-radius: 10px; border: none; background: #10b981; color: black; cursor: pointer; font-weight: 700;">OK</button>
+                            </div>
+
+                            <style>
+                                @keyframes slideInDown {
+                                    from { transform: translate(-50%, -100%); opacity: 0; }
+                                    to { transform: translate(-50%, 0); opacity: 1; }
+                                }
+                            </style>
                         `;
             document.body.appendChild(toast);
 
-            // Remove toast after 4 seconds
-            setTimeout(() => {
-              toast.style.opacity = '0';
-              toast.style.transition = 'opacity 0.3s';
-              setTimeout(() => toast.remove(), 300);
-            }, 4000);
+            toast.querySelector('#retry-gps').onclick = () => {
+              toast.remove();
+              handleFindNearest();
+            };
 
-            // if mobile, switch to map
-            if (window.innerWidth <= 768) {
-              setViewMode('map');
-            }
+            toast.querySelector('#close-toast').onclick = () => {
+              toast.remove();
+            };
+
+            // Remove toast after 15 seconds
+            setTimeout(() => { if (toast.parentNode) toast.remove(); }, 15000);
+
+            if (isMobile) setViewMode('map');
           }
         }
       },
       (error) => {
         console.error("Error getting location", error);
-        alert("Unable to retrieve your location");
+        alert("Unable to retrieve your location. Please ensure GPS is enabled and you've granted permission.");
         setIsLocating(false);
-      }
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
   };
 
@@ -367,10 +418,10 @@ function App() {
 
         {/* Sidebar / List View */}
         <div className="sidebar" style={{
-          width: window.innerWidth <= 768 ? '100%' : '400px',
+          width: isMobile ? '100%' : '400px',
           background: 'var(--bg-secondary)',
           borderRight: '1px solid var(--glass-border)',
-          display: viewMode === 'map' && window.innerWidth <= 768 ? 'none' : 'flex',
+          display: viewMode === 'map' && isMobile ? 'none' : 'flex',
           flexDirection: 'column',
           zIndex: 20,
           flexShrink: 0
@@ -386,13 +437,8 @@ function App() {
             onLogin={() => setIsAuthModalOpen(true)}
             onLogout={handleLogout}
             onOpenProfile={() => setIsProfileModalOpen(true)}
-            onOpenAdminDashboard={() => setIsAdminDashboardOpen(true)}
             onOpenFleetDashboard={() => setIsFleetDashboardOpen(true)}
             onAddStation={() => setIsAddStationModalOpen(true)}
-            importStatus={importStatus}
-            onImport={handleImportOSM}
-            onFixAddresses={handleFixAddresses}
-            onRestore={handleRestoreMissing}
             userLocation={userLocation}
           />
         </div>
@@ -401,7 +447,7 @@ function App() {
         <div className="map-wrapper" style={{
           flex: 1,
           position: 'relative',
-          display: viewMode === 'list' && window.innerWidth <= 768 ? 'none' : 'block'
+          display: viewMode === 'list' && isMobile ? 'none' : 'block'
         }}>
           <MapComponent
             stations={filteredStations}
@@ -412,6 +458,20 @@ function App() {
             onFindNearest={handleFindNearest}
             userLocation={userLocation}
             isLocating={isLocating}
+            onMapClick={(latlng) => {
+              console.log("Map: Manual location set to", latlng);
+              setUserLocation({ lat: latlng.lat, lng: latlng.lng });
+              // Small temporary confirmation
+              const toast = document.createElement('div');
+              toast.style.cssText = `
+                position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
+                background: rgba(0,0,0,0.8); color: white; padding: 8px 16px; 
+                border-radius: 20px; font-size: 0.8rem; z-index: 2000;
+              `;
+              toast.innerText = "📍 Location pinned on map";
+              document.body.appendChild(toast);
+              setTimeout(() => toast.remove(), 2000);
+            }}
           />
         </div>
       </div>
@@ -420,14 +480,14 @@ function App() {
       <div className="mobile-overlays" style={{ pointerEvents: 'none', position: 'absolute', inset: 0, zIndex: 1001 }}>
         <div style={{ pointerEvents: 'auto', position: 'absolute', top: 0, left: 0, right: 0, padding: '10px' }} className="mobile-filters">
           {/* Mobile only filter bar handled by CSS media queries usually, but for now rendering simple wrapper */}
-          {window.innerWidth <= 768 && viewMode === 'map' && (
+          {isMobile && viewMode === 'map' && (
             <FilterBar filters={filters} onFilterChange={setFilters} />
           )}
         </div>
 
         {/* Mobile Bottom Sheet */}
         <div className="mobile-sheet-container" style={{ pointerEvents: 'none', position: 'absolute', inset: 0 }}>
-          {activeSelectedStation && window.innerWidth <= 768 && viewMode === 'map' && (
+          {activeSelectedStation && isMobile && viewMode === 'map' && (
             <div style={{ pointerEvents: 'auto' }}>
               <StationBottomSheet
                 station={activeSelectedStation}
@@ -453,6 +513,13 @@ function App() {
           <button className="btn btn-primary" style={{ borderRadius: '50%', width: '56px', height: '56px', padding: 0, justifyContent: 'center', boxShadow: '0 4px 20px rgba(34, 197, 94, 0.4)' }}
             onClick={() => setIsAddStationModalOpen(true)} title="Add Station">
             <span style={{ fontSize: '24px' }}>+</span>
+          </button>
+        )}
+
+        {user && user.role === 'admin' && (
+          <button className="glass" style={{ borderRadius: '50%', width: '48px', height: '48px', padding: 0, justifyContent: 'center', cursor: 'pointer', background: 'var(--color-active)', color: 'black', boxShadow: '0 4px 12px rgba(34, 197, 94, 0.4)' }}
+            onClick={() => setIsAdminDashboardOpen(true)} title="Admin Dashboard">
+            <span style={{ fontSize: '20px' }}>⚙️</span>
           </button>
         )}
 
@@ -507,11 +574,12 @@ function App() {
       <AdminDashboard
         isOpen={isAdminDashboardOpen}
         onClose={() => setIsAdminDashboardOpen(false)}
-        onImport={handleImportOSM}
+        onImport={handleImport}
         onFixAddresses={handleFixAddresses}
-        onRestore={handleRestoreMissing}
+        onRestore={handleRestoreManual}
         onAddStation={() => setIsAddStationModalOpen(true)}
         onGrantAdmin={handleGrantAdmin}
+        onUpdateMRS={handleUpdateMRSCoords}
         importStatus={importStatus}
         stations={stations}
         user={user}

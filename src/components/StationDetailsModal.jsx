@@ -91,10 +91,10 @@ const StationDetailsModal = ({ isOpen, onClose, station, user, onLoginRequest, u
                                     <MapPin size={16} />
                                     <span>{station.address}</span>
                                 </div>
-                                {userLocation && station.lat && station.lng && (
+                                {userLocation && station.lat !== undefined && station.lng !== undefined && (
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '6px', fontSize: '0.85rem', color: 'var(--color-active)' }}>
                                         <Navigation size={14} />
-                                        <span>{station.distance?.toFixed(1) || 'N/A'}km away • ~{calculateTravelTime(station.distance)} min</span>
+                                        <span>{(station.distance !== undefined && station.distance !== null) ? station.distance.toFixed(1) : 'N/A'}km away • ~{calculateTravelTime(station.distance)} min</span>
                                     </div>
                                 )}
                             </div>

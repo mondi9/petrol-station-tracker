@@ -4,18 +4,17 @@ import { formatTimeAgo, formatPrice, calculateTravelTime, formatDistance } from 
 import FilterBar from './FilterBar';
 import PriceDisplay from './PriceDisplay';
 
-const StationList = ({ stations, onSelect, onViewDetails, selectedStationId, onImport, onFixAddresses, onRestore, onAddStation, onOpenAdminDashboard, onOpenFleetDashboard, onOpenProfile, importStatus, user, onLogin, onLogout, filters, onFilterChange, userLocation }) => {
+const StationList = ({ stations, onSelect, onViewDetails, selectedStationId, onAddStation, onOpenFleetDashboard, onOpenProfile, user, onLogin, onLogout, filters, onFilterChange, userLocation }) => {
     // ... matching existing code ...
     // Local State for sorting only
-    const [sortBy, setSortBy] = React.useState('distance'); // 'distance', 'price', 'queue'
+    const [sortBy, setSortBy] = React.useState('price'); // 'price', 'queue' (distance removed)
 
     // Sort the incoming filtered stations
     const sortedStations = [...stations].sort((a, b) => {
         if (sortBy === 'distance') {
-            // Assuming stations have 'distance' calculated (which they do in App.jsx when location is found, BUT maybe not just raw list)
-            // If distance is missing, push to bottom.
-            const distA = a.distance || Infinity;
-            const distB = b.distance || Infinity;
+            // If distance is missing (Infinity), push to bottom.
+            const distA = (a.distance !== undefined && a.distance !== null) ? a.distance : Infinity;
+            const distB = (b.distance !== undefined && b.distance !== null) ? b.distance : Infinity;
             return distA - distB;
         }
         if (sortBy === 'price') {
@@ -54,7 +53,10 @@ const StationList = ({ stations, onSelect, onViewDetails, selectedStationId, onI
                     }}>
                         <Fuel size={20} color="#000" />
                     </div>
-                    <h1 style={{ fontSize: '1.25rem', fontWeight: '800', letterSpacing: '-0.02em' }}>Lagos Petrol Pulse</h1>
+                    <h1 style={{ fontSize: '1.25rem', fontWeight: '800', letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                        Lagos Petrol Pulse
+                        <span style={{ fontSize: '0.6rem', padding: '2px 6px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', opacity: 0.5 }}>v2.1</span>
+                    </h1>
                 </div>
                 <p style={{ opacity: 0.6, fontSize: '0.8rem' }}>
                     Real-time crowd-sourced fuel availability.
@@ -80,7 +82,6 @@ const StationList = ({ stations, onSelect, onViewDetails, selectedStationId, onI
                 <div style={{ display: 'flex', gap: '8px', marginTop: '8px', overflowX: 'auto', paddingBottom: '4px' }}>
                     {/* Sort Controls */}
                     {[
-                        { id: 'distance', label: '📍 Nearest' },
                         { id: 'price', label: '💰 Cheapest' },
                         { id: 'queue', label: '⏱️ Fastest' }
                     ].map(opt => (
@@ -110,39 +111,47 @@ const StationList = ({ stations, onSelect, onViewDetails, selectedStationId, onI
             </div>
 
             {/* List */}
-            <div style={{ flex: 1, overflowY: 'auto', padding: '16px' }}>
-                <h2 style={{ fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.5, marginBottom: '16px' }}>
+            <div style={{
+                flex: 1,
+                overflowY: 'auto',
+                overflowX: 'hidden',
+                padding: '16px',
+                display: 'flex',
+                flexDirection: 'column'
+            }}>
+                <h2 style={{ fontSize: '0.85rem', textTransform: 'uppercase', letterSpacing: '0.1em', opacity: 0.5, marginBottom: '16px', flexShrink: 0 }}>
                     {filters.status === 'all' ? 'Nearby Stations' : filters.status === 'active' ? 'Active Stations' : 'Inactive Stations'}
                 </h2>
 
-                <div style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
+                <div style={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '10px',
+                    paddingBottom: '20px'
+                }}>
                     {sortedStations.map((station, index) => (
                         <div
                             key={station.id}
                             onClick={() => onSelect(station)}
                             className="glass"
                             style={{
-                                padding: '12px',
+                                padding: '10px',
                                 borderRadius: 'var(--radius-md)',
                                 cursor: 'pointer',
                                 transition: 'all 0.2s',
-                                border: selectedStationId === station.id ? '1px solid var(--color-active)' :
-                                    (sortBy === 'distance' && index === 0 && station.distance) ? '1px solid rgba(34, 197, 94, 0.5)' : '1px solid var(--glass-border)',
+                                border: selectedStationId === station.id ? '1px solid var(--color-active)' : '1px solid var(--glass-border)',
                                 background: selectedStationId === station.id ? 'rgba(34, 197, 94, 0.05)' : 'var(--glass-panel)',
-                                boxShadow: (sortBy === 'distance' && index === 0 && station.distance) ? '0 0 15px rgba(34, 197, 94, 0.1)' : 'none'
+                                boxShadow: 'none',
+                                flexShrink: 0,
+                                minHeight: 'fit-content'
                             }}
                         >
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '8px' }}>
-                                <h3 style={{ fontWeight: '600', fontSize: '1rem' }}>{station.name}</h3>
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '6px' }}>
+                                <h3 style={{ fontWeight: '600', fontSize: '0.95rem', margin: 0 }}>{station.name}</h3>
                                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
                                     <span className={`status-badge status-${station.status}`}>
                                         {station.status === 'active' ? 'Active' : 'Inactive'}
                                     </span>
-                                    {sortBy === 'distance' && index === 0 && station.distance && (
-                                        <span style={{ fontSize: '0.65rem', background: '#3b82f6', color: 'white', padding: '2px 6px', borderRadius: '4px', fontWeight: 'bold' }}>
-                                            CLOSEST
-                                        </span>
-                                    )}
                                     <button
                                         onClick={(e) => {
                                             e.stopPropagation();
@@ -170,7 +179,7 @@ const StationList = ({ stations, onSelect, onViewDetails, selectedStationId, onI
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px', opacity: 0.7, fontSize: '0.85rem', marginBottom: '4px' }}>
                                 <MapPin size={14} />
                                 {station.address}
-                                {station.distance && (
+                                {station.distance !== undefined && station.distance !== null && (
                                     <span style={{ color: 'var(--color-active)', fontWeight: 'bold' }}>
                                         • {station.distance.toFixed(1)}km
                                         <span style={{ color: 'var(--text-secondary)', fontWeight: 'normal', opacity: 0.8 }}>
@@ -212,7 +221,9 @@ const StationList = ({ stations, onSelect, onViewDetails, selectedStationId, onI
 
                     ))}
                     {sortedStations.length === 0 && (
-                        <div style={{ padding: '20px', textAlign: 'center', opacity: 0.5 }}>
+                        <div style={{
+                            padding: '20px', textAlign: 'center', opacity: 0.5
+                        }}>
                             No stations found with this status.
                         </div>
                     )}
@@ -265,37 +276,6 @@ const StationList = ({ stations, onSelect, onViewDetails, selectedStationId, onI
                                 Log Out
                             </button>
                         </div>
-                        {user.role === 'admin' && (
-                            <div style={{
-                                fontSize: '0.7rem',
-                                background: 'var(--color-active)',
-                                color: 'black',
-                                padding: '2px 6px',
-                                borderRadius: '4px',
-                                display: 'inline-block',
-                                marginBottom: '8px',
-                                fontWeight: 'bold'
-                            }}>
-                                ADMIN MODE
-                            </div>
-                        )}
-
-                        {user.role === 'admin' && (
-                            <button
-                                onClick={onOpenAdminDashboard}
-                                className="btn btn-primary"
-                                style={{
-                                    width: '100%',
-                                    justifyContent: 'center',
-                                    marginTop: '8px',
-                                    background: 'var(--color-active)',
-                                    color: 'black',
-                                    fontWeight: 'bold'
-                                }}
-                            >
-                                Open Admin Dashboard
-                            </button>
-                        )}
 
                         {/* Fleet Dashboard Button (Visible to logged in users for demo) */}
                         <button

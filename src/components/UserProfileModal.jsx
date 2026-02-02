@@ -11,14 +11,15 @@ const UserProfileModal = ({ isOpen, onClose, user, stats = { contributions: 0, r
     const [alertCount, setAlertCount] = useState(0);
     const [loading, setLoading] = useState(false);
 
-    if (!isOpen || !user) return null;
-
     // Fetch alert count
     useEffect(() => {
         if (user && isOpen) {
             getActiveAlertCount(user.uid).then(setAlertCount);
         }
     }, [user, isOpen]);
+
+    // Early return AFTER all hooks
+    if (!isOpen || !user) return null;
 
     const handleSave = async () => {
         setLoading(true);
