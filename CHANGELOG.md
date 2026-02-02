@@ -56,6 +56,6 @@ All notable changes to the "Lagos Petrol Pulse" project will be documented in th
 
 ## [0.1.0] - 2025-12-29
 ### Added
-- **Initial Release**: Basic "Petrol Station Status Tracker" app.
+- **Initial Release**: Basic "Lagos Petrol Pulse" app.
 - **Core Features**: Map view (Leaflet), Station List, Filter by Status (Active/Inactive).
 - **Mock Data**: Initial set of Lagos petrol stations.

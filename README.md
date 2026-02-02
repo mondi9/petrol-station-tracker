@@ -1,4 +1,4 @@
-# Petrol Station Status Tracker
+# Lagos Petrol Pulse
 
 A modern, real-time web application to track the operational status of petrol stations in Lagos. Built with React, Leaflet, and Firebase.
 
