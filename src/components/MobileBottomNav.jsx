@@ -9,8 +9,9 @@ const MobileBottomNav = ({ viewMode, setViewMode, onOpenFleet, onOpenProfile, un
             backdropFilter: 'blur(12px)',
             borderTop: '1px solid var(--glass-border)',
             display: 'flex', justifyContent: 'space-around', alignItems: 'center',
-            padding: '0', paddingBottom: 'env(safe-area-inset-bottom)', zIndex: 3000,
-            boxShadow: '0 -4px 20px rgba(0,0,0,0.3)'
+            padding: '0', paddingBottom: 'env(safe-area-inset-bottom)', zIndex: 999,
+            boxShadow: '0 -4px 20px rgba(0,0,0,0.3)',
+            pointerEvents: 'auto'
         }}>
 
             <button
