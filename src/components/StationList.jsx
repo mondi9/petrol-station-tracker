@@ -227,6 +227,21 @@ const StationList = ({ stations, onSelect, onViewDetails, selectedStationId, onA
                                             </div>
                                         );
                                     })()}
+
+                                    {station.hasPhoto && (
+                                        <div style={{
+                                            fontSize: '0.75rem', padding: '4px 8px', borderRadius: '6px',
+                                            fontWeight: 'bold',
+                                            boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
+                                            background: 'rgba(59, 130, 246, 0.2)',
+                                            color: '#60a5fa',
+                                            display: 'flex',
+                                            alignItems: 'center',
+                                            gap: '4px'
+                                        }}>
+                                            📸 Verified
+                                        </div>
+                                    )}
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', opacity: 0.5, fontSize: '0.8rem' }}>
                                     <Clock size={12} />

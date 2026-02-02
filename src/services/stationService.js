@@ -73,6 +73,18 @@ export const updateStationStatus = async (stationId, reportData, userId = null) 
         updatePayload.lastReporter = reportData.reporterName;
     }
 
+    // Add Photo URL if provided
+    if (reportData.photoUrl) {
+        updatePayload.lastPhotoUrl = reportData.photoUrl;
+        updatePayload.lastPhotoThumbUrl = reportData.photoThumbUrl;
+        updatePayload.hasPhoto = true;
+    }
+
+    // Add Quality Score if provided
+    if (reportData.quality !== undefined) {
+        updatePayload.reportQuality = reportData.quality;
+    }
+
     // 2. Add to Reports Subcollection (Audit History)
     const historyData = {
         timestamp: serverTimestamp(),
