@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { X, Fuel, CheckCircle, TriangleAlert, Ban, Banknote } from 'lucide-react';
 import { validatePrice } from '../services/priceService';
+import { calculateQueueStatus } from '../services/stationService';
 
 const ReportModal = ({ isOpen, onClose, onSubmit, station, user }) => {
     // Form State
@@ -63,6 +64,9 @@ const ReportModal = ({ isOpen, onClose, onSubmit, station, user }) => {
 
     // Get last reported price for this fuel type
     const lastPrice = station.prices?.[fuelType];
+
+    // Calculate queue status for visual feedback
+    const currentQueueStatus = calculateQueueStatus(parseInt(queueLength) || 0);
 
     return (
         <div style={{
@@ -144,18 +148,56 @@ const ReportModal = ({ isOpen, onClose, onSubmit, station, user }) => {
                     {/* Queue Length & Price */}
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
                         <div>
-                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', fontWeight: '500' }}>Queue (mins)</label>
+                            <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', fontWeight: '500' }}>Queue Time</label>
+
+                            {/* Quick Presets */}
+                            <div style={{ display: 'flex', gap: '4px', marginBottom: '8px', flexWrap: 'wrap' }}>
+                                {[
+                                    { val: 0, label: 'None', emoji: '✅' },
+                                    { val: 5, label: '5m', emoji: '✅' },
+                                    { val: 15, label: '15m', emoji: '⏳' },
+                                    { val: 30, label: '30m', emoji: '🚨' },
+                                    { val: 60, label: '1h', emoji: '🚨' }
+                                ].map(preset => (
+                                    <button
+                                        key={preset.val}
+                                        type="button"
+                                        onClick={() => setQueueLength(preset.val)}
+                                        style={{
+                                            padding: '4px 8px', borderRadius: '6px', fontSize: '0.7rem',
+                                            border: queueLength == preset.val ? '1px solid var(--color-active)' : '1px solid var(--glass-border)',
+                                            background: queueLength == preset.val ? 'rgba(34, 197, 94, 0.2)' : 'transparent',
+                                            color: queueLength == preset.val ? 'var(--color-active)' : 'rgba(255,255,255,0.6)',
+                                            cursor: 'pointer', transition: 'all 0.2s', fontWeight: queueLength == preset.val ? 'bold' : 'normal'
+                                        }}
+                                    >
+                                        {preset.emoji} {preset.label}
+                                    </button>
+                                ))}
+                            </div>
+
                             <input
                                 type="number"
                                 min="0"
                                 value={queueLength}
                                 onChange={(e) => setQueueLength(e.target.value)}
+                                placeholder="Custom"
                                 style={{
                                     width: '100%', padding: '12px', borderRadius: '8px',
                                     background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)',
                                     color: 'white', fontSize: '1rem'
                                 }}
                             />
+                            {/* Queue Status Indicator */}
+                            {queueLength > 0 && currentQueueStatus && (
+                                <div style={{
+                                    marginTop: '6px', fontSize: '0.7rem', display: 'flex', alignItems: 'center', gap: '4px',
+                                    color: currentQueueStatus === 'short' ? '#22c55e' : currentQueueStatus === 'medium' ? '#eab308' : '#ef4444',
+                                    fontWeight: 'bold'
+                                }}>
+                                    {currentQueueStatus === 'short' ? '✅ Short Queue' : currentQueueStatus === 'medium' ? '⏳ Medium Queue' : '🚨 Long Queue'}
+                                </div>
+                            )}
                         </div>
                         <div>
                             <label style={{ display: 'flex', alignItems: 'center', gap: '6px', marginBottom: '8px', fontSize: '0.9rem', fontWeight: '500' }}>

@@ -62,7 +62,8 @@ function App() {
   const [filters, setFilters] = useState({
     status: 'all',
     fuelType: 'all',
-    searchQuery: ''
+    searchQuery: '',
+    queueLength: 'all'
   });
 
   // Mobile detection state
@@ -187,6 +188,12 @@ function App() {
         const price = station.prices?.[filters.fuelType];
         // Assume if price is listed, it's available. Or maybe just strictly check existence.
         if (!price) return false;
+      }
+
+      // 4. Queue Length Filter
+      if (filters.queueLength !== 'all') {
+        if (station.status !== 'active') return false; // Only active stations have queues
+        if (station.queueStatus !== filters.queueLength) return false;
       }
 
       return true;

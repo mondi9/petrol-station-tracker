@@ -199,17 +199,34 @@ const StationList = ({ stations, onSelect, onViewDetails, selectedStationId, onA
                                         />
                                     </div>
 
-                                    {station.status === 'active' && station.queueStatus && (
-                                        <div style={{
-                                            fontSize: '0.8rem', padding: '3px 8px', borderRadius: '4px',
-                                            fontWeight: 'bold',
-                                            boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
-                                            background: station.queueStatus === 'short' ? 'rgba(34, 197, 94, 0.2)' : station.queueStatus === 'medium' ? 'rgba(234, 179, 8, 0.2)' : 'rgba(239, 68, 68, 0.2)',
-                                            color: station.queueStatus === 'short' ? '#4ade80' : station.queueStatus === 'medium' ? '#facc15' : '#f87171'
-                                        }}>
-                                            {station.queueStatus === 'short' ? 'Short Q' : station.queueStatus === 'medium' ? 'Med Q' : 'Long Q'}
-                                        </div>
-                                    )}
+                                    {station.status === 'active' && station.queueStatus && (() => {
+                                        const freshness = getQueueFreshness(station.lastQueueUpdate);
+                                        return (
+                                            <div style={{
+                                                fontSize: '0.75rem', padding: '4px 8px', borderRadius: '6px',
+                                                fontWeight: 'bold',
+                                                boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
+                                                background: station.queueStatus === 'short' ? 'rgba(34, 197, 94, 0.2)' : station.queueStatus === 'medium' ? 'rgba(234, 179, 8, 0.2)' : 'rgba(239, 68, 68, 0.2)',
+                                                color: station.queueStatus === 'short' ? '#4ade80' : station.queueStatus === 'medium' ? '#facc15' : '#f87171',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '4px',
+                                                whiteSpace: 'nowrap'
+                                            }}>
+                                                {station.queueStatus === 'short' ? '✅' : station.queueStatus === 'medium' ? '⏳' : '🚨'}
+                                                <span>{station.queueStatus === 'short' ? 'Short' : station.queueStatus === 'medium' ? 'Med' : 'Long'}</span>
+                                                {station.lastQueueUpdate && (
+                                                    <span style={{
+                                                        fontSize: '0.65rem',
+                                                        opacity: 0.8,
+                                                        marginLeft: '2px'
+                                                    }}>
+                                                        {freshness.icon}
+                                                    </span>
+                                                )}
+                                            </div>
+                                        );
+                                    })()}
                                 </div>
                                 <div style={{ display: 'flex', alignItems: 'center', gap: '6px', opacity: 0.5, fontSize: '0.8rem' }}>
                                     <Clock size={12} />
