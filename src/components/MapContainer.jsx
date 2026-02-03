@@ -229,18 +229,21 @@ const RoutingController = ({ selectedStation, userLocation }) => {
     const [route, setRoute] = React.useState(null);
     const [isLoading, setIsLoading] = React.useState(false);
     const [error, setError] = React.useState(null);
+    const hasFitBounds = React.useRef(false); // Track if we've already fit bounds
 
     useEffect(() => {
         if (!selectedStation || !userLocation) {
             setRoute(null);
             setIsLoading(false);
             setError(null);
+            hasFitBounds.current = false; // Reset when station changes
             return;
         }
 
         const fetchRoute = async () => {
             setIsLoading(true);
             setError(null);
+            hasFitBounds.current = false; // Reset for new route
 
             try {
                 // OSRM: lon,lat;lon,lat
@@ -261,22 +264,36 @@ const RoutingController = ({ selectedStation, userLocation }) => {
                     setRoute(coords);
                     setIsLoading(false);
 
-                    // Fit bounds to show route (only if not too far)
-                    const bounds = L.latLngBounds(coords);
-                    map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
+                    // Only fit bounds ONCE when route is first loaded
+                    if (!hasFitBounds.current) {
+                        const bounds = L.latLngBounds(coords);
+                        map.fitBounds(bounds, {
+                            padding: [50, 50],
+                            maxZoom: 15,
+                            animate: true,
+                            duration: 0.5 // Smooth animation
+                        });
+                        hasFitBounds.current = true;
+                    }
                 } else {
                     console.warn("Routing: No routes found in response");
                     setError("No route found");
                     setIsLoading(false);
                     // Fallback: just center on station
-                    map.flyTo([selectedStation.lat, selectedStation.lng], 14);
+                    if (!hasFitBounds.current) {
+                        map.flyTo([selectedStation.lat, selectedStation.lng], 14, { duration: 0.5 });
+                        hasFitBounds.current = true;
+                    }
                 }
             } catch (e) {
                 console.error("Routing failed:", e);
                 setError(e.name === 'AbortError' ? 'Route request timeout' : 'Route unavailable');
                 setIsLoading(false);
                 // Fallback: fly to station
-                map.flyTo([selectedStation.lat, selectedStation.lng], 14);
+                if (!hasFitBounds.current) {
+                    map.flyTo([selectedStation.lat, selectedStation.lng], 14, { duration: 0.5 });
+                    hasFitBounds.current = true;
+                }
             }
         };
 
@@ -284,19 +301,8 @@ const RoutingController = ({ selectedStation, userLocation }) => {
 
     }, [selectedStation, userLocation, map]);
 
-    // Fix: Invalidate size when map becomes visible/resizes
-    useEffect(() => {
-        const resizeObserver = new ResizeObserver(() => {
-            map.invalidateSize();
-        });
-        resizeObserver.observe(map.getContainer());
-
-        // Also force checks on mount/updates
-        setTimeout(() => map.invalidateSize(), 100);
-        setTimeout(() => map.invalidateSize(), 500);
-
-        return () => resizeObserver.disconnect();
-    }, [map]);
+    // Removed aggressive ResizeObserver that was causing vibration
+    // Map will handle its own size invalidation
 
     // Determine Route Color based on Queue Status
     let routeColor = '#3b82f6'; // Default Blue
