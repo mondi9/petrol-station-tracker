@@ -12,10 +12,26 @@ export const subscribeToStations = (onUpdate, onError) => {
     const q = query(collection(db, COLLECTION_NAME));
 
     return onSnapshot(q, (snapshot) => {
-        const stations = snapshot.docs.map(doc => ({
-            id: doc.id,
-            ...doc.data()
-        })).filter(s => {
+        const stations = snapshot.docs.map(doc => {
+            const data = doc.data();
+
+            // Calculate queueStatus from queue object if not present
+            let queueStatus = data.queueStatus;
+            if (!queueStatus && data.queue) {
+                // Get the maximum queue time from all fuel types
+                const queueTimes = Object.values(data.queue).filter(v => typeof v === 'number');
+                if (queueTimes.length > 0) {
+                    const maxQueueTime = Math.max(...queueTimes);
+                    queueStatus = calculateQueueStatus(maxQueueTime);
+                }
+            }
+
+            return {
+                id: doc.id,
+                ...data,
+                queueStatus // Add calculated queue status
+            };
+        }).filter(s => {
             // Strict Filter: Only show stations in Lagos, Nigeria
             // Lat: 6.2 - 6.8, Lng: 2.5 - 4.5
             if (!s.lat || !s.lng) return true; // Keep manual ones without coords or allow editing later
