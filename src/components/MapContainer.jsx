@@ -227,43 +227,56 @@ const MapViewUpdater = ({ selectedStation, userLocation }) => {
 const RoutingController = ({ selectedStation, userLocation }) => {
     const map = useMap();
     const [route, setRoute] = React.useState(null);
-
-    // Debug active props
-    useEffect(() => {
-        console.log("RoutingController Update:", { selectedStation, userLocation });
-    }, [selectedStation, userLocation]);
+    const [isLoading, setIsLoading] = React.useState(false);
+    const [error, setError] = React.useState(null);
 
     useEffect(() => {
         if (!selectedStation || !userLocation) {
-            console.log("Routing: Missing selectedStation or userLocation");
             setRoute(null);
+            setIsLoading(false);
+            setError(null);
             return;
         }
 
         const fetchRoute = async () => {
-            console.log("Routing: Fetching route...");
+            setIsLoading(true);
+            setError(null);
+
             try {
                 // OSRM: lon,lat;lon,lat
                 const url = `https://router.project-osrm.org/route/v1/driving/${userLocation.lng},${userLocation.lat};${selectedStation.lng},${selectedStation.lat}?overview=full&geometries=geojson`;
-                const response = await fetch(url);
+
+                // Add timeout to prevent hanging
+                const controller = new AbortController();
+                const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+
+                const response = await fetch(url, { signal: controller.signal });
+                clearTimeout(timeoutId);
+
                 const data = await response.json();
 
                 if (data.routes && data.routes.length > 0) {
                     // OSRM is Lon,Lat. Leaflet is Lat,Lon. Swap 'em.
                     const coords = data.routes[0].geometry.coordinates.map(c => [c[1], c[0]]);
                     setRoute(coords);
-                    console.log("Routing: Route found and set", coords);
+                    setIsLoading(false);
 
-                    // Fit bounds to show route
+                    // Fit bounds to show route (only if not too far)
                     const bounds = L.latLngBounds(coords);
-                    map.fitBounds(bounds, { padding: [50, 50] });
+                    map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
                 } else {
-                    console.log("Routing: No routes found in response", data);
+                    console.warn("Routing: No routes found in response");
+                    setError("No route found");
+                    setIsLoading(false);
+                    // Fallback: just center on station
+                    map.flyTo([selectedStation.lat, selectedStation.lng], 14);
                 }
             } catch (e) {
-                console.error("Routing failed", e);
+                console.error("Routing failed:", e);
+                setError(e.name === 'AbortError' ? 'Route request timeout' : 'Route unavailable');
+                setIsLoading(false);
                 // Fallback: fly to station
-                map.flyTo([selectedStation.lat, selectedStation.lng], 15);
+                map.flyTo([selectedStation.lat, selectedStation.lng], 14);
             }
         };
 
@@ -334,7 +347,7 @@ const MapComponent = ({ stations, onStationSelect, onViewDetails, selectedStatio
                 />
                 <MapEvents onMapClick={onMapClick} />
                 <MapViewUpdater selectedStation={selectedStation} userLocation={userLocation} />
-                {/* <RoutingController selectedStation={selectedStation} userLocation={userLocation} /> */}
+                <RoutingController selectedStation={selectedStation} userLocation={userLocation} />
 
                 {/* User Location Marker */}
                 {userLocation && (
