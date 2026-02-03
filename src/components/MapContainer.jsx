@@ -39,25 +39,19 @@ const createCustomIcon = (station, userLocation) => {
         label = `₦${price}`;
     }
 
-    let queueIcon = '';
-
+    // Determine color based on queue status (no icons)
     if (status === 'active') {
         if (!queueStatus || queueStatus === 'short') {
             color = '#16a34a'; // Green
-            queueIcon = '✅';
         } else if (queueStatus === 'medium') {
             color = '#ca8a04'; // Dark Yellow
-            queueIcon = '⏳';
         } else if (queueStatus === 'long') {
             color = '#dc2626'; // Red
-            queueIcon = '🚨';
         } else {
             color = '#16a34a'; // Assume green if active but unknown queue
-            queueIcon = '✅';
         }
     } else {
         label = 'Inactive';
-        queueIcon = '⚪';
     }
 
     // CSS for the marker
@@ -84,7 +78,6 @@ const createCustomIcon = (station, userLocation) => {
                 min-width: 50px;
                 justify-content: center;
             ">
-                ${queueIcon ? `<span style="font-size: 12px; margin-right: 2px;">${queueIcon}</span>` : ''}
                 ${label}
             </div>
             <div style="
