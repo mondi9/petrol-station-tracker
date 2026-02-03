@@ -481,7 +481,7 @@ const MapComponent = ({ stations, onStationSelect, onViewDetails, selectedStatio
             </MapContainer>
 
             <LocationButton onFindNearest={onFindNearest} isLocating={isLocating} />
-            <MapLegend />
+
         </div>
     );
 };
