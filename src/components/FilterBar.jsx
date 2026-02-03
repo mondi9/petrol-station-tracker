@@ -85,38 +85,6 @@ const FilterBar = ({ filters, onFilterChange }) => {
                     ))}
                 </div>
             </div>
-
-            {/* Queue Length Filter */}
-            <div>
-                <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.75rem', opacity: 0.6 }}>Queue Length</label>
-                <div style={{ display: 'flex', gap: '8px', overflowX: 'auto', paddingBottom: '4px' }}>
-                    {[
-                        { id: 'all', label: 'Any Queue', icon: '' },
-                        { id: 'short', label: 'Short', icon: '✅' },
-                        { id: 'medium', label: 'Medium', icon: '⏳' },
-                        { id: 'long', label: 'Long', icon: '🚨' }
-                    ].map(queue => (
-                        <button
-                            key={queue.id}
-                            onClick={() => onFilterChange({ ...filters, queueLength: queue.id })}
-                            style={{
-                                padding: '6px 12px',
-                                borderRadius: '20px',
-                                border: filters.queueLength === queue.id ? '1px solid var(--color-active)' : '1px solid var(--glass-border)',
-                                background: filters.queueLength === queue.id ? 'rgba(34, 197, 94, 0.2)' : 'transparent',
-                                color: filters.queueLength === queue.id ? 'var(--color-active)' : 'var(--text-secondary)',
-                                fontSize: '0.75rem',
-                                fontWeight: '600',
-                                whiteSpace: 'nowrap',
-                                cursor: 'pointer',
-                                transition: 'all 0.2s'
-                            }}
-                        >
-                            {queue.icon} {queue.label}
-                        </button>
-                    ))}
-                </div>
-            </div>
         </div>
     );
 };
