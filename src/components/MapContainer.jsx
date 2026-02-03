@@ -63,35 +63,38 @@ const createCustomIcon = (station, userLocation) => {
     // CSS for the marker
     const htmlContent = `
         <div style="
-             display: flex;
-             flex-direction: column;
-             align-items: center;
-             transform: translateY(-50%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
         ">
             <div style="
-                 background-color: ${color};
-                 color: ${textColor};
-                 padding: 2px 5px;
-                 border-radius: 8px;
-                 border: 1px solid ${borderColor};
-                 box-shadow: 0 1px 3px rgba(0,0,0,0.4);
-                 font-weight: bold;
-                 font-size: 10px;
-                 white-space: nowrap;
-                 display: flex;
-                 align-items: center;
-                 gap: 2px;
+                background: ${color};
+                color: ${textColor};
+                padding: 6px 10px;
+                border-radius: 8px;
+                font-weight: bold;
+                font-size: 13px;
+                border: 2px solid white;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+                white-space: nowrap;
+                display: flex;
+                align-items: center;
+                gap: 3px;
+                min-width: 50px;
+                justify-content: center;
             ">
-                ${queueIcon ? `<span style="font-size: 10px; margin-right: 2px;">${queueIcon}</span>` : ''}
+                ${queueIcon ? `<span style="font-size: 12px; margin-right: 2px;">${queueIcon}</span>` : ''}
                 ${label}
             </div>
             <div style="
                 width: 0; 
                 height: 0; 
-                border-left: 4px solid transparent;
-                border-right: 4px solid transparent;
-                border-top: 4px solid ${color};
+                border-left: 6px solid transparent;
+                border-right: 6px solid transparent;
+                border-top: 6px solid ${color};
                 margin-top: -1px;
+                filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
             "></div>
         </div>
     `;
@@ -99,9 +102,9 @@ const createCustomIcon = (station, userLocation) => {
     return L.divIcon({
         className: 'custom-price-marker',
         html: htmlContent,
-        iconSize: [40, 30],
-        iconAnchor: [20, 30], // Anchor at bottom tip
-        popupAnchor: [0, -30]
+        iconSize: [60, 45], // Increased from [40, 30]
+        iconAnchor: [30, 45], // Anchor at bottom tip (half of width, full height)
+        popupAnchor: [0, -45]
     });
 };
 
