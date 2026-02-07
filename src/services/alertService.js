@@ -82,8 +82,8 @@ export const createAlert = async (userId, stationId, stationName, fuelType, targ
 
         const alertData = {
             userId,
-            stationId,
-            stationName,
+            stationId: stationId || null, // null means "Any Station"
+            stationName: stationName || "Any Station",
             fuelType,
             targetPrice: parseInt(targetPrice),
             currentPrice: parseInt(currentPrice),
@@ -193,41 +193,60 @@ export const updateAlertStatus = async (alertId, status) => {
  * @param {string} fuelType 
  * @param {number} newPrice 
  */
-export const checkPriceAlerts = async (stationId, fuelType, newPrice) => {
+export const checkPriceAlerts = async (stationId, fuelType, newPrice, stationName) => {
     try {
-        // Find all active alerts for this station and fuel type
-        const q = query(
+        // 1. Check Station-Specific Alerts
+        const qStation = query(
             collection(db, ALERTS_COLLECTION),
             where('stationId', '==', stationId),
             where('fuelType', '==', fuelType),
             where('status', '==', 'active')
         );
 
-        const snapshot = await getDocs(q);
+        // 2. Check Global Alerts (Any Station)
+        // We look for alerts where stationId is null AND targetPrice >= newPrice
+        // Note: Firestore requires composite index for '==' and '>='. 
+        // For MVP without index, we can fetch all active global alerts for fuelType and filter in JS.
+        const qGlobal = query(
+            collection(db, ALERTS_COLLECTION),
+            where('stationId', '==', null),
+            where('fuelType', '==', fuelType),
+            where('status', '==', 'active')
+        );
+
+        const [snapshotStation, snapshotGlobal] = await Promise.all([
+            getDocs(qStation),
+            getDocs(qGlobal)
+        ]);
+
+        const allAlerts = [...snapshotStation.docs, ...snapshotGlobal.docs];
 
         // Check each alert
-        for (const alertDoc of snapshot.docs) {
+        for (const alertDoc of allAlerts) {
             const alert = alertDoc.data();
 
-            // If new price is <= target price, trigger the alert
+            // Check price condition
             if (newPrice <= alert.targetPrice) {
                 // Update alert status
                 await updateAlertStatus(alertDoc.id, 'triggered');
 
+                // Determine message context
+                const stationContext = alert.stationId ? alert.stationName : `A station nearby (${stationName})`;
+
                 // Send notification
                 sendNotification(
                     '🔔 Price Alert!',
-                    `${fuelType.charAt(0).toUpperCase() + fuelType.slice(1)} at ${alert.stationName} dropped to ₦${newPrice}`,
+                    `${fuelType.charAt(0).toUpperCase() + fuelType.slice(1)} at ${stationContext} dropped to ₦${newPrice}`,
                     {
                         alertId: alertDoc.id,
-                        stationId: alert.stationId,
-                        stationName: alert.stationName,
+                        stationId: stationId, // The station that triggered it
+                        stationName: stationName,
                         fuelType: alert.fuelType,
                         newPrice
                     }
                 );
 
-                console.log('Alert triggered:', alertDoc.id, alert.stationName, newPrice);
+                console.log('Alert triggered:', alertDoc.id, newPrice);
             }
         }
     } catch (error) {

@@ -1,5 +1,5 @@
 import React from 'react';
-import { TrendingUp, TrendingDown, Minus, Banknote } from 'lucide-react';
+import { TrendingUp, TrendingDown, Minus, Banknote, CheckCircle } from 'lucide-react';
 import { getPriceFreshness, formatPriceWithTrend } from '../services/priceService';
 
 /**
@@ -18,7 +18,9 @@ const PriceDisplay = ({
     lastPriceUpdate,
     fuelType = null,
     compact = false,
-    previousPrices = null
+    previousPrices = null,
+    onVerify = null,
+    verifications = {}
 }) => {
     if (!prices || Object.keys(prices).length === 0) {
         return (
@@ -167,6 +169,35 @@ const PriceDisplay = ({
                                 {priceData.formatted}
                             </span>
                             <TrendIcon size={14} style={{ color: priceData.color }} />
+
+                            {/* Verification Button */}
+                            {!compact && onVerify && (
+                                <button
+                                    onClick={(e) => {
+                                        e.stopPropagation();
+                                        onVerify(fuel);
+                                    }}
+                                    title="Verify this price"
+                                    style={{
+                                        background: 'transparent',
+                                        border: 'none',
+                                        cursor: 'pointer',
+                                        padding: '4px',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        opacity: 0.7,
+                                        transition: 'opacity 0.2s'
+                                    }}
+                                    className="hover-opacity"
+                                >
+                                    <CheckCircle size={16} color={verifications?.[fuel] >= 5 ? '#22c55e' : '#64748b'} />
+                                    {verifications?.[fuel] > 0 && (
+                                        <span style={{ fontSize: '0.7rem', color: '#94a3b8', marginLeft: '4px' }}>
+                                            {verifications[fuel]}
+                                        </span>
+                                    )}
+                                </button>
+                            )}
                         </div>
                     </div>
                 );

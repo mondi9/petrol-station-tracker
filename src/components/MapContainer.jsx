@@ -39,6 +39,13 @@ const createCustomIcon = (station, userLocation) => {
         label = `₦${price}`;
     }
 
+    // Add queue status emoji to label
+    if (status === 'active' && queueStatus) {
+        const queueEmoji = queueStatus === 'short' ? '⚡' :
+            queueStatus === 'medium' ? '⏳' : '🚨';
+        label = `${queueEmoji} ${label}`;
+    }
+
     // Determine color based on queue status (no icons)
     if (status === 'active') {
         if (!queueStatus || queueStatus === 'short') {
@@ -103,7 +110,7 @@ const createCustomIcon = (station, userLocation) => {
 
 const MapLegend = () => {
     return (
-        <div style={{
+        <div className="map-legend" style={{
             position: 'absolute',
             bottom: '150px',
             right: '24px',
@@ -503,7 +510,7 @@ const MapComponent = ({ stations, onStationSelect, onViewDetails, selectedStatio
 
 const LocationButton = ({ onFindNearest, isLocating }) => {
     return (
-        <div style={{ position: 'absolute', bottom: '120px', right: '20px', zIndex: 1000, display: 'flex', flexDirection: 'column', gap: '12px' }}>
+        <div style={{ position: 'absolute', bottom: '220px', right: '20px', zIndex: 1000, display: 'flex', flexDirection: 'column', gap: '12px' }}>
             <button
                 onClick={(e) => {
                     e.stopPropagation();

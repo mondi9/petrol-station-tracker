@@ -7,7 +7,7 @@ import PriceDisplay from './PriceDisplay';
 const StationList = ({ stations, onSelect, onViewDetails, selectedStationId, onAddStation, onOpenFleetDashboard, onOpenProfile, user, onLogin, onLogout, filters, onFilterChange, userLocation }) => {
     // ... matching existing code ...
     // Local State for sorting only
-    const [sortBy, setSortBy] = React.useState('price'); // 'price', 'queue' (distance removed)
+    const [sortBy, setSortBy] = React.useState('price'); // 'price', 'queue'
 
     // Sort the incoming filtered stations
     const sortedStations = [...stations].sort((a, b) => {
@@ -79,7 +79,7 @@ const StationList = ({ stations, onSelect, onViewDetails, selectedStationId, onA
                     }}
                 />
 
-                <div style={{ display: 'flex', gap: '8px', marginTop: '8px', overflowX: 'auto', paddingBottom: '4px' }}>
+                <div style={{ display: 'flex', gap: '8px', marginTop: '-4px', overflowX: 'auto', paddingBottom: '4px' }}>
                     {/* Sort Controls */}
                     {[
                         { id: 'price', label: '💰 Cheapest' },
@@ -88,6 +88,7 @@ const StationList = ({ stations, onSelect, onViewDetails, selectedStationId, onA
                         <button
                             key={opt.id}
                             onClick={() => setSortBy(opt.id)}
+                            aria-label={`Sort by ${opt.label}`}
                             style={{
                                 flex: 1,
                                 padding: '6px 12px',
@@ -148,10 +149,38 @@ const StationList = ({ stations, onSelect, onViewDetails, selectedStationId, onA
                         >
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '6px' }}>
                                 <h3 style={{ fontWeight: '600', fontSize: '0.95rem', margin: 0 }}>{station.name}</h3>
-                                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
                                     <span className={`status-badge status-${station.status}`}>
                                         {station.status === 'active' ? 'Active' : 'Inactive'}
                                     </span>
+
+                                    {/* Queue Status Badge */}
+                                    {station.queueStatus && (
+                                        <span style={{
+                                            padding: '4px 8px',
+                                            borderRadius: '6px',
+                                            fontSize: '0.7rem',
+                                            fontWeight: '600',
+                                            background: station.queueStatus === 'short' ? 'rgba(34, 197, 94, 0.2)' :
+                                                station.queueStatus === 'medium' ? 'rgba(234, 179, 8, 0.2)' :
+                                                    'rgba(239, 68, 68, 0.2)',
+                                            color: station.queueStatus === 'short' ? '#22c55e' :
+                                                station.queueStatus === 'medium' ? '#eab308' :
+                                                    '#ef4444',
+                                            border: `1px solid ${station.queueStatus === 'short' ? 'rgba(34, 197, 94, 0.3)' :
+                                                station.queueStatus === 'medium' ? 'rgba(234, 179, 8, 0.3)' :
+                                                    'rgba(239, 68, 68, 0.3)'}`,
+                                            display: 'inline-flex',
+                                            alignItems: 'center',
+                                            gap: '4px',
+                                            whiteSpace: 'nowrap'
+                                        }}>
+                                            {station.queueStatus === 'short' ? '⚡ Queue: Quick (<15min)' :
+                                                station.queueStatus === 'medium' ? '⏳ Queue: ~30min' :
+                                                    '🚨 Queue: Long (30min+)'}
+                                        </span>
+                                    )}
+
                                     <button
                                         onClick={(e) => {
                                             e.stopPropagation();

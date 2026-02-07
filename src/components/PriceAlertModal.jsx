@@ -9,6 +9,7 @@ const PriceAlertModal = ({ isOpen, onClose, station, user, onSuccess }) => {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
+    const [isGlobal, setIsGlobal] = useState(false);
 
     if (!isOpen || !station) return null;
 
@@ -45,8 +46,8 @@ const PriceAlertModal = ({ isOpen, onClose, station, user, onSuccess }) => {
         try {
             await createAlert(
                 user.uid,
-                station.id,
-                station.name,
+                isGlobal ? null : station.id,
+                isGlobal ? "Any Station Nearby" : station.name,
                 fuelType,
                 price,
                 currentPrice
@@ -101,15 +102,61 @@ const PriceAlertModal = ({ isOpen, onClose, station, user, onSuccess }) => {
                 </div>
 
                 {/* Station Info */}
+                {!isGlobal && (
+                    <div style={{
+                        marginBottom: '20px',
+                        padding: '12px',
+                        borderRadius: '8px',
+                        background: 'rgba(255,255,255,0.05)',
+                        border: '1px solid var(--glass-border)'
+                    }}>
+                        <h3 style={{ fontSize: '1rem', fontWeight: '600', margin: '0 0 4px 0' }}>{station.name}</h3>
+                        <p style={{ fontSize: '0.85rem', opacity: 0.6, margin: 0 }}>{station.address}</p>
+                    </div>
+                )}
+
+                {/* Alert Scope Toggle */}
                 <div style={{
                     marginBottom: '20px',
-                    padding: '12px',
-                    borderRadius: '8px',
+                    display: 'flex',
                     background: 'rgba(255,255,255,0.05)',
-                    border: '1px solid var(--glass-border)'
+                    borderRadius: '8px',
+                    padding: '4px'
                 }}>
-                    <h3 style={{ fontSize: '1rem', fontWeight: '600', margin: '0 0 4px 0' }}>{station.name}</h3>
-                    <p style={{ fontSize: '0.85rem', opacity: 0.6, margin: 0 }}>{station.address}</p>
+                    <button
+                        onClick={() => setIsGlobal(false)}
+                        style={{
+                            flex: 1,
+                            padding: '8px',
+                            border: 'none',
+                            borderRadius: '6px',
+                            background: !isGlobal ? 'rgba(34, 197, 94, 0.2)' : 'transparent',
+                            color: !isGlobal ? '#22c55e' : '#94a3b8',
+                            fontSize: '0.85rem',
+                            fontWeight: '600',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s'
+                        }}
+                    >
+                        This Station
+                    </button>
+                    <button
+                        onClick={() => setIsGlobal(true)}
+                        style={{
+                            flex: 1,
+                            padding: '8px',
+                            border: 'none',
+                            borderRadius: '6px',
+                            background: isGlobal ? 'rgba(34, 197, 94, 0.2)' : 'transparent',
+                            color: isGlobal ? '#22c55e' : '#94a3b8',
+                            fontSize: '0.85rem',
+                            fontWeight: '600',
+                            cursor: 'pointer',
+                            transition: 'all 0.2s'
+                        }}
+                    >
+                        Any Station
+                    </button>
                 </div>
 
                 {/* Fuel Type Selector */}
@@ -198,7 +245,7 @@ const PriceAlertModal = ({ isOpen, onClose, station, user, onSuccess }) => {
                             gap: '6px'
                         }}>
                             <Bell size={14} />
-                            You'll be notified when price drops to ₦{parseInt(targetPrice).toLocaleString()} or below
+                            You'll be notified when {isGlobal ? 'ANY station' : 'this station'} reports ₦{parseInt(targetPrice).toLocaleString()} or below
                         </p>
                     )}
                 </div>

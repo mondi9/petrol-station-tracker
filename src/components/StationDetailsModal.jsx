@@ -5,7 +5,7 @@ import AddReviewModal from './AddReviewModal';
 import PriceDisplay from './PriceDisplay';
 import PriceAlertModal from './PriceAlertModal';
 import { addReview } from '../services/reviewService';
-import { formatTimeAgo, calculateTravelTime, verifyStation } from '../services/stationService';
+import { formatTimeAgo, calculateTravelTime, verifyStation, verifyPrice } from '../services/stationService';
 import { CheckCircle, AlertTriangle, ThumbsUp, ThumbsDown } from 'lucide-react';
 
 const StationDetailsModal = ({ isOpen, onClose, station, user, onLoginRequest, userLocation }) => {
@@ -40,6 +40,14 @@ const StationDetailsModal = ({ isOpen, onClose, station, user, onLoginRequest, u
             return;
         }
         await verifyStation(station.id, type, user.uid);
+    };
+
+    const handleVerifyPrice = async (fuelType) => {
+        if (!user) {
+            onLoginRequest();
+            return;
+        }
+        await verifyPrice(station.id, fuelType, user.uid);
     };
 
     const confirmCount = station.confirmations?.length || 0;
@@ -98,7 +106,7 @@ const StationDetailsModal = ({ isOpen, onClose, station, user, onLoginRequest, u
                                     </div>
                                 )}
                             </div>
-                            <button onClick={onClose} style={{
+                            <button onClick={onClose} aria-label="Close station details" style={{
                                 background: 'rgba(255,255,255,0.1)',
                                 border: 'none',
                                 borderRadius: '50%',
@@ -198,6 +206,8 @@ const StationDetailsModal = ({ isOpen, onClose, station, user, onLoginRequest, u
                                 prices={station.prices}
                                 lastPriceUpdate={station.lastPriceUpdate}
                                 compact={false}
+                                onVerify={handleVerifyPrice}
+                                verifications={station.verifications}
                             />
                         </div>
 
@@ -282,6 +292,7 @@ const StationDetailsModal = ({ isOpen, onClose, station, user, onLoginRequest, u
                                 </h3>
                                 <button
                                     onClick={handleWriteReviewClick}
+                                    aria-label="Write a review for this station"
                                     style={{
                                         padding: '6px 12px',
                                         borderRadius: '6px',

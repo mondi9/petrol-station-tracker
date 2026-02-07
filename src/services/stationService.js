@@ -1,5 +1,5 @@
 import { db } from './firebase';
-import { collection, doc, updateDoc, addDoc, getDocs, query, where, serverTimestamp, getDoc, onSnapshot, setDoc } from 'firebase/firestore';
+import { collection, doc, updateDoc, addDoc, getDocs, query, where, serverTimestamp, getDoc, onSnapshot, setDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
 import { checkPriceAlerts } from './alertService';
 
 const COLLECTION_NAME = 'stations';
@@ -45,7 +45,7 @@ export const subscribeToStations = (onUpdate, onError) => {
 };
 
 // Update a station's status and log the report
-export const updateStationStatus = async (stationId, reportData, userId = null) => {
+export const updateStationStatus = async (stationId, reportData, userId = null, stationName = 'Unknown Station') => {
     const stationRef = doc(db, COLLECTION_NAME, stationId);
     // reportData = { fuelType, availability, queueLength, price, reporterName }
 
@@ -117,7 +117,42 @@ export const updateStationStatus = async (stationId, reportData, userId = null) 
 
     // Check if any price alerts should trigger
     if (reportData.price && reportData.fuelType) {
-        await checkPriceAlerts(stationId, reportData.fuelType, reportData.price);
+        await checkPriceAlerts(stationId, reportData.fuelType, reportData.price, stationName);
+    }
+};
+
+/**
+ * Verify a station's price
+ * @param {string} stationId
+ * @param {string} fuelType
+ * @param {string} userId
+ */
+export const verifyPrice = async (stationId, fuelType, userId) => {
+    if (!userId || !stationId) return;
+    try {
+        // 1. Add verification record
+        await addDoc(collection(db, COLLECTION_NAME, stationId, 'price_verifications'), {
+            fuelType,
+            userId,
+            timestamp: serverTimestamp(),
+            verified: true
+        });
+
+        // 2. Increment verification count on station doc (Optimistic)
+        // Note: Real app should use transactions or cloud functions to aggregate this safely.
+        // For now, we just increment a counter field.
+        const stationRef = doc(db, COLLECTION_NAME, stationId);
+        // We need 'increment' from firestore
+        const { increment } = await import('firebase/firestore');
+
+        await updateDoc(stationRef, {
+            [`verifications.${fuelType}`]: increment(1),
+            lastVerified: new Date().toISOString()
+        });
+
+    } catch (error) {
+        console.error("Error verifying price:", error);
+        throw error;
     }
 };
 

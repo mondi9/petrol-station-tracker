@@ -12,6 +12,7 @@ import { db } from './services/firebase';
 import { importLagosStationsV3, enrichStationData } from './services/osmService';
 import { grantAdminRole } from './services/userService';
 import { seedInitialData } from './services/stationService';
+import { getUserStats } from './services/statsService';
 import AuthModal from './components/AuthModal';
 import UserProfileModal from './components/UserProfileModal';
 import MobileBottomNav from './components/MobileBottomNav';
@@ -21,6 +22,7 @@ import StationDetailsModal from './components/StationDetailsModal';
 import AdminDashboard from './components/AdminDashboard';
 import FleetDashboard from './components/FleetDashboard';
 import FilterBar from './components/FilterBar.jsx';
+import ErrorBoundary from './components/ErrorBoundary.jsx';
 
 // Temporary Initial Data for Seeding
 const INITIAL_DATA_SEED = [
@@ -38,6 +40,8 @@ const INITIAL_DATA_SEED = [
   { id: "11", name: "AP (Ardova PLC)", address: "21 Road, H Close, Festac Town", lat: 6.4650, lng: 3.2840, status: "active", prices: { petrol: 955 }, lastUpdated: new Date().toISOString() }
 ];
 
+import { ThemeProvider } from './context/ThemeContext';
+
 function App() {
   const [stations, setStations] = useState([]);
   const [selectedStation, setSelectedStation] = useState(null);
@@ -54,6 +58,7 @@ function App() {
   const [isFleetDashboardOpen, setIsFleetDashboardOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [importStatus, setImportStatus] = useState("");
+  const [userStats, setUserStats] = useState({ contributions: 0, reviews: 0 });
 
   // Mobile View State
   const [viewMode, setViewMode] = useState('map'); // 'map' | 'list'
@@ -82,6 +87,12 @@ function App() {
   useEffect(() => {
     const unsubscribe = subscribeToAuth((currentUser) => {
       setUser(currentUser);
+      // Fetch user stats when user logs in
+      if (currentUser) {
+        getUserStats(currentUser.uid).then(setUserStats);
+      } else {
+        setUserStats({ contributions: 0, reviews: 0 });
+      }
     });
     return () => unsubscribe();
   }, []);
@@ -152,7 +163,7 @@ function App() {
 
     try {
       // reportData = { fuelType, availability, queueLength, price, reporterName }
-      await updateStationStatus(reportModalData.station.id, reportData, user?.uid);
+      await updateStationStatus(reportModalData.station.id, reportData, user?.uid, reportModalData.station.name);
     } catch (error) {
       console.error("Failed to update status:", error);
       alert("Failed to update status. Check your connection or API keys.");
@@ -420,187 +431,192 @@ function App() {
   };
 
   return (
-    <div className="app-container">
-      <div className="main-content" style={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden' }}>
+    <ThemeProvider>
+      <ErrorBoundary>
+        <div className="app-container">
+          <div className="main-content" style={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden' }}>
 
-        {/* Sidebar / List View */}
-        <div className="sidebar" style={{
-          width: isMobile ? '100%' : '400px',
-          background: 'var(--bg-secondary)',
-          borderRight: '1px solid var(--glass-border)',
-          display: viewMode === 'map' && isMobile ? 'none' : 'flex',
-          flexDirection: 'column',
-          zIndex: 20,
-          flexShrink: 0
-        }}>
-          <StationList
-            stations={filteredStations}
-            onSelect={handleStationSelect}
-            filters={filters}
-            onFilterChange={setFilters}
-            onViewDetails={handleViewDetails}
-            selectedStationId={selectedStation?.id}
-            user={user}
-            onLogin={() => setIsAuthModalOpen(true)}
-            onLogout={handleLogout}
-            onOpenProfile={() => setIsProfileModalOpen(true)}
-            onOpenFleetDashboard={() => setIsFleetDashboardOpen(true)}
-            onAddStation={() => setIsAddStationModalOpen(true)}
-            userLocation={userLocation}
-          />
-        </div>
+            {/* Sidebar / List View */}
+            <div className="sidebar" style={{
+              width: isMobile ? '100%' : '400px',
+              background: 'var(--bg-secondary)',
+              borderRight: '1px solid var(--glass-border)',
+              display: viewMode === 'map' && isMobile ? 'none' : 'flex',
+              flexDirection: 'column',
+              zIndex: 20,
+              flexShrink: 0
+            }}>
+              <StationList
+                stations={filteredStations}
+                onSelect={handleStationSelect}
+                filters={filters}
+                onFilterChange={setFilters}
+                onViewDetails={handleViewDetails}
+                selectedStationId={selectedStation?.id}
+                user={user}
+                onLogin={() => setIsAuthModalOpen(true)}
+                onLogout={handleLogout}
+                onOpenProfile={() => setIsProfileModalOpen(true)}
+                onOpenFleetDashboard={() => setIsFleetDashboardOpen(true)}
+                onAddStation={() => setIsAddStationModalOpen(true)}
+                userLocation={userLocation}
+              />
+            </div>
 
-        {/* Map Container */}
-        <div className="map-wrapper" style={{
-          flex: 1,
-          position: 'relative',
-          display: viewMode === 'list' && isMobile ? 'none' : 'block'
-        }}>
-          <MapComponent
-            stations={filteredStations}
-            selectedStation={activeSelectedStation}
-            onStationSelect={handleStationSelect}
-            onViewDetails={handleViewDetails}
-            onReportClick={handleReportClick}
-            onFindNearest={handleFindNearest}
-            userLocation={userLocation}
-            isLocating={isLocating}
-            onMapClick={(latlng) => {
-              console.log("Map: Manual location set to", latlng);
-              setUserLocation({ lat: latlng.lat, lng: latlng.lng });
-              // Small temporary confirmation
-              const toast = document.createElement('div');
-              toast.style.cssText = `
+            {/* Map Container */}
+            <div className="map-wrapper" style={{
+              flex: 1,
+              position: 'relative',
+              display: viewMode === 'list' && isMobile ? 'none' : 'block'
+            }}>
+              <MapComponent
+                stations={filteredStations}
+                selectedStation={activeSelectedStation}
+                onStationSelect={handleStationSelect}
+                onViewDetails={handleViewDetails}
+                onReportClick={handleReportClick}
+                onFindNearest={handleFindNearest}
+                userLocation={userLocation}
+                isLocating={isLocating}
+                onMapClick={(latlng) => {
+                  console.log("Map: Manual location set to", latlng);
+                  setUserLocation({ lat: latlng.lat, lng: latlng.lng });
+                  // Small temporary confirmation
+                  const toast = document.createElement('div');
+                  toast.style.cssText = `
                 position: fixed; bottom: 100px; left: 50%; transform: translateX(-50%);
                 background: rgba(0,0,0,0.8); color: white; padding: 8px 16px; 
                 border-radius: 20px; font-size: 0.8rem; z-index: 2000;
               `;
-              toast.innerText = "📍 Location pinned on map";
-              document.body.appendChild(toast);
-              setTimeout(() => toast.remove(), 2000);
-            }}
-          />
-        </div>
-      </div>
-
-      {/* Mobile Elements */}
-      <div className="mobile-overlays" style={{ pointerEvents: 'none', position: 'absolute', inset: 0, zIndex: 1001 }}>
-        <div style={{ pointerEvents: 'auto', position: 'absolute', top: 0, left: 0, right: 0, padding: '10px' }} className="mobile-filters">
-          {/* Mobile only filter bar handled by CSS media queries usually, but for now rendering simple wrapper */}
-          {isMobile && viewMode === 'map' && (
-            <FilterBar filters={filters} onFilterChange={setFilters} />
-          )}
-        </div>
-
-        {/* Mobile Bottom Sheet */}
-        <div className="mobile-sheet-container" style={{ pointerEvents: 'none', position: 'absolute', inset: 0 }}>
-          {activeSelectedStation && isMobile && viewMode === 'map' && (
-            <div style={{ pointerEvents: 'auto' }}>
-              <StationBottomSheet
-                station={activeSelectedStation}
-                onClose={() => setSelectedStation(null)}
-                onNavigate={handleNavigate}
+                  toast.innerText = "📍 Location pinned on map";
+                  document.body.appendChild(toast);
+                  setTimeout(() => toast.remove(), 2000);
+                }}
               />
             </div>
-          )}
-        </div>
+          </div>
 
-      </div>
-
-      <MobileBottomNav
-        viewMode={viewMode}
-        setViewMode={setViewMode}
-        onOpenFleet={() => setIsFleetDashboardOpen(true)}
-        onOpenProfile={() => setIsProfileModalOpen(true)}
-      />
-
-      {/* Floating Action Buttons */}
-      <div style={{ position: 'fixed', bottom: '150px', right: '20px', display: 'flex', flexDirection: 'column', gap: '12px', zIndex: 1000 }}>
-        {user && (
-          <button className="btn btn-primary" style={{ borderRadius: '50%', width: '56px', height: '56px', padding: 0, justifyContent: 'center', boxShadow: '0 4px 20px rgba(34, 197, 94, 0.4)' }}
-            onClick={() => setIsAddStationModalOpen(true)} title="Add Station">
-            <span style={{ fontSize: '24px' }}>+</span>
-          </button>
-        )}
-
-        {user && user.role === 'admin' && (
-          <button className="glass" style={{ borderRadius: '50%', width: '48px', height: '48px', padding: 0, justifyContent: 'center', cursor: 'pointer', background: 'var(--color-active)', color: 'black', boxShadow: '0 4px 12px rgba(34, 197, 94, 0.4)' }}
-            onClick={() => setIsAdminDashboardOpen(true)} title="Admin Dashboard">
-            <span style={{ fontSize: '20px' }}>⚙️</span>
-          </button>
-        )}
-
-        <button className="glass" style={{ borderRadius: '50%', width: '48px', height: '48px', padding: 0, justifyContent: 'center', overflow: 'hidden', cursor: 'pointer' }}
-          onClick={() => user ? setIsProfileModalOpen(true) : setIsAuthModalOpen(true)} title={user ? "Profile" : "Login"}>
-          {user ? (
-            <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--color-active)', fontWeight: 'bold' }}>
-              {user.email[0].toUpperCase()}
+          {/* Mobile Elements */}
+          <div className="mobile-overlays" style={{ pointerEvents: 'none', position: 'absolute', inset: 0, zIndex: 1001 }}>
+            <div style={{ pointerEvents: 'auto', position: 'absolute', top: 0, left: 0, right: 0, padding: '10px' }} className="mobile-filters">
+              {/* Mobile only filter bar handled by CSS media queries usually, but for now rendering simple wrapper */}
+              {isMobile && viewMode === 'map' && (
+                <FilterBar filters={filters} onFilterChange={setFilters} />
+              )}
             </div>
-          ) : (
-            <span style={{ fontSize: '20px' }}>👤</span>
+
+            {/* Mobile Bottom Sheet */}
+            <div className="mobile-sheet-container" style={{ pointerEvents: 'none', position: 'absolute', inset: 0 }}>
+              {activeSelectedStation && isMobile && viewMode === 'map' && (
+                <div style={{ pointerEvents: 'auto' }}>
+                  <StationBottomSheet
+                    station={activeSelectedStation}
+                    onClose={() => setSelectedStation(null)}
+                    onNavigate={handleNavigate}
+                  />
+                </div>
+              )}
+            </div>
+
+          </div>
+
+          <MobileBottomNav
+            viewMode={viewMode}
+            setViewMode={setViewMode}
+            onOpenFleet={() => setIsFleetDashboardOpen(true)}
+            onOpenProfile={() => setIsProfileModalOpen(true)}
+          />
+
+          {/* Floating Action Buttons */}
+          <div style={{ position: 'fixed', top: '20px', right: '20px', display: 'flex', flexDirection: 'column', gap: '12px', zIndex: 1000 }}>
+            {user && (
+              <button className="btn btn-primary" style={{ borderRadius: '50%', width: '56px', height: '56px', padding: 0, justifyContent: 'center', boxShadow: '0 4px 20px rgba(34, 197, 94, 0.4)' }}
+                onClick={() => setIsAddStationModalOpen(true)} title="Add Station">
+                <span style={{ fontSize: '24px' }}>+</span>
+              </button>
+            )}
+
+            {user && user.role === 'admin' && (
+              <button className="glass" style={{ borderRadius: '50%', width: '48px', height: '48px', padding: 0, justifyContent: 'center', cursor: 'pointer', background: 'var(--color-active)', color: 'black', boxShadow: '0 4px 12px rgba(34, 197, 94, 0.4)' }}
+                onClick={() => setIsAdminDashboardOpen(true)} title="Admin Dashboard">
+                <span style={{ fontSize: '20px' }}>⚙️</span>
+              </button>
+            )}
+
+            <button className="glass" style={{ borderRadius: '50%', width: '48px', height: '48px', padding: 0, justifyContent: 'center', overflow: 'hidden', cursor: 'pointer' }}
+              onClick={() => user ? setIsProfileModalOpen(true) : setIsAuthModalOpen(true)} title={user ? "Profile" : "Login"}>
+              {user ? (
+                <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--color-active)', fontWeight: 'bold' }}>
+                  {user.email[0].toUpperCase()}
+                </div>
+              ) : (
+                <span style={{ fontSize: '20px' }}>👤</span>
+              )}
+            </button>
+          </div>
+
+          {/* Modals & Overlays */}
+          <StationDetailsModal
+            isOpen={!!viewingStation}
+            onClose={() => setViewingStation(null)}
+            station={viewingStation}
+            user={user}
+            userLocation={userLocation}
+            onLoginRequest={() => setIsAuthModalOpen(true)}
+          />
+
+          <ReportModal
+            isOpen={reportModalData.isOpen}
+            station={reportModalData.station}
+            user={user}
+            onClose={() => setReportModalData({ isOpen: false, station: null })}
+            onSubmit={handleReportSubmit}
+          />
+
+          <AuthModal
+            isOpen={isAuthModalOpen}
+            onClose={() => setIsAuthModalOpen(false)}
+          />
+
+          <UserProfileModal
+            isOpen={isProfileModalOpen}
+            onClose={() => setIsProfileModalOpen(false)}
+            user={user}
+            stats={userStats}
+            stations={stations}
+          />
+
+          <AddStationModal
+            isOpen={isAddStationModalOpen}
+            onClose={() => setIsAddStationModalOpen(false)}
+            onSubmit={handleAddStation}
+          />
+
+          <AdminDashboard
+            isOpen={isAdminDashboardOpen}
+            onClose={() => setIsAdminDashboardOpen(false)}
+            onImport={handleImport}
+            onFixAddresses={handleFixAddresses}
+            onRestore={handleRestoreManual}
+            onAddStation={() => setIsAddStationModalOpen(true)}
+            onGrantAdmin={handleGrantAdmin}
+            onUpdateMRS={handleUpdateMRSCoords}
+            importStatus={importStatus}
+            stations={stations}
+            user={user}
+          />
+
+          {isFleetDashboardOpen && (
+            <FleetDashboard
+              stations={stations}
+              onClose={() => setIsFleetDashboardOpen(false)}
+            />
           )}
-        </button>
-      </div>
 
-      {/* Modals & Overlays */}
-      {/* <StationDetailsModal
-        isOpen={!!viewingStation}
-        onClose={() => setViewingStation(null)}
-        station={viewingStation}
-        user={user}
-        userLocation={userLocation}
-        onLoginRequest={() => setIsAuthModalOpen(true)}
-      /> */}
-
-      <ReportModal
-        isOpen={reportModalData.isOpen}
-        station={reportModalData.station}
-        user={user}
-        onClose={() => setReportModalData({ isOpen: false, station: null })}
-        onSubmit={handleReportSubmit}
-      />
-
-      <AuthModal
-        isOpen={isAuthModalOpen}
-        onClose={() => setIsAuthModalOpen(false)}
-      />
-
-      <UserProfileModal
-        isOpen={isProfileModalOpen}
-        onClose={() => setIsProfileModalOpen(false)}
-        user={user}
-        stats={{ contributions: 12, reviews: 5 }} // Mock stats for demo
-      />
-
-      <AddStationModal
-        isOpen={isAddStationModalOpen}
-        onClose={() => setIsAddStationModalOpen(false)}
-        onSubmit={handleAddStation}
-      />
-
-      <AdminDashboard
-        isOpen={isAdminDashboardOpen}
-        onClose={() => setIsAdminDashboardOpen(false)}
-        onImport={handleImport}
-        onFixAddresses={handleFixAddresses}
-        onRestore={handleRestoreManual}
-        onAddStation={() => setIsAddStationModalOpen(true)}
-        onGrantAdmin={handleGrantAdmin}
-        onUpdateMRS={handleUpdateMRSCoords}
-        importStatus={importStatus}
-        stations={stations}
-        user={user}
-      />
-
-      {isFleetDashboardOpen && (
-        <FleetDashboard
-          stations={stations}
-          onClose={() => setIsFleetDashboardOpen(false)}
-        />
-      )}
-
-      <ReloadPrompt />
-    </div>
+          <ReloadPrompt />
+        </div>
+      </ErrorBoundary>
+    </ThemeProvider>
   );
 }
 
