@@ -155,31 +155,34 @@ const StationList = ({ stations, onSelect, onViewDetails, selectedStationId, onA
                                     </span>
 
                                     {/* Queue Status Badge */}
-                                    {station.queueStatus && (
-                                        <span style={{
-                                            padding: '4px 8px',
-                                            borderRadius: '6px',
-                                            fontSize: '0.7rem',
-                                            fontWeight: '600',
-                                            background: station.queueStatus === 'short' ? 'rgba(34, 197, 94, 0.2)' :
+                                    <span style={{
+                                        padding: '4px 8px',
+                                        borderRadius: '6px',
+                                        fontSize: '0.7rem',
+                                        fontWeight: '600',
+                                        background: !station.queueStatus ? 'rgba(100, 116, 139, 0.1)' :
+                                            station.queueStatus === 'short' ? 'rgba(34, 197, 94, 0.2)' :
                                                 station.queueStatus === 'mild' ? 'rgba(234, 179, 8, 0.2)' :
                                                     'rgba(239, 68, 68, 0.2)',
-                                            color: station.queueStatus === 'short' ? '#22c55e' :
+                                        color: !station.queueStatus ? '#94a3b8' :
+                                            station.queueStatus === 'short' ? '#22c55e' :
                                                 station.queueStatus === 'mild' ? '#eab308' :
                                                     '#ef4444',
-                                            border: `1px solid ${station.queueStatus === 'short' ? 'rgba(34, 197, 94, 0.3)' :
+                                        border: `1px solid ${!station.queueStatus ? 'rgba(100, 116, 139, 0.2)' :
+                                            station.queueStatus === 'short' ? 'rgba(34, 197, 94, 0.3)' :
                                                 station.queueStatus === 'mild' ? 'rgba(234, 179, 8, 0.3)' :
                                                     'rgba(239, 68, 68, 0.3)'}`,
-                                            display: 'inline-flex',
-                                            alignItems: 'center',
-                                            gap: '4px',
-                                            whiteSpace: 'nowrap'
-                                        }}>
-                                            {station.queueStatus === 'short' ? '⚡ Queue: Quick (<15min)' :
+                                        display: 'inline-flex',
+                                        alignItems: 'center',
+                                        gap: '4px',
+                                        whiteSpace: 'nowrap'
+                                    }}>
+                                        {!station.queueStatus ?
+                                            (station.status === 'active' ? '⚪ Queue: Unknown' : '⚪ No Queue (Empty)') :
+                                            (station.queueStatus === 'short' ? '⚡ Queue: Quick (<15min)' :
                                                 station.queueStatus === 'mild' ? '⏳ Queue: Mild (~30min)' :
-                                                    '🚨 Queue: Long (30min+)'}
-                                        </span>
-                                    )}
+                                                    '🚨 Queue: Long (30min+)')}
+                                    </span>
 
                                     <button
                                         onClick={(e) => {

@@ -13,7 +13,8 @@ const StationBottomSheet = ({ station, onClose, onNavigate }) => {
     const queueText =
         station.queueStatus === 'short' ? 'Short Queue' :
             station.queueStatus === 'mild' ? 'Mild Queue' :
-                station.queueStatus === 'long' ? 'Long Queue' : 'Unknown Queue';
+                station.queueStatus === 'long' ? 'Long Queue' :
+                    (station.status === 'active' ? 'Unknown Queue' : 'No Queue (Empty)');
 
     return (
         <div style={{

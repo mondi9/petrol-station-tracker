@@ -53,17 +53,19 @@ const createCustomIcon = (station, userLocation, isNearby = false) => {
 
     // Determine color based on queue status (no icons)
     if (status === 'active') {
-        if (!queueStatus || queueStatus === 'short') {
+        if (!queueStatus) {
+            color = '#64748b'; // Grey for unknown queue
+            label = `❓ ${label}`;
+        } else if (queueStatus === 'short') {
             color = '#16a34a'; // Green
         } else if (queueStatus === 'mild') {
             color = '#ca8a04'; // Dark Yellow
         } else if (queueStatus === 'long') {
             color = '#dc2626'; // Red
-        } else {
-            color = '#16a34a'; // Assume green if active but unknown queue
         }
     } else {
-        label = 'Inactive';
+        label = 'Empty';
+        color = '#475569'; // Darker grey
     }
 
     // CSS for the marker
@@ -471,9 +473,11 @@ const MapComponent = ({ stations, onStationSelect, onViewDetails, selectedStatio
                                             <span>Queue:</span>
                                             <span style={{
                                                 fontWeight: 'bold',
-                                                color: station.queueStatus === 'short' ? '#4ade80' : station.queueStatus === 'mild' ? '#facc15' : station.queueStatus === 'long' ? '#f87171' : 'inherit'
+                                                color: station.queueStatus === 'short' ? '#4ade80' : station.queueStatus === 'mild' ? '#facc15' : station.queueStatus === 'long' ? '#f87171' : (station.status === 'active' ? '#94a3b8' : '#e2e8f0')
                                             }}>
-                                                {station.queueStatus ? (station.queueStatus === 'mild' ? 'Mild' : (station.queueStatus.charAt(0).toUpperCase() + station.queueStatus.slice(1))) : 'Unknown'}
+                                                {station.status === 'active'
+                                                    ? (station.queueStatus ? (station.queueStatus === 'mild' ? 'Mild' : (station.queueStatus.charAt(0).toUpperCase() + station.queueStatus.slice(1))) : 'Unknown')
+                                                    : 'N/A (Empty)'}
                                             </span>
                                         </div>
                                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
