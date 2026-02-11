@@ -378,7 +378,7 @@ export const exportStationsToCSV = (stations) => {
 export const calculateQueueStatus = (queueMinutes) => {
     if (queueMinutes === null || queueMinutes === undefined) return null;
     if (queueMinutes <= 15) return 'short';
-    if (queueMinutes <= 30) return 'medium';
+    if (queueMinutes <= 30) return 'mild';
     return 'long';
 };
 

@@ -29,7 +29,7 @@ const StationList = ({ stations, onSelect, onViewDetails, selectedStationId, onA
             const getRank = (s) => {
                 if (s.status !== 'active') return 4;
                 if (s.queueStatus === 'short') return 1;
-                if (s.queueStatus === 'medium') return 2;
+                if (s.queueStatus === 'mild') return 2;
                 if (s.queueStatus === 'long') return 3;
                 return 4; // active but no queue info
             };
@@ -162,13 +162,13 @@ const StationList = ({ stations, onSelect, onViewDetails, selectedStationId, onA
                                             fontSize: '0.7rem',
                                             fontWeight: '600',
                                             background: station.queueStatus === 'short' ? 'rgba(34, 197, 94, 0.2)' :
-                                                station.queueStatus === 'medium' ? 'rgba(234, 179, 8, 0.2)' :
+                                                station.queueStatus === 'mild' ? 'rgba(234, 179, 8, 0.2)' :
                                                     'rgba(239, 68, 68, 0.2)',
                                             color: station.queueStatus === 'short' ? '#22c55e' :
-                                                station.queueStatus === 'medium' ? '#eab308' :
+                                                station.queueStatus === 'mild' ? '#eab308' :
                                                     '#ef4444',
                                             border: `1px solid ${station.queueStatus === 'short' ? 'rgba(34, 197, 94, 0.3)' :
-                                                station.queueStatus === 'medium' ? 'rgba(234, 179, 8, 0.3)' :
+                                                station.queueStatus === 'mild' ? 'rgba(234, 179, 8, 0.3)' :
                                                     'rgba(239, 68, 68, 0.3)'}`,
                                             display: 'inline-flex',
                                             alignItems: 'center',
@@ -176,7 +176,7 @@ const StationList = ({ stations, onSelect, onViewDetails, selectedStationId, onA
                                             whiteSpace: 'nowrap'
                                         }}>
                                             {station.queueStatus === 'short' ? '⚡ Queue: Quick (<15min)' :
-                                                station.queueStatus === 'medium' ? '⏳ Queue: ~30min' :
+                                                station.queueStatus === 'mild' ? '⏳ Queue: Mild (~30min)' :
                                                     '🚨 Queue: Long (30min+)'}
                                         </span>
                                     )}

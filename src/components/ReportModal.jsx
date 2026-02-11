@@ -206,7 +206,7 @@ const ReportModal = ({ isOpen, onClose, onSubmit, station, user }) => {
                         </div>
                         <div style={{ fontSize: '0.9rem', opacity: 0.8, display: 'flex', flexDirection: 'column', gap: '8px' }}>
                             <div>🛢️ <strong>{fuelType.toUpperCase()}</strong> - {availability}</div>
-                            <div>⏱️ Queue: <strong>{queueLength} min</strong> ({currentQueueStatus || 'N/A'})</div>
+                            <div>⏱️ Queue: <strong>{queueLength} min</strong> ({currentQueueStatus === 'mild' ? 'Mild' : (currentQueueStatus || 'N/A')})</div>
                             {price && <div>💰 Price: <strong>₦{price}</strong></div>}
                             {photoFile && <div>📸 Photo attached</div>}
                         </div>
@@ -400,7 +400,7 @@ const ReportModal = ({ isOpen, onClose, onSubmit, station, user }) => {
                                     color: currentQueueStatus === 'short' ? '#22c55e' : currentQueueStatus === 'medium' ? '#eab308' : '#ef4444',
                                     fontWeight: 'bold'
                                 }}>
-                                    {currentQueueStatus === 'short' ? '✅ Short Queue' : currentQueueStatus === 'medium' ? '⏳ Medium Queue' : '🚨 Long Queue'}
+                                    {currentQueueStatus === 'short' ? '✅ Short Queue' : currentQueueStatus === 'mild' ? '⏳ Mild Queue' : '🚨 Long Queue'}
                                 </div>
                             )}
                         </div>

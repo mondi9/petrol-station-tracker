@@ -42,7 +42,7 @@ const createCustomIcon = (station, userLocation, isNearby = false) => {
     // Add queue status emoji to label
     if (status === 'active' && queueStatus) {
         const queueEmoji = queueStatus === 'short' ? '⚡' :
-            queueStatus === 'medium' ? '⏳' : '🚨';
+            queueStatus === 'mild' ? '⏳' : '🚨';
         label = `${queueEmoji} ${label}`;
     }
 
@@ -55,7 +55,7 @@ const createCustomIcon = (station, userLocation, isNearby = false) => {
     if (status === 'active') {
         if (!queueStatus || queueStatus === 'short') {
             color = '#16a34a'; // Green
-        } else if (queueStatus === 'medium') {
+        } else if (queueStatus === 'mild') {
             color = '#ca8a04'; // Dark Yellow
         } else if (queueStatus === 'long') {
             color = '#dc2626'; // Red
@@ -141,7 +141,7 @@ const MapLegend = () => {
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <div style={{ width: '12px', height: '12px', borderRadius: '3px', background: '#ca8a04', border: '1px solid white' }}></div>
-                    <span>Medium Queue ⏳</span>
+                    <span>Mild Queue ⏳</span>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
                     <div style={{ width: '12px', height: '12px', borderRadius: '3px', background: '#dc2626', border: '1px solid white' }}></div>
@@ -317,7 +317,7 @@ const RoutingController = ({ selectedStation, userLocation }) => {
     if (selectedStation) {
         if (selectedStation.status === 'active') {
             if (selectedStation.queueStatus === 'short') routeColor = '#22c55e'; // Green
-            else if (selectedStation.queueStatus === 'medium') routeColor = '#eab308'; // Yellow
+            else if (selectedStation.queueStatus === 'mild') routeColor = '#eab308'; // Yellow
             else if (selectedStation.queueStatus === 'long') routeColor = '#ef4444'; // Red
         } else {
             routeColor = '#64748b'; // Inactive/Grey
@@ -437,7 +437,7 @@ const MapComponent = ({ stations, onStationSelect, onViewDetails, selectedStatio
                     if (station.status === 'active') {
                         zOffset = 100;
                         if (station.queueStatus === 'short') zOffset += 30;
-                        else if (station.queueStatus === 'medium') zOffset += 20;
+                        else if (station.queueStatus === 'mild') zOffset += 20;
                         else if (station.queueStatus === 'long') zOffset += 10;
                     }
 
@@ -471,9 +471,9 @@ const MapComponent = ({ stations, onStationSelect, onViewDetails, selectedStatio
                                             <span>Queue:</span>
                                             <span style={{
                                                 fontWeight: 'bold',
-                                                color: station.queueStatus === 'short' ? '#4ade80' : station.queueStatus === 'medium' ? '#facc15' : station.queueStatus === 'long' ? '#f87171' : 'inherit'
+                                                color: station.queueStatus === 'short' ? '#4ade80' : station.queueStatus === 'mild' ? '#facc15' : station.queueStatus === 'long' ? '#f87171' : 'inherit'
                                             }}>
-                                                {station.queueStatus ? (station.queueStatus.charAt(0).toUpperCase() + station.queueStatus.slice(1)) : 'Unknown'}
+                                                {station.queueStatus ? (station.queueStatus === 'mild' ? 'Mild' : (station.queueStatus.charAt(0).toUpperCase() + station.queueStatus.slice(1))) : 'Unknown'}
                                             </span>
                                         </div>
                                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>

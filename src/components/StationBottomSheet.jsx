@@ -7,12 +7,12 @@ const StationBottomSheet = ({ station, onClose, onNavigate }) => {
 
     const queueColor =
         station.queueStatus === 'short' ? '#22c55e' :
-            station.queueStatus === 'medium' ? '#eab308' :
+            station.queueStatus === 'mild' ? '#eab308' :
                 station.queueStatus === 'long' ? '#ef4444' : '#64748b';
 
     const queueText =
         station.queueStatus === 'short' ? 'Short Queue' :
-            station.queueStatus === 'medium' ? 'Medium Queue' :
+            station.queueStatus === 'mild' ? 'Mild Queue' :
                 station.queueStatus === 'long' ? 'Long Queue' : 'Unknown Queue';
 
     return (
