@@ -17,7 +17,7 @@ const DefaultIcon = L.icon({
 });
 
 // Custom marker generator (Price Bubble + Queue Status + Distance)
-const createCustomIcon = (station, userLocation) => {
+const createCustomIcon = (station, userLocation, isNearby = false) => {
     const status = station.status;
     const queueStatus = station.queueStatus;
     const price = station.prices?.petrol;
@@ -44,6 +44,11 @@ const createCustomIcon = (station, userLocation) => {
         const queueEmoji = queueStatus === 'short' ? '⚡' :
             queueStatus === 'medium' ? '⏳' : '🚨';
         label = `${queueEmoji} ${label}`;
+    }
+
+    // Add highlight if it's one of the closest stations
+    if (isNearby) {
+        label = `⭐️ ${label}`;
     }
 
     // Determine color based on queue status (no icons)
@@ -76,8 +81,8 @@ const createCustomIcon = (station, userLocation) => {
                 border-radius: 8px;
                 font-weight: bold;
                 font-size: 13px;
-                border: 2px solid white;
-                box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+                border: ${isNearby ? '3px solid #fbbf24' : '2px solid white'};
+                box-shadow: ${isNearby ? '0 0 15px #fbbf24' : '0 2px 8px rgba(0,0,0,0.3)'};
                 white-space: nowrap;
                 display: flex;
                 align-items: center;
@@ -330,7 +335,7 @@ const RoutingController = ({ selectedStation, userLocation }) => {
     ) : null;
 };
 
-const MapComponent = ({ stations, onStationSelect, onViewDetails, selectedStation, onReportClick, onFindNearest, userLocation, isLocating, onMapClick }) => {
+const MapComponent = ({ stations, onStationSelect, onViewDetails, selectedStation, onReportClick, onFindNearest, userLocation, isLocating, onMapClick, nearbyStations = [] }) => {
     const position = [6.5244, 3.3792]; // Default Lagos center
 
     return (
@@ -387,6 +392,42 @@ const MapComponent = ({ stations, onStationSelect, onViewDetails, selectedStatio
                                 weight: 1
                             }}
                         />
+
+                        {/* Search Radius Circle (Encompassing nearby stations) */}
+                        {nearbyStations.length > 0 && (
+                            <Circle
+                                center={[userLocation.lat, userLocation.lng]}
+                                radius={stations.find(s => s.id === nearbyStations[nearbyStations.length - 1])?.distance * 1000 || 500}
+                                pathOptions={{
+                                    color: '#fbbf24',
+                                    fillColor: '#fbbf24',
+                                    fillOpacity: 0.05,
+                                    weight: 2,
+                                    dashArray: '5, 10'
+                                }}
+                            />
+                        )}
+
+                        {/* Connection Lines to Top 3 */}
+                        {nearbyStations.map(stationId => {
+                            const station = stations.find(s => s.id === stationId);
+                            if (!station) return null;
+                            return (
+                                <Polyline
+                                    key={`connector-${stationId}`}
+                                    positions={[
+                                        [userLocation.lat, userLocation.lng],
+                                        [station.lat, station.lng]
+                                    ]}
+                                    pathOptions={{
+                                        color: '#fbbf24',
+                                        weight: 2,
+                                        opacity: 0.4,
+                                        dashArray: '5, 10'
+                                    }}
+                                />
+                            );
+                        })}
                     </>
                 )}
 
@@ -404,8 +445,8 @@ const MapComponent = ({ stations, onStationSelect, onViewDetails, selectedStatio
                         <Marker
                             key={station.id}
                             position={[station.lat, station.lng]}
-                            icon={createCustomIcon(station, userLocation)}
-                            zIndexOffset={zOffset}
+                            icon={createCustomIcon(station, userLocation, nearbyStations.includes(station.id))}
+                            zIndexOffset={zOffset + (nearbyStations.includes(station.id) ? 500 : 0)}
                             eventHandlers={{
                                 click: () => onStationSelect(station),
                             }}

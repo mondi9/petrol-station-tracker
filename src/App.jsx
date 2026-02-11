@@ -50,6 +50,7 @@ function App() {
   const [isLoading, setIsLoading] = useState(true);
   const [isLocating, setIsLocating] = useState(false);
   const [userLocation, setUserLocation] = useState(null);
+  const [nearbyStations, setNearbyStations] = useState([]);
 
   const [user, setUser] = useState(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -339,12 +340,15 @@ function App() {
             setSelectedStation(nearest);
 
             // Diagnostic Info: Top 3 closest stations
-            const top3 = activeStations
-              .map(s => ({ name: s.name, d: calculateDistance(latitude, longitude, s.lat, s.lng), lat: s.lat, lng: s.lng }))
+            const top3Data = activeStations
+              .map(s => ({ ...s, d: calculateDistance(latitude, longitude, s.lat, s.lng) }))
               .sort((a, b) => a.d - b.d)
               .slice(0, 3);
 
-            const diagHtml = top3.map((s, idx) => `
+            // Set nearby stations for map highlighting
+            setNearbyStations(top3Data.map(s => s.id));
+
+            const diagHtml = top3Data.map((s, idx) => `
                 <div style="font-size: 0.8rem; margin-top: 4px; display: flex; justify-content: space-between; padding: 6px; background: rgba(255,255,255,0.05); borderRadius: 8px; border: 1px solid rgba(255,255,255,0.05);">
                   <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px;">${idx + 1}. ${s.name}</span>
                   <strong style="color: ${idx === 0 ? '#10b981' : 'white'}">${formatDistance(s.d)}</strong>
@@ -472,6 +476,7 @@ function App() {
               <MapComponent
                 stations={filteredStations}
                 selectedStation={activeSelectedStation}
+                nearbyStations={nearbyStations}
                 onStationSelect={handleStationSelect}
                 onViewDetails={handleViewDetails}
                 onReportClick={handleReportClick}
@@ -481,6 +486,15 @@ function App() {
                 onMapClick={(latlng) => {
                   console.log("Map: Manual location set to", latlng);
                   setUserLocation({ lat: latlng.lat, lng: latlng.lng });
+
+                  // Recalculate top 3 for manual pin
+                  const activeStations = stations.filter(s => s.status === 'active');
+                  const top3 = activeStations
+                    .map(s => ({ id: s.id, d: calculateDistance(latlng.lat, latlng.lng, s.lat, s.lng) }))
+                    .sort((a, b) => a.d - b.d)
+                    .slice(0, 3);
+                  setNearbyStations(top3.map(s => s.id));
+
                   // Small temporary confirmation
                   const toast = document.createElement('div');
                   toast.style.cssText = `
@@ -563,6 +577,7 @@ function App() {
             user={user}
             userLocation={userLocation}
             onLoginRequest={() => setIsAuthModalOpen(true)}
+            onNavigate={handleNavigate}
           />
 
           <ReportModal
