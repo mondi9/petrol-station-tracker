@@ -173,9 +173,16 @@ function App() {
     setReportModalData({ isOpen: false, station: null });
   };
 
-  const handleNavigate = (station) => {
+  const handleNavigate = (station, app = 'google') => {
     if (!station) return;
-    const url = `https://www.google.com/maps/dir/?api=1&destination=${station.lat},${station.lng}`;
+
+    let url;
+    if (app === 'waze') {
+      url = `https://waze.com/ul?ll=${station.lat},${station.lng}&navigate=yes`;
+    } else {
+      url = `https://www.google.com/maps/dir/?api=1&destination=${station.lat},${station.lng}`;
+    }
+
     window.open(url, '_blank');
   };
 
@@ -576,7 +583,10 @@ function App() {
             station={viewingStation}
             user={user}
             userLocation={userLocation}
-            onLoginRequest={() => setIsAuthModalOpen(true)}
+            onLoginRequest={() => {
+              setViewingStation(null);
+              setIsAuthModalOpen(true);
+            }}
             onNavigate={handleNavigate}
           />
 

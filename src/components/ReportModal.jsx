@@ -12,6 +12,7 @@ const ReportModal = ({ isOpen, onClose, onSubmit, station, user, userLocation })
     const [availability, setAvailability] = useState('available');
     const [queueLength, setQueueLength] = useState(0);
     const [price, setPrice] = useState('');
+    const [comment, setComment] = useState('');
     const [guestName, setGuestName] = useState('');
     const [priceError, setPriceError] = useState('');
 
@@ -37,6 +38,7 @@ const ReportModal = ({ isOpen, onClose, onSubmit, station, user, userLocation })
             setAvailability('available');
             setQueueLength(0);
             setPrice('');
+            setComment('');
             setGuestName('');
             setPriceError('');
             setPhotoFile(null);
@@ -126,6 +128,7 @@ const ReportModal = ({ isOpen, onClose, onSubmit, station, user, userLocation })
             availability,
             queueLength: parseInt(queueLength) || 0,
             price: price ? parseInt(price) : null,
+            comment: comment.trim(),
             reporterName: user ? (user.displayName || user.email.split('@')[0]) : (guestName.trim() || 'Guest')
         };
 
@@ -181,6 +184,7 @@ const ReportModal = ({ isOpen, onClose, onSubmit, station, user, userLocation })
                 availability,
                 queueLength: parseInt(queueLength) || 0,
                 price: price ? parseInt(price) : null,
+                comment: comment.trim(),
                 reporterName: user ? (user.displayName || user.email.split('@')[0]) : (guestName.trim() || 'Guest'),
                 photoUrl,
                 photoThumbUrl: thumbUrl,
@@ -191,6 +195,7 @@ const ReportModal = ({ isOpen, onClose, onSubmit, station, user, userLocation })
                     isVerifiedEvidence,
                     price: price ? parseInt(price) : null,
                     queueLength: parseInt(queueLength) || 0,
+                    comment: comment.trim(),
                     userId: user?.uid,
                     reporterName: user ? (user.displayName || user.email.split('@')[0]) : (guestName.trim() || 'Guest')
                 })
@@ -237,6 +242,7 @@ const ReportModal = ({ isOpen, onClose, onSubmit, station, user, userLocation })
                             <div>🛢️ <strong>{fuelType.toUpperCase()}</strong> - {availability}</div>
                             <div>⏱️ Queue: <strong>{queueLength} min</strong> ({currentQueueStatus === 'mild' ? 'Mild' : (currentQueueStatus || 'N/A')})</div>
                             {price && <div>💰 Price: <strong>₦{price}</strong></div>}
+                            {comment && <div>💬 Comment: <strong>{comment}</strong></div>}
                             {photoFile && <div>📸 Photo attached</div>}
                         </div>
                     </div>
@@ -591,6 +597,24 @@ const ReportModal = ({ isOpen, onClose, onSubmit, station, user, userLocation })
                         <span style={{ fontSize: '0.7rem', color: '#64748b', marginTop: '4px', display: 'block' }}>
                             💡 Photos help verify reports and build trust
                         </span>
+                    </div>
+
+                    {/* Comments */}
+                    <div>
+                        <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', fontWeight: '500' }}>
+                            💬 Any other details? (Optional)
+                        </label>
+                        <textarea
+                            placeholder="e.g., 'Only 2 pumps working' or 'Cash only today'"
+                            value={comment}
+                            onChange={(e) => setComment(e.target.value)}
+                            style={{
+                                width: '100%', padding: '12px', borderRadius: '8px',
+                                background: 'rgba(255,255,255,0.05)', border: '1px solid var(--glass-border)',
+                                color: 'white', fontSize: '0.9rem', minHeight: '80px', resize: 'vertical',
+                                outline: 'none'
+                            }}
+                        />
                     </div>
 
                     {/* Guest Name */}

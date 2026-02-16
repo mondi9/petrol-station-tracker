@@ -11,6 +11,12 @@ const StationList = ({ stations, onSelect, onViewDetails, selectedStationId, onA
 
     // Sort the incoming filtered stations
     const sortedStations = [...stations].sort((a, b) => {
+        // Priority 1: Freshness (Active & Fresh first)
+        const aFresh = a.freshnessStatus === 'fresh' && a.status === 'active';
+        const bFresh = b.freshnessStatus === 'fresh' && b.status === 'active';
+        if (aFresh && !bFresh) return -1;
+        if (!aFresh && bFresh) return 1;
+
         if (sortBy === 'distance') {
             // If distance is missing (Infinity), push to bottom.
             const distA = (a.distance !== undefined && a.distance !== null) ? a.distance : Infinity;
@@ -184,6 +190,24 @@ const StationList = ({ stations, onSelect, onViewDetails, selectedStationId, onA
                                                     '🚨 Queue: Long (30min+)')}
                                     </span>
 
+                                    {station.freshnessStatus === 'fresh' && (
+                                        <span style={{
+                                            padding: '4px 8px',
+                                            borderRadius: '6px',
+                                            fontSize: '0.7rem',
+                                            fontWeight: '700',
+                                            background: 'rgba(34, 197, 94, 0.1)',
+                                            color: '#4ade80',
+                                            border: '1px solid rgba(34, 197, 94, 0.2)',
+                                            display: 'inline-flex',
+                                            alignItems: 'center',
+                                            gap: '4px',
+                                            animation: 'pulse-badge 2s infinite'
+                                        }}>
+                                            ✨ FRESH
+                                        </span>
+                                    )}
+
                                     <button
                                         onClick={(e) => {
                                             e.stopPropagation();
@@ -336,6 +360,12 @@ const StationList = ({ stations, onSelect, onViewDetails, selectedStationId, onA
                 )}
 
             </div>
+            <style>{`
+                @keyframes pulse-badge {
+                    0%, 100% { opacity: 1; transform: scale(1); }
+                    50% { opacity: 0.7; transform: scale(1.05); }
+                }
+            `}</style>
         </div >
     );
 };

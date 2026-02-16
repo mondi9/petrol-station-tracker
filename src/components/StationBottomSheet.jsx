@@ -73,6 +73,22 @@ const StationBottomSheet = ({ station, onClose, onNavigate }) => {
                 )}
             </div>
 
+            {/* Latest Comment */}
+            {station.lastComment && (
+                <div style={{
+                    marginBottom: '16px',
+                    padding: '10px 12px',
+                    background: 'rgba(34, 197, 94, 0.1)',
+                    borderRadius: '8px',
+                    fontSize: '0.85rem',
+                    borderLeft: '3px solid var(--color-active)',
+                    color: '#efefef',
+                    fontStyle: 'italic'
+                }}>
+                    "{station.lastComment}"
+                </div>
+            )}
+
             {/* Prices */}
             <div style={{ display: 'flex', gap: '8px', marginBottom: '16px', overflowX: 'auto' }}>
                 {station.prices?.petrol && (
@@ -94,15 +110,37 @@ const StationBottomSheet = ({ station, onClose, onNavigate }) => {
                 )}
             </div>
 
-            {/* Navigate Button */}
-            <button
-                onClick={() => onNavigate(station)}
-                className="btn btn-primary"
-                style={{ width: '100%', justifyContent: 'center', padding: '12px', fontSize: '1rem', fontWeight: 'bold' }}
-            >
-                <Navigation size={18} style={{ marginRight: '8px' }} />
-                Navigate Here
-            </button>
+            {/* Navigate Buttons */}
+            <div style={{ display: 'flex', gap: '8px' }}>
+                <button
+                    onClick={() => onNavigate(station, 'google')}
+                    className="btn btn-primary"
+                    style={{ flex: 1, justifyContent: 'center', padding: '12px', fontSize: '0.9rem', fontWeight: 'bold' }}
+                >
+                    <Navigation size={18} style={{ marginRight: '6px' }} />
+                    Maps
+                </button>
+                <button
+                    onClick={() => onNavigate(station, 'waze')}
+                    style={{
+                        flex: 1,
+                        justifyContent: 'center',
+                        padding: '12px',
+                        fontSize: '0.9rem',
+                        fontWeight: 'bold',
+                        background: '#33b1ff',
+                        color: 'black',
+                        border: 'none',
+                        borderRadius: '8px',
+                        display: 'flex',
+                        alignItems: 'center',
+                        cursor: 'pointer'
+                    }}
+                >
+                    <img src="https://assets.website-files.com/5f6b26583546aa1d641ae404/5f6b26583546aa50081ae42f_waze-icon.svg" width="18" height="18" style={{ marginRight: '6px' }} alt="Waze" />
+                    Waze
+                </button>
+            </div>
 
             <style>{`
                 @keyframes slideUp {

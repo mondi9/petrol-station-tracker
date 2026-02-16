@@ -8,7 +8,7 @@ import { addReview } from '../services/reviewService';
 import { formatTimeAgo, calculateTravelTime, verifyStation, verifyPrice, subscribeToStationPhotos } from '../services/stationService';
 import { CheckCircle, AlertTriangle, ThumbsUp, ThumbsDown } from 'lucide-react';
 
-const StationDetailsModal = ({ isOpen, onClose, station, user, onLoginRequest, userLocation }) => {
+const StationDetailsModal = ({ isOpen, onClose, station, user, onLoginRequest, userLocation, onNavigate }) => {
     const [isReviewOpen, setIsReviewOpen] = useState(false);
     const [isAlertOpen, setIsAlertOpen] = useState(false);
     const [photos, setPhotos] = useState([]);
@@ -114,6 +114,20 @@ const StationDetailsModal = ({ isOpen, onClose, station, user, onLoginRequest, u
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '6px', fontSize: '0.85rem', color: 'var(--color-active)' }}>
                                         <Navigation size={14} />
                                         <span>{(station.distance !== undefined && station.distance !== null) ? station.distance.toFixed(1) : 'N/A'}km away • ~{calculateTravelTime(station.distance)} min</span>
+                                    </div>
+                                )}
+                                {station.lastComment && (
+                                    <div style={{
+                                        marginTop: '10px',
+                                        padding: '8px 12px',
+                                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                                        borderRadius: '8px',
+                                        fontSize: '0.85rem',
+                                        borderLeft: '3px solid var(--color-active)',
+                                        color: '#efefef',
+                                        fontStyle: 'italic'
+                                    }}>
+                                        "{station.lastComment}"
                                     </div>
                                 )}
                             </div>
@@ -236,6 +250,57 @@ const StationDetailsModal = ({ isOpen, onClose, station, user, onLoginRequest, u
                                 {station.lastReporter && (
                                     <span>by {station.lastReporter}</span>
                                 )}
+                            </div>
+                        </div>
+
+                        {/* Navigation Buttons */}
+                        <div style={{ marginBottom: '20px' }}>
+                            <h3 style={{ fontSize: '0.9rem', fontWeight: '600', marginBottom: '12px', color: '#94a3b8' }}>
+                                Get Directions
+                            </h3>
+                            <div style={{ display: 'flex', gap: '12px' }}>
+                                <button
+                                    onClick={() => onNavigate(station, 'google')}
+                                    style={{
+                                        flex: 1,
+                                        padding: '12px',
+                                        borderRadius: '8px',
+                                        border: '1px solid var(--color-active)',
+                                        background: 'rgba(34, 197, 94, 0.1)',
+                                        color: 'var(--color-active)',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        gap: '8px',
+                                        fontWeight: '600',
+                                        fontSize: '0.9rem'
+                                    }}
+                                >
+                                    <MapPin size={18} />
+                                    Google Maps
+                                </button>
+                                <button
+                                    onClick={() => onNavigate(station, 'waze')}
+                                    style={{
+                                        flex: 1,
+                                        padding: '12px',
+                                        borderRadius: '8px',
+                                        border: '1px solid #33b1ff',
+                                        background: 'rgba(51, 177, 255, 0.1)',
+                                        color: '#33b1ff',
+                                        cursor: 'pointer',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        gap: '8px',
+                                        fontWeight: '600',
+                                        fontSize: '0.9rem'
+                                    }}
+                                >
+                                    <Navigation size={18} />
+                                    Waze
+                                </button>
                             </div>
                         </div>
 

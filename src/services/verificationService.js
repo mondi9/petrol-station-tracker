@@ -121,6 +121,11 @@ export const validateReportData = (reportData) => {
         errors.push('Reporter name is required');
     }
 
+    // Validate comment length
+    if (reportData.comment && reportData.comment.length > 200) {
+        errors.push('Comment is too long (max 200 characters)');
+    }
+
     return {
         valid: errors.length === 0,
         errors
@@ -158,6 +163,11 @@ export const calculateReportQuality = (report) => {
     // Is logged in user: +20%
     if (report.userId && report.userId !== 'anonymous') {
         score += 0.2;
+    }
+
+    // Has comment: +10%
+    if (report.comment && report.comment.trim().length > 5) {
+        score += 0.1;
     }
 
     // Has name: +10%

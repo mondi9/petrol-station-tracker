@@ -22,6 +22,7 @@ const createCustomIcon = (station, userLocation, isNearby = false) => {
     const queueStatus = station.queueStatus;
     const price = station.prices?.petrol;
     const distance = station.distance;
+    const freshness = station.freshnessStatus; // 'fresh', 'stale', 'unknown'
 
     let color = '#64748b'; // Default Grey (Inactive)
     let borderColor = 'white';
@@ -75,6 +76,9 @@ const createCustomIcon = (station, userLocation, isNearby = false) => {
             flex-direction: column;
             align-items: center;
             filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
+            opacity: ${freshness === 'stale' ? '0.5' : '1'};
+            transition: all 0.3s ease;
+            animation: ${freshness === 'fresh' ? 'fresh-pulse 2s infinite' : 'none'};
         ">
             <div style="
                 background: ${color};
@@ -104,6 +108,12 @@ const createCustomIcon = (station, userLocation, isNearby = false) => {
                 filter: drop-shadow(0 1px 2px rgba(0,0,0,0.3));
             "></div>
         </div>
+        <style>
+            @keyframes fresh-pulse {
+                0%, 100% { transform: scale(1); filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5)); }
+                50% { transform: scale(1.05); filter: drop-shadow(0 4px 15px var(--color-active-glow)); }
+            }
+        </style>
     `;
 
     return L.divIcon({

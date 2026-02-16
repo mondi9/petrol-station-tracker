@@ -26,10 +26,17 @@ export const subscribeToStations = (onUpdate, onError) => {
                 }
             }
 
+            // Calculate Freshness Score (Last 4 hours is fresh)
+            const lastUpdated = data.lastUpdated ? new Date(data.lastUpdated) : null;
+            const hoursOld = lastUpdated ? (new Date() - lastUpdated) / (1000 * 60 * 60) : Infinity;
+            const freshnessStatus = hoursOld <= 4 ? 'fresh' : hoursOld <= 12 ? 'stale' : 'unknown';
+
             return {
                 id: doc.id,
                 ...data,
-                queueStatus // Add calculated queue status
+                queueStatus, // Add calculated queue status
+                freshnessStatus,
+                hoursOld
             };
         }).filter(s => {
             // Strict Filter: Only show stations in Lagos, Nigeria
@@ -87,6 +94,11 @@ export const updateStationStatus = async (stationId, reportData, userId = null, 
     // Add Reporter Name to Main Document for easier display
     if (reportData.reporterName) {
         updatePayload.lastReporter = reportData.reporterName;
+    }
+
+    // Add Latest Comment to Main Document
+    if (reportData.comment) {
+        updatePayload.lastComment = reportData.comment;
     }
 
     // Add Photo URL if provided
