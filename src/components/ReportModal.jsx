@@ -1,11 +1,12 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { X, Fuel, CheckCircle, TriangleAlert, Ban, Banknote, Camera, Upload, Image as ImageIcon, AlertCircle } from 'lucide-react';
-import { validatePrice } from '../services/priceService';
-import { calculateQueueStatus } from '../services/stationService';
+import { validatePrice, mockExtractPriceFromPhoto } from '../services/priceService';
+import { calculateQueueStatus, calculateDistance } from '../services/stationService';
 import { uploadPhoto, validateImageFile } from '../services/photoService';
 import { checkDuplicateReport, checkRateLimit, validateReportData, calculateReportQuality } from '../services/verificationService';
+import { Sparkles, Loader2 } from 'lucide-react';
 
-const ReportModal = ({ isOpen, onClose, onSubmit, station, user }) => {
+const ReportModal = ({ isOpen, onClose, onSubmit, station, user, userLocation }) => {
     // Form State
     const [fuelType, setFuelType] = useState('petrol');
     const [availability, setAvailability] = useState('available');
@@ -19,6 +20,7 @@ const ReportModal = ({ isOpen, onClose, onSubmit, station, user }) => {
     const [photoPreview, setPhotoPreview] = useState(null);
     const [photoError, setPhotoError] = useState('');
     const [isUploading, setIsUploading] = useState(false);
+    const [isScanning, setIsScanning] = useState(false);
 
     // Verification State
     const [showConfirmation, setShowConfirmation] = useState(false);
@@ -72,7 +74,7 @@ const ReportModal = ({ isOpen, onClose, onSubmit, station, user }) => {
 
     if (!isOpen || !station) return null;
 
-    const handlePhotoSelect = (e) => {
+    const handlePhotoSelect = async (e) => {
         const file = e.target.files[0];
         if (!file) return;
 
@@ -91,6 +93,21 @@ const ReportModal = ({ isOpen, onClose, onSubmit, station, user }) => {
             setPhotoPreview(reader.result);
         };
         reader.readAsDataURL(file);
+
+        // --- Start AI Price Extraction ---
+        setIsScanning(true);
+        try {
+            const extractedPrice = await mockExtractPriceFromPhoto(file, fuelType);
+            if (extractedPrice) {
+                setPrice(extractedPrice.toString());
+                setPriceError('');
+                // Optional: Provide visual feedback that price was auto-filled
+            }
+        } catch (err) {
+            console.error("AI Scanning failed", err);
+        } finally {
+            setIsScanning(false);
+        }
     };
 
     const handleRemovePhoto = () => {
@@ -140,6 +157,16 @@ const ReportModal = ({ isOpen, onClose, onSubmit, station, user }) => {
         try {
             let photoUrl = null;
             let thumbUrl = null;
+            let isVerifiedEvidence = false;
+
+            // Check if photo is taken near the station
+            if (photoFile && userLocation && station.lat && station.lng) {
+                const distance = calculateDistance(userLocation.lat, userLocation.lng, station.lat, station.lng);
+                // If user is within 300m of the station, consider it verified evidence
+                if (distance !== null && distance <= 0.3) {
+                    isVerifiedEvidence = true;
+                }
+            }
 
             // Upload photo if selected
             if (photoFile && user) {
@@ -158,8 +185,10 @@ const ReportModal = ({ isOpen, onClose, onSubmit, station, user }) => {
                 photoUrl,
                 photoThumbUrl: thumbUrl,
                 hasPhoto: !!photoUrl,
+                isVerifiedEvidence,
                 quality: calculateReportQuality({
                     hasPhoto: !!photoUrl,
+                    isVerifiedEvidence,
                     price: price ? parseInt(price) : null,
                     queueLength: parseInt(queueLength) || 0,
                     userId: user?.uid,
@@ -426,6 +455,15 @@ const ReportModal = ({ isOpen, onClose, onSubmit, station, user }) => {
                                     color: 'white', fontSize: '1rem'
                                 }}
                             />
+                            {price && !isScanning && photoFile && (
+                                <div style={{
+                                    marginTop: '6px', fontSize: '0.7rem', color: '#22c55e',
+                                    display: 'flex', alignItems: 'center', gap: '4px', fontWeight: 'bold'
+                                }}>
+                                    <Sparkles size={12} />
+                                    AI SMART SUGGESTION
+                                </div>
+                            )}
                             {priceError && (
                                 <span style={{ fontSize: '0.75rem', color: '#ef4444', marginTop: '4px', display: 'block' }}>
                                     {priceError}
@@ -441,24 +479,53 @@ const ReportModal = ({ isOpen, onClose, onSubmit, station, user }) => {
                         </label>
 
                         {!photoPreview ? (
-                            <div style={{ display: 'flex', gap: '8px' }}>
-                                <button
-                                    type="button"
-                                    onClick={() => fileInputRef.current?.click()}
-                                    disabled={!user}
-                                    style={{
-                                        flex: 1, padding: '12px', borderRadius: '8px',
-                                        border: '1px dashed var(--glass-border)',
-                                        background: 'rgba(255,255,255,0.05)',
-                                        color: user ? 'white' : 'rgba(255,255,255,0.3)',
-                                        cursor: user ? 'pointer' : 'not-allowed',
-                                        display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                                        fontSize: '0.9rem'
-                                    }}
-                                >
-                                    <Upload size={18} />
-                                    Choose Photo
-                                </button>
+                            <div style={{ display: 'flex', gap: '8px', flexDirection: 'column' }}>
+                                <div style={{ display: 'flex', gap: '8px' }}>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            if (fileInputRef.current) {
+                                                fileInputRef.current.setAttribute('capture', 'environment');
+                                                fileInputRef.current.click();
+                                            }
+                                        }}
+                                        disabled={!user}
+                                        style={{
+                                            flex: 1, padding: '12px', borderRadius: '8px',
+                                            border: '1px solid var(--color-active)',
+                                            background: 'rgba(34, 197, 94, 0.1)',
+                                            color: 'var(--color-active)',
+                                            cursor: user ? 'pointer' : 'not-allowed',
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                                            fontSize: '0.9rem', fontWeight: 'bold'
+                                        }}
+                                    >
+                                        <Camera size={18} />
+                                        Take Evidence Photo
+                                    </button>
+                                    <button
+                                        type="button"
+                                        onClick={() => {
+                                            if (fileInputRef.current) {
+                                                fileInputRef.current.removeAttribute('capture');
+                                                fileInputRef.current.click();
+                                            }
+                                        }}
+                                        disabled={!user}
+                                        style={{
+                                            flex: 1, padding: '12px', borderRadius: '8px',
+                                            border: '1px dashed var(--glass-border)',
+                                            background: 'rgba(255,255,255,0.05)',
+                                            color: user ? 'white' : 'rgba(255,255,255,0.3)',
+                                            cursor: user ? 'pointer' : 'not-allowed',
+                                            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
+                                            fontSize: '0.9rem'
+                                        }}
+                                    >
+                                        <ImageIcon size={18} />
+                                        From Gallery
+                                    </button>
+                                </div>
                                 <input
                                     ref={fileInputRef}
                                     type="file"
@@ -469,7 +536,27 @@ const ReportModal = ({ isOpen, onClose, onSubmit, station, user }) => {
                             </div>
                         ) : (
                             <div style={{ position: 'relative', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--glass-border)' }}>
-                                <img src={photoPreview} alt="Preview" style={{ width: '100%', height: '200px', objectFit: 'cover' }} />
+                                <img src={photoPreview} alt="Preview" style={{ width: '100%', height: '200px', objectFit: 'cover', opacity: isScanning ? 0.5 : 1 }} />
+
+                                {isScanning && (
+                                    <div style={{
+                                        position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
+                                        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                                        background: 'rgba(0,0,0,0.4)', color: 'white', gap: '12px'
+                                    }}>
+                                        <Loader2 size={32} className="animate-spin" />
+                                        <span style={{ fontWeight: 'bold', fontSize: '1.1rem', textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>AI SCANNING...</span>
+                                        <div style={{ display: 'flex', gap: '4px' }}>
+                                            {[0, 1, 2].map(i => (
+                                                <div key={i} style={{
+                                                    width: '8px', height: '8px', borderRadius: '50%',
+                                                    background: '#22c55e', animation: `pulse 1s infinite ${i * 0.2}s`
+                                                }} />
+                                            ))}
+                                        </div>
+                                    </div>
+                                )}
+
                                 <button
                                     type="button"
                                     onClick={handleRemovePhoto}
@@ -482,6 +569,18 @@ const ReportModal = ({ isOpen, onClose, onSubmit, station, user }) => {
                                 >
                                     <X size={18} />
                                 </button>
+
+                                {!isScanning && (
+                                    <div style={{
+                                        position: 'absolute', bottom: '12px', left: '12px',
+                                        background: 'rgba(34, 197, 94, 0.9)', color: 'white',
+                                        padding: '4px 10px', borderRadius: '20px', fontSize: '0.75rem',
+                                        display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 'bold'
+                                    }}>
+                                        <Sparkles size={12} />
+                                        AI READY
+                                    </div>
+                                )}
                             </div>
                         )}
                         {photoError && (
@@ -529,6 +628,7 @@ const ReportModal = ({ isOpen, onClose, onSubmit, station, user }) => {
                 __html: `
         @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
         @keyframes popIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        @keyframes pulse { 0% { opacity: 0.3; transform: scale(0.8); } 50% { opacity: 1; transform: scale(1.1); } 100% { opacity: 0.3; transform: scale(0.8); } }
       `}} />
         </div>
     );

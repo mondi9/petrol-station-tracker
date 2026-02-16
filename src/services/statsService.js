@@ -173,3 +173,37 @@ export const getUserReviews = async (userId, limitCount = 20) => {
         return [];
     }
 };
+/**
+ * Get user's recent reports that have photos
+ * @param {string} userId
+ * @param {number} limitCount
+ * @returns {Promise<Array>}
+ */
+export const getUserPhotos = async (userId, limitCount = 30) => {
+    if (!userId) return [];
+    try {
+        const { collectionGroup, orderBy, limit } = await import('firebase/firestore');
+        const photosQuery = query(
+            collectionGroup(db, 'reports'),
+            where('userId', '==', userId),
+            where('hasPhoto', '==', true),
+            orderBy('timestamp', 'desc'),
+            limit(limitCount)
+        );
+
+        const snapshot = await getDocs(photosQuery);
+        return snapshot.docs.map(doc => {
+            const data = doc.data();
+            const stationId = doc.ref.parent.parent?.id;
+            return {
+                id: doc.id,
+                stationId,
+                ...data,
+                timestamp: data.timestamp?.toDate ? data.timestamp.toDate().toISOString() : new Date().toISOString()
+            };
+        });
+    } catch (error) {
+        console.error("Error fetching user photos:", error);
+        return [];
+    }
+};

@@ -135,8 +135,13 @@ export const validateReportData = (reportData) => {
 export const calculateReportQuality = (report) => {
     let score = 0;
 
-    // Has photo: +30%
+    // Has photo: +20%
     if (report.hasPhoto || report.photoUrl) {
+        score += 0.2;
+    }
+
+    // Is Verified Evidence: +30% (Photo taken near station)
+    if (report.isVerifiedEvidence) {
         score += 0.3;
     }
 

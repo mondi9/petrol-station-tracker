@@ -185,3 +185,29 @@ export const getAveragePrice = (stations, fuelType = 'petrol') => {
     const total = stationsWithPrice.reduce((sum, s) => sum + s.prices[fuelType], 0);
     return Math.round(total / stationsWithPrice.length);
 };
+/**
+ * Mock function to simulate AI OCR price extraction from a photo
+ * @param {File} photoFile 
+ * @param {string} fuelType 
+ * @returns {Promise<number|null>} - Extracted price or null
+ */
+export const mockExtractPriceFromPhoto = async (photoFile, fuelType = 'petrol') => {
+    // Simulate processing delay
+    await new Promise(resolve => setTimeout(resolve, 2000));
+
+    // For the demo, we'll return a random realistic price based on fuel type
+    // In a real app, this would be a call to a Vision AI API (Google Cloud Vision, OpenAI, etc.)
+    const ranges = {
+        petrol: { min: 650, max: 950 },
+        diesel: { min: 1100, max: 1300 },
+        premium: { min: 1000, max: 1400 }
+    };
+
+    const range = ranges[fuelType] || ranges.petrol;
+    const randomPrice = Math.floor(Math.random() * (range.max - range.min + 1) + range.min);
+
+    // Simulate occasional failure (10% of the time)
+    if (Math.random() < 0.1) return null;
+
+    return randomPrice;
+};

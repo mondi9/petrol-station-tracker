@@ -1,19 +1,21 @@
 import React, { useState, useEffect } from 'react';
-import { X, User, Edit2, Check, Award, MessageSquare, Activity, Bell } from 'lucide-react';
+import { X, User, Edit2, Check, Award, MessageSquare, Activity, Bell, Camera, Image as ImageIcon, ShieldCheck } from 'lucide-react';
 import { updateProfile } from 'firebase/auth';
 import AlertsList from './AlertsList';
 import { getActiveAlertCount } from '../services/alertService';
 import { useTheme } from '../context/ThemeContext';
-import { getUserReports, getUserReviews } from '../services/statsService';
+import { getUserReports, getUserReviews, getUserPhotos } from '../services/statsService';
 import { formatTimeAgo, formatPrice, getStatusColor } from '../services/stationService';
 
 const UserProfileModal = ({ isOpen, onClose, user, stats = { contributions: 0, reviews: 0 }, stations = [] }) => {
     const { theme, toggleTheme } = useTheme();
     const [isEditing, setIsEditing] = useState(false);
     const [displayName, setDisplayName] = useState(user?.displayName || '');
-    const [activeTab, setActiveTab] = useState('profile'); // 'profile' | 'alerts'
+    const [activeTab, setActiveTab] = useState('profile'); // 'profile' | 'alerts' | 'media'
     const [alertCount, setAlertCount] = useState(0);
     const [loading, setLoading] = useState(false);
+    const [userPhotos, setUserPhotos] = useState([]);
+    const [loadingPhotos, setLoadingPhotos] = useState(false);
 
     // History State
     const [historyType, setHistoryType] = useState('none'); // 'none' | 'reports' | 'reviews'
@@ -51,6 +53,19 @@ const UserProfileModal = ({ isOpen, onClose, user, stats = { contributions: 0, r
             getActiveAlertCount(user.uid).then(setAlertCount);
         }
     }, [user, isOpen]);
+
+    useEffect(() => {
+        if (activeTab === 'media' && user && isOpen) {
+            setLoadingPhotos(true);
+            getUserPhotos(user.uid).then(photos => {
+                setUserPhotos(photos);
+                setLoadingPhotos(false);
+            }).catch(err => {
+                console.error("Error fetching media", err);
+                setLoadingPhotos(false);
+            });
+        }
+    }, [activeTab, user, isOpen]);
 
     // Early return AFTER all hooks
     if (!isOpen || !user) return null;
@@ -189,6 +204,28 @@ const UserProfileModal = ({ isOpen, onClose, user, stats = { contributions: 0, r
                             </span>
                         )}
                     </button>
+                    <button
+                        onClick={() => setActiveTab('media')}
+                        style={{
+                            flex: 1,
+                            padding: '12px',
+                            background: activeTab === 'media' ? 'rgba(34, 197, 94, 0.1)' : 'transparent',
+                            border: 'none',
+                            borderBottom: activeTab === 'media' ? '2px solid #22c55e' : '2px solid transparent',
+                            color: activeTab === 'media' ? '#22c55e' : 'var(--text-secondary)',
+                            cursor: 'pointer',
+                            fontSize: '0.9rem',
+                            fontWeight: '600',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            gap: '6px',
+                            transition: 'all 0.2s'
+                        }}
+                    >
+                        <ImageIcon size={16} />
+                        My Media
+                    </button>
                 </div>
 
                 {/* Body - Scrollable */}
@@ -315,6 +352,60 @@ const UserProfileModal = ({ isOpen, onClose, user, stats = { contributions: 0, r
                                 </div>
                             </div>
                         </>
+                    )}
+
+                    {activeTab === 'media' && (
+                        <div style={{ width: '100%', display: 'flex', flexDirection: 'column', gap: '16px' }}>
+                            {loadingPhotos ? (
+                                <div style={{ textAlign: 'center', padding: '20px', color: 'var(--text-secondary)' }}>Loading media...</div>
+                            ) : userPhotos.length === 0 ? (
+                                <div style={{ textAlign: 'center', padding: '40px 20px', color: 'var(--text-secondary)' }}>
+                                    <Camera size={40} style={{ margin: '0 auto 12px', opacity: 0.3, display: 'block' }} />
+                                    <p>You haven't uploaded any evidence yet.</p>
+                                </div>
+                            ) : (
+                                <div style={{
+                                    display: 'grid',
+                                    gridTemplateColumns: 'repeat(auto-fill, minmax(100px, 1fr))',
+                                    gap: '12px',
+                                    width: '100%'
+                                }}>
+                                    {userPhotos.map(photo => (
+                                        <div key={photo.id} style={{
+                                            position: 'relative',
+                                            aspectRatio: '1/1',
+                                            borderRadius: '8px',
+                                            overflow: 'hidden',
+                                            border: '1px solid var(--glass-border)',
+                                            background: 'rgba(0,0,0,0.2)'
+                                        }}>
+                                            <img
+                                                src={photo.photoThumbUrl || photo.photoUrl}
+                                                alt="Evidence"
+                                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                            />
+                                            {photo.isVerifiedEvidence && (
+                                                <div style={{
+                                                    position: 'absolute', top: '4px', right: '4px',
+                                                    background: '#22c55e', color: 'white',
+                                                    padding: '2px', borderRadius: '4px',
+                                                }} title="Verified Evidence">
+                                                    <ShieldCheck size={10} />
+                                                </div>
+                                            )}
+                                            <div style={{
+                                                position: 'absolute', bottom: 0, left: 0, right: 0,
+                                                padding: '4px', background: 'linear-gradient(transparent, rgba(0,0,0,0.8))',
+                                                color: 'white', fontSize: '0.6rem', whiteSpace: 'nowrap',
+                                                overflow: 'hidden', textOverflow: 'ellipsis'
+                                            }}>
+                                                {getStationName(photo.stationId)}
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            )}
+                        </div>
                     )}
 
                     {activeTab === 'alerts' && (

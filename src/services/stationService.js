@@ -1,5 +1,5 @@
 import { db } from './firebase';
-import { collection, doc, updateDoc, addDoc, getDocs, query, where, serverTimestamp, getDoc, onSnapshot, setDoc, arrayUnion, arrayRemove } from 'firebase/firestore';
+import { collection, doc, updateDoc, addDoc, getDocs, query, where, serverTimestamp, getDoc, onSnapshot, setDoc, arrayUnion, arrayRemove, orderBy, limit } from 'firebase/firestore';
 import { checkPriceAlerts } from './alertService';
 
 const COLLECTION_NAME = 'stations';
@@ -404,4 +404,41 @@ export const getQueueFreshness = (timestamp) => {
     } else {
         return { level: 'stale', color: '#64748b', icon: '⚪', text: 'Outdated', minutesAgo };
     }
+};
+
+/**
+ * Subscribe to recent reports with photos for a station
+ * @param {string} stationId
+ * @param {function} onUpdate
+ */
+export const subscribeToStationPhotos = (stationId, onUpdate) => {
+    if (!stationId) return () => { };
+
+    const reportsRef = collection(db, COLLECTION_NAME, stationId, 'reports');
+    // Note: This query may require a composite index (hasPhoto + timestamp)
+    const q = query(
+        reportsRef,
+        where('hasPhoto', '==', true),
+        orderBy('timestamp', 'desc'),
+        limit(10)
+    );
+
+    return onSnapshot(q, (snapshot) => {
+        const photos = snapshot.docs.map(doc => {
+            const data = doc.data();
+            return {
+                id: doc.id,
+                url: data.photoUrl,
+                thumbUrl: data.photoThumbUrl,
+                timestamp: data.timestamp?.toDate ? data.timestamp.toDate().toISOString() : new Date().toISOString(),
+                isVerified: data.isVerifiedEvidence,
+                reporterName: data.reporterName
+            };
+        });
+        onUpdate(photos);
+    }, (error) => {
+        console.error("Error fetching station photos", error);
+        // Fallback: If index is missing, try a simpler query or empty list
+        onUpdate([]);
+    });
 };

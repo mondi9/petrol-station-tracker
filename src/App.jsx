@@ -584,6 +584,7 @@ function App() {
             isOpen={reportModalData.isOpen}
             station={reportModalData.station}
             user={user}
+            userLocation={userLocation}
             onClose={() => setReportModalData({ isOpen: false, station: null })}
             onSubmit={handleReportSubmit}
           />

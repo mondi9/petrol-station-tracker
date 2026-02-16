@@ -1,16 +1,27 @@
-import React, { useState } from 'react';
-import { X, MapPin, Clock, Navigation, Star, TrendingUp, Bell } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, MapPin, Clock, Navigation, Star, TrendingUp, Bell, Camera, ShieldCheck, Maximize2 } from 'lucide-react';
 import ReviewList from './ReviewList';
 import AddReviewModal from './AddReviewModal';
 import PriceDisplay from './PriceDisplay';
 import PriceAlertModal from './PriceAlertModal';
 import { addReview } from '../services/reviewService';
-import { formatTimeAgo, calculateTravelTime, verifyStation, verifyPrice } from '../services/stationService';
+import { formatTimeAgo, calculateTravelTime, verifyStation, verifyPrice, subscribeToStationPhotos } from '../services/stationService';
 import { CheckCircle, AlertTriangle, ThumbsUp, ThumbsDown } from 'lucide-react';
 
 const StationDetailsModal = ({ isOpen, onClose, station, user, onLoginRequest, userLocation }) => {
     const [isReviewOpen, setIsReviewOpen] = useState(false);
     const [isAlertOpen, setIsAlertOpen] = useState(false);
+    const [photos, setPhotos] = useState([]);
+    const [selectedPhoto, setSelectedPhoto] = useState(null);
+
+    useEffect(() => {
+        if (isOpen && station?.id) {
+            const unsubscribe = subscribeToStationPhotos(station.id, (newPhotos) => {
+                setPhotos(newPhotos);
+            });
+            return () => unsubscribe();
+        }
+    }, [isOpen, station?.id]);
 
     if (!isOpen) return null;
 
@@ -283,6 +294,79 @@ const StationDetailsModal = ({ isOpen, onClose, station, user, onLoginRequest, u
                             </div>
                         </div>
 
+                        {/* Photo Evidence Gallery */}
+                        {photos.length > 0 && (
+                            <div style={{ marginBottom: '20px' }}>
+                                <h3 style={{
+                                    fontSize: '0.9rem',
+                                    fontWeight: '600',
+                                    color: '#94a3b8',
+                                    marginBottom: '12px',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '8px'
+                                }}>
+                                    <Camera size={16} />
+                                    Station Evidence ({photos.length})
+                                </h3>
+                                <div style={{
+                                    display: 'flex',
+                                    gap: '12px',
+                                    overflowX: 'auto',
+                                    paddingBottom: '8px',
+                                    scrollbarWidth: 'none',
+                                    msOverflowStyle: 'none'
+                                }}>
+                                    {photos.map((photo) => (
+                                        <div
+                                            key={photo.id}
+                                            onClick={() => setSelectedPhoto(photo)}
+                                            style={{
+                                                flex: '0 0 140px',
+                                                height: '140px',
+                                                borderRadius: '12px',
+                                                overflow: 'hidden',
+                                                position: 'relative',
+                                                border: '1px solid var(--glass-border)',
+                                                cursor: 'pointer',
+                                                transition: 'transform 0.2s',
+                                                backgroundColor: 'rgba(0,0,0,0.2)'
+                                            }}
+                                            onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.02)'}
+                                            onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
+                                        >
+                                            <img
+                                                src={photo.thumbUrl || photo.url}
+                                                alt="Station evidence"
+                                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                                            />
+                                            {photo.isVerified && (
+                                                <div style={{
+                                                    position: 'absolute', top: '8px', right: '8px',
+                                                    background: '#22c55e', color: 'white',
+                                                    padding: '2px 6px', borderRadius: '4px',
+                                                    display: 'flex', alignItems: 'center', gap: '3px',
+                                                    fontSize: '0.6rem', fontWeight: 'bold',
+                                                    boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                                                }}>
+                                                    <ShieldCheck size={10} />
+                                                    VERIFIED
+                                                </div>
+                                            )}
+                                            <div style={{
+                                                position: 'absolute', bottom: 0, left: 0, right: 0,
+                                                padding: '8px 4px', background: 'linear-gradient(transparent, rgba(0,0,0,0.7))',
+                                                color: 'white', fontSize: '0.65rem', display: 'flex', justifyContent: 'space-between'
+                                            }}>
+                                                <span>{photo.reporterName}</span>
+                                                <span>{formatTimeAgo(photo.timestamp)}</span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
                         {/* Reviews Section */}
                         <div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
@@ -311,6 +395,52 @@ const StationDetailsModal = ({ isOpen, onClose, station, user, onLoginRequest, u
                         </div>
                     </div>
                 </div>
+
+                {/* Full Screen Photo View */}
+                {selectedPhoto && (
+                    <div style={{
+                        position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                        backgroundColor: 'rgba(0,0,0,0.9)',
+                        zIndex: 4000, display: 'flex', flexDirection: 'column',
+                        justifyContent: 'center', alignItems: 'center', padding: '20px'
+                    }} onClick={() => setSelectedPhoto(null)}>
+                        <button style={{
+                            position: 'absolute', top: '20px', right: '20px',
+                            background: 'white', border: 'none', borderRadius: '50%',
+                            width: '40px', height: '40px', cursor: 'pointer',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center'
+                        }}>
+                            <X size={24} color="black" />
+                        </button>
+                        <img
+                            src={selectedPhoto.url}
+                            alt="Evidence overview"
+                            style={{
+                                maxWidth: '100%', maxHeight: '80vh',
+                                borderRadius: '12px', border: '2px solid white',
+                                objectFit: 'contain'
+                            }}
+                            onClick={e => e.stopPropagation()}
+                        />
+                        <div style={{ color: 'white', marginTop: '20px', textAlign: 'center' }} onClick={e => e.stopPropagation()}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center', marginBottom: '8px' }}>
+                                <Camera size={20} />
+                                <span style={{ fontSize: '1.1rem', fontWeight: '600' }}>Report by {selectedPhoto.reporterName}</span>
+                                {selectedPhoto.isVerified && (
+                                    <span style={{
+                                        background: '#22c55e', color: 'white',
+                                        padding: '4px 8px', borderRadius: '4px',
+                                        display: 'flex', alignItems: 'center', gap: '4px',
+                                        fontSize: '0.75rem', fontWeight: 'bold'
+                                    }}>
+                                        <ShieldCheck size={14} /> VERIFIED EVIDENCE
+                                    </span>
+                                )}
+                            </div>
+                            <p style={{ opacity: 0.7 }}>Captured {new Date(selectedPhoto.timestamp).toLocaleString()}</p>
+                        </div>
+                    </div>
+                )}
             </div>
 
             <AddReviewModal

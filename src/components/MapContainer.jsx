@@ -213,15 +213,20 @@ const MapEvents = ({ onMapClick }) => {
 const MapViewUpdater = ({ selectedStation, userLocation }) => {
     const map = useMap();
 
+    const lastSelectedId = React.useRef(null);
+
     useEffect(() => {
-        if (selectedStation) {
+        if (selectedStation && selectedStation.id !== lastSelectedId.current) {
             console.log("Map: Flying to selected station", selectedStation.name);
             map.flyTo([selectedStation.lat, selectedStation.lng], 16, {
                 duration: 1.5,
                 easeLinearity: 0.25
             });
+            lastSelectedId.current = selectedStation.id;
+        } else if (!selectedStation) {
+            lastSelectedId.current = null;
         }
-    }, [selectedStation, map]);
+    }, [selectedStation?.id, map]);
 
     // Initial center on user location once it's found
     useEffect(() => {
@@ -241,14 +246,23 @@ const RoutingController = ({ selectedStation, userLocation }) => {
     const [error, setError] = React.useState(null);
     const hasFitBounds = React.useRef(false); // Track if we've already fit bounds
 
+    const lastRouteKey = React.useRef("");
+
     useEffect(() => {
+        const routeKey = `${userLocation?.lat}-${userLocation?.lng}-${selectedStation?.id}`;
+
         if (!selectedStation || !userLocation) {
             setRoute(null);
             setIsLoading(false);
             setError(null);
-            hasFitBounds.current = false; // Reset when station changes
+            hasFitBounds.current = false;
+            lastRouteKey.current = "";
             return;
         }
+
+        // Only fetch if selection or user position changed
+        if (routeKey === lastRouteKey.current) return;
+        lastRouteKey.current = routeKey;
 
         const fetchRoute = async () => {
             setIsLoading(true);
@@ -309,7 +323,7 @@ const RoutingController = ({ selectedStation, userLocation }) => {
 
         fetchRoute();
 
-    }, [selectedStation, userLocation, map]);
+    }, [selectedStation?.id, userLocation?.lat, userLocation?.lng, map]);
 
     // Removed aggressive ResizeObserver that was causing vibration
     // Map will handle its own size invalidation
