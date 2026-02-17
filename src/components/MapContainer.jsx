@@ -22,7 +22,8 @@ const createCustomIcon = (station, userLocation, isNearby = false) => {
     const queueStatus = station.queueStatus;
     const price = station.prices?.petrol;
     const distance = station.distance;
-    const freshness = station.freshnessStatus; // 'fresh', 'stale', 'unknown'
+    const freshness = station.freshnessStatus;
+    const trustLevel = station.trustLevel; // 'verified-fresh', 'fresh', 'uncertain', 'stale'
 
     let color = '#64748b'; // Default Grey (Inactive)
     let borderColor = 'white';
@@ -40,11 +41,16 @@ const createCustomIcon = (station, userLocation, isNearby = false) => {
         label = `₦${price}`;
     }
 
-    // Add queue status emoji to label
-    if (status === 'active' && queueStatus) {
-        const queueEmoji = queueStatus === 'short' ? '⚡' :
-            queueStatus === 'mild' ? '⏳' : '🚨';
-        label = `${queueEmoji} ${label}`;
+    // Add trust status emoji to label
+    if (status === 'active') {
+        let trustEmoji = '';
+        if (trustLevel === 'verified-fresh') trustEmoji = '✨';
+        else if (trustLevel === 'uncertain') trustEmoji = '⚠️';
+        else if (queueStatus === 'short') trustEmoji = '⚡';
+        else if (queueStatus === 'mild') trustEmoji = '⏳';
+        else if (queueStatus === 'long') trustEmoji = '🚨';
+
+        label = `${trustEmoji} ${label}`;
     }
 
     // Add highlight if it's one of the closest stations
@@ -484,12 +490,28 @@ const MapComponent = ({ stations, onStationSelect, onViewDetails, selectedStatio
 
                                     <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '12px' }}>
                                         <span className={`status-badge status-${station.status}`}>
-                                            {station.status === 'active' ? 'Active' : 'Inactive'}
+                                            {station.status === 'active'
+                                                ? (station.trustLevel === 'uncertain' ? 'Mixing Reports ⚠️' : 'Active')
+                                                : 'Inactive'}
                                         </span>
                                         <span style={{ fontSize: '0.75rem', opacity: 0.5, display: 'flex', alignItems: 'center', gap: '4px' }}>
                                             <Clock size={12} /> {formatTimeAgo(station.lastUpdated)}
                                         </span>
                                     </div>
+
+                                    {station.trustLevel === 'uncertain' && (
+                                        <div style={{
+                                            fontSize: '0.7rem',
+                                            padding: '6px 8px',
+                                            background: 'rgba(234, 179, 8, 0.1)',
+                                            color: '#facc15',
+                                            borderRadius: '6px',
+                                            marginBottom: '10px',
+                                            border: '1px solid rgba(234, 179, 8, 0.2)'
+                                        }}>
+                                            💡 Help settle this: is petrol available here?
+                                        </div>
+                                    )}
 
                                     {/* Detailed Status & Reporter Info */}
                                     <div style={{ marginBottom: '12px', fontSize: '0.75rem', color: 'var(--text-secondary)', background: 'rgba(255,255,255,0.03)', padding: '6px', borderRadius: '6px' }}>
@@ -505,9 +527,10 @@ const MapComponent = ({ stations, onStationSelect, onViewDetails, selectedStatio
                                             </span>
                                         </div>
                                         <div style={{ display: 'flex', justifyContent: 'space-between' }}>
-                                            <span>Updated by:</span>
-                                            <span style={{ fontWeight: '500', color: 'var(--text-primary)' }}>
+                                            <span>Reported by:</span>
+                                            <span style={{ fontWeight: '500', color: 'var(--text-primary)', display: 'flex', alignItems: 'center', gap: '4px' }}>
                                                 {station.lastReporter || 'Anonymous'}
+                                                {station.trustLevel === 'verified-fresh' && <span>🛡️</span>}
                                             </span>
                                         </div>
                                     </div>

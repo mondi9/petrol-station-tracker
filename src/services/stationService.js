@@ -26,16 +26,40 @@ export const subscribeToStations = (onUpdate, onError) => {
                 }
             }
 
-            // Calculate Freshness Score (Last 4 hours is fresh)
+            // Calculate Freshness & Trust Score
             const lastUpdated = data.lastUpdated ? new Date(data.lastUpdated) : null;
             const hoursOld = lastUpdated ? (new Date() - lastUpdated) / (1000 * 60 * 60) : Infinity;
             const freshnessStatus = hoursOld <= 4 ? 'fresh' : hoursOld <= 12 ? 'stale' : 'unknown';
 
+            // Determine Trust Level
+            let trustLevel = 'unknown';
+            if (data.status === 'active') {
+                if (freshnessStatus === 'fresh') {
+                    // High confidence if it has photo or verified reporter
+                    if (data.lastPhotoUrl || (data.lastReporter && data.lastReporter.includes('🛡️'))) {
+                        trustLevel = 'verified-fresh';
+                    } else {
+                        trustLevel = 'fresh';
+                    }
+                } else if (freshnessStatus === 'stale') {
+                    trustLevel = 'stale';
+                }
+            }
+
+            // Check for conflict (e.g. availability mix)
+            if (data.availability) {
+                const vals = Object.values(data.availability);
+                if (vals.includes('available') && vals.includes('empty')) {
+                    trustLevel = 'uncertain';
+                }
+            }
+
             return {
                 id: doc.id,
                 ...data,
-                queueStatus, // Add calculated queue status
+                queueStatus,
                 freshnessStatus,
+                trustLevel,
                 hoursOld
             };
         }).filter(s => {

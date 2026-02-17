@@ -157,7 +157,9 @@ const StationList = ({ stations, onSelect, onViewDetails, selectedStationId, onA
                                 <h3 style={{ fontWeight: '600', fontSize: '0.95rem', margin: 0 }}>{station.name}</h3>
                                 <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
                                     <span className={`status-badge status-${station.status}`}>
-                                        {station.status === 'active' ? 'Active' : 'Inactive'}
+                                        {station.status === 'active'
+                                            ? (station.trustLevel === 'uncertain' ? 'Mixing Reports ⚠️' : 'Active')
+                                            : (station.status === 'inactive' ? 'Confirmed Empty ⚪' : 'Inactive')}
                                     </span>
 
                                     {/* Queue Status Badge */}
@@ -232,17 +234,30 @@ const StationList = ({ stations, onSelect, onViewDetails, selectedStationId, onA
                                 </div>
                             </div>
 
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', opacity: 0.7, fontSize: '0.85rem', marginBottom: '4px' }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', opacity: 0.7, fontSize: '0.85rem', marginBottom: '8px', color: station.trustLevel === 'uncertain' ? '#facc15' : 'inherit' }}>
                                 <MapPin size={14} />
                                 {station.address}
                                 {station.distance !== undefined && station.distance !== null && (
                                     <span style={{ color: 'var(--color-active)', fontWeight: 'bold' }}>
                                         • {station.distance.toFixed(1)}km
-                                        <span style={{ color: 'var(--text-secondary)', fontWeight: 'normal', opacity: 0.8 }}>
-                                            {' '} (~{calculateTravelTime(station.distance)} min)
-                                        </span>
                                     </span>
                                 )}
+                            </div>
+
+                            {/* Trust-Based Summary Microcopy */}
+                            <div style={{
+                                fontSize: '0.8rem',
+                                marginBottom: '8px',
+                                fontWeight: '500',
+                                color: station.status === 'active' ? '#4ade80' : '#94a3b8',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '6px'
+                            }}>
+                                {station.status === 'active' && station.trustLevel === 'verified-fresh' && <span>✨ Petrol is moving fast</span>}
+                                {station.status === 'active' && station.trustLevel === 'fresh' && <span>⏳ Last seen available</span>}
+                                {station.status === 'active' && station.trustLevel === 'uncertain' && <span>⚠️ Status unclear, help verify</span>}
+                                {station.status === 'inactive' && <span>⚪ Pumps dry today</span>}
                             </div>
 
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px' }}>
@@ -270,22 +285,25 @@ const StationList = ({ stations, onSelect, onViewDetails, selectedStationId, onA
                                         </div>
                                     )}
                                 </div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', opacity: 0.5, fontSize: '0.8rem' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', opacity: 0.7, fontSize: '0.75rem' }}>
                                     <Clock size={12} />
                                     {formatTimeAgo(station.lastUpdated)}
+                                    {station.lastReporter && (
+                                        <span style={{ opacity: 0.6 }}>by {station.lastReporter} {station.trustLevel === 'verified-fresh' && '🛡️'}</span>
+                                    )}
                                 </div>
                             </div>
 
                         </div>
 
                     ))}
-                    {sortedStations.length === 0 && (
-                        <div style={{
-                            padding: '20px', textAlign: 'center', opacity: 0.5
-                        }}>
-                            No stations found with this status.
-                        </div>
-                    )}
+                    <div style={{
+                        padding: '40px 20px', textAlign: 'center', opacity: 0.7
+                    }}>
+                        <div style={{ fontSize: '2rem', marginBottom: '12px' }}>🔍</div>
+                        <h3 style={{ fontSize: '1rem', marginBottom: '8px' }}>No eyes on these stations yet</h3>
+                        <p style={{ fontSize: '0.85rem', opacity: 0.7 }}>Are you nearby? Your report helps the whole community.</p>
+                    </div>
                 </div>
             </div>
 

@@ -67,25 +67,33 @@ const StationBottomSheet = ({ station, onClose, onNavigate }) => {
                         padding: '8px 12px',
                         display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center'
                     }}>
-                        <span style={{ fontSize: '0.9rem', fontWeight: 'bold' }}>{station.distance.toFixed(1)}km</span>
-                        <span style={{ fontSize: '0.7rem', opacity: 0.6 }}>~{calculateTravelTime(station.distance)} min</span>
+                        <span className={`status-badge status-${station.status}`}>
+                            {station.status === 'active'
+                                ? (station.trustLevel === 'uncertain' ? 'Mixing Reports ⚠️' : 'Active')
+                                : 'Inactive'}
+                        </span>
+                        {station.trustLevel === 'verified-fresh' && (
+                            <span style={{ fontSize: '0.7rem', color: '#4ade80', fontWeight: 'bold' }}>✨ Verified Fresh</span>
+                        )}
+                        <span style={{ fontSize: '0.75rem', opacity: 0.6 }}>Updated {formatTimeAgo(station.lastUpdated)}</span>
                     </div>
                 )}
             </div>
 
-            {/* Latest Comment */}
             {station.lastComment && (
                 <div style={{
                     marginBottom: '16px',
                     padding: '10px 12px',
-                    background: 'rgba(34, 197, 94, 0.1)',
+                    background: 'rgba(255, 255, 255, 0.03)',
                     borderRadius: '8px',
-                    fontSize: '0.85rem',
-                    borderLeft: '3px solid var(--color-active)',
-                    color: '#efefef',
-                    fontStyle: 'italic'
+                    border: '1px solid var(--glass-border)'
                 }}>
-                    "{station.lastComment}"
+                    <p style={{ fontSize: '0.8rem', color: 'white', fontStyle: 'italic', margin: 0 }}>
+                        "{station.lastComment}"
+                    </p>
+                    <div style={{ marginTop: '4px', fontSize: '0.65rem', opacity: 0.5 }}>
+                        Reported by {station.lastReporter || 'Anonymous'} {station.trustLevel === 'verified-fresh' && '🛡️'}
+                    </div>
                 </div>
             )}
 

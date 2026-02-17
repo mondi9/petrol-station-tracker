@@ -134,10 +134,36 @@ export const validateReportData = (reportData) => {
 
 /**
  * Calculate quality score for a report
+ * @param {object} reportData - Report data
+ * @returns {{score: number, badges: string[], isVerifiedEvidence: boolean, isVerifiedReporter: boolean, trustBadge: string|null}}
+ */
+export const calculateReportQuality = (reportData) => {
+    const score = _calculateReportScore(reportData);
+    const isVerifiedReporter = reportData.userId && reportData.userId.length > 10; // Mock logic for now
+
+    const badges = [];
+    if (reportData.isVerifiedEvidence) badges.push('Verified Evidence');
+    if (isVerifiedReporter) badges.push('Verified Reporter');
+    if (reportData.hasPhoto || reportData.photoUrl) badges.push('Photo Included');
+    if (reportData.price && reportData.price > 0) badges.push('Price Confirmed');
+    if (reportData.queueLength !== undefined && reportData.queueLength !== null) badges.push('Queue Info');
+    if (reportData.comment && reportData.comment.trim().length > 5) badges.push('Detailed Comment');
+
+    return {
+        score,
+        badges,
+        isVerifiedEvidence: reportData.isVerifiedEvidence || false,
+        isVerifiedReporter,
+        trustBadge: isVerifiedReporter ? '🛡️' : null // Example trust badge
+    };
+};
+
+/**
+ * Internal function to calculate the raw quality score for a report
  * @param {object} report - Report data
  * @returns {number} Quality score (0-1)
  */
-export const calculateReportQuality = (report) => {
+const _calculateReportScore = (report) => {
     let score = 0;
 
     // Has photo: +20%
@@ -168,6 +194,11 @@ export const calculateReportQuality = (report) => {
     // Has comment: +10%
     if (report.comment && report.comment.trim().length > 5) {
         score += 0.1;
+    }
+
+    // Has Photo: +20%
+    if (report.photoUrl) {
+        score += 0.2;
     }
 
     // Has name: +10%

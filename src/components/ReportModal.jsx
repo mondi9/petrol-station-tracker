@@ -13,6 +13,7 @@ const ReportModal = ({ isOpen, onClose, onSubmit, station, user, userLocation })
     const [queueLength, setQueueLength] = useState(0);
     const [price, setPrice] = useState('');
     const [comment, setComment] = useState('');
+    const [agreedToHonesty, setAgreedToHonesty] = useState(false);
     const [guestName, setGuestName] = useState('');
     const [priceError, setPriceError] = useState('');
 
@@ -39,6 +40,7 @@ const ReportModal = ({ isOpen, onClose, onSubmit, station, user, userLocation })
             setQueueLength(0);
             setPrice('');
             setComment('');
+            setAgreedToHonesty(false);
             setGuestName('');
             setPriceError('');
             setPhotoFile(null);
@@ -258,7 +260,7 @@ const ReportModal = ({ isOpen, onClose, onSubmit, station, user, userLocation })
                         </div>
                     )}
 
-                    <div style={{ display: 'flex', gap: '12px' }}>
+                    <div style={{ display: 'flex', gap: '12px', marginBottom: '16px' }}>
                         <button
                             onClick={() => setShowConfirmation(false)}
                             style={{
@@ -270,18 +272,41 @@ const ReportModal = ({ isOpen, onClose, onSubmit, station, user, userLocation })
                         >
                             Back
                         </button>
-                        <button
-                            onClick={handleFinalSubmit}
-                            className="btn btn-primary"
-                            style={{
-                                flex: 1, padding: '12px', justifyContent: 'center',
-                                fontWeight: 'bold'
-                            }}
-                            disabled={isUploading}
-                        >
-                            {isUploading ? 'Submitting...' : 'Confirm'}
-                        </button>
                     </div>
+
+                    {/* Honesty Disclaimer */}
+                    <div style={{
+                        padding: '12px',
+                        background: 'rgba(234, 179, 8, 0.05)',
+                        borderRadius: '8px',
+                        border: '1px solid rgba(234, 179, 8, 0.1)',
+                        marginBottom: '16px'
+                    }}>
+                        <label style={{ display: 'flex', alignItems: 'start', gap: '10px', cursor: 'pointer', fontSize: '0.85rem', color: 'rgba(255,255,255,0.9)' }}>
+                            <input
+                                type="checkbox"
+                                checked={agreedToHonesty}
+                                onChange={(e) => setAgreedToHonesty(e.target.checked)}
+                                style={{ marginTop: '3px' }}
+                            />
+                            <span>I confirm this report is honest and based on what I see right now. 🤝</span>
+                        </label>
+                    </div>
+
+                    {/* Submit Button */}
+                    <button
+                        onClick={handleFinalSubmit}
+                        disabled={isUploading || !agreedToHonesty}
+                        className="btn btn-primary"
+                        style={{ width: '100%', justifyContent: 'center', padding: '14px', fontSize: '1rem' }}
+                    >
+                        {isUploading ? (
+                            <>
+                                <Loader2 className="animate-spin" size={20} style={{ marginRight: '8px' }} />
+                                Submitting...
+                            </>
+                        ) : 'Submit Truthful Report'}
+                    </button>
                 </div>
             </div>
         );
@@ -310,8 +335,8 @@ const ReportModal = ({ isOpen, onClose, onSubmit, station, user, userLocation })
                 </div>
 
                 <div style={{ marginBottom: '24px' }}>
-                    <h3 style={{ fontSize: '1.1rem', fontWeight: 'bold', margin: 0 }}>{station.name}</h3>
-                    <p style={{ fontSize: '0.9rem', opacity: 0.5, margin: 0 }}>{station.address}</p>
+                    <h2 style={{ fontSize: '1.25rem', fontWeight: 'bold', margin: 0, color: 'white' }}>Share what you see</h2>
+                    <p style={{ margin: '4px 0 0 0', opacity: 0.7, fontSize: '0.85rem' }}>Help the community save time and money.</p>
                 </div>
 
                 {rateLimitError && (
@@ -481,121 +506,67 @@ const ReportModal = ({ isOpen, onClose, onSubmit, station, user, userLocation })
                     {/* Photo Upload */}
                     <div>
                         <label style={{ display: 'block', marginBottom: '8px', fontSize: '0.9rem', fontWeight: '500' }}>
-                            📸 Photo (Optional) {!user && <span style={{ fontSize: '0.75rem', opacity: 0.6 }}>- Login required</span>}
+                            📸 Snapshot = Trust (Optional)
                         </label>
-
-                        {!photoPreview ? (
-                            <div style={{ display: 'flex', gap: '8px', flexDirection: 'column' }}>
-                                <div style={{ display: 'flex', gap: '8px' }}>
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            if (fileInputRef.current) {
-                                                fileInputRef.current.setAttribute('capture', 'environment');
-                                                fileInputRef.current.click();
-                                            }
-                                        }}
-                                        disabled={!user}
-                                        style={{
-                                            flex: 1, padding: '12px', borderRadius: '8px',
-                                            border: '1px solid var(--color-active)',
-                                            background: 'rgba(34, 197, 94, 0.1)',
-                                            color: 'var(--color-active)',
-                                            cursor: user ? 'pointer' : 'not-allowed',
-                                            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                                            fontSize: '0.9rem', fontWeight: 'bold'
-                                        }}
-                                    >
-                                        <Camera size={18} />
-                                        Take Evidence Photo
-                                    </button>
-                                    <button
-                                        type="button"
-                                        onClick={() => {
-                                            if (fileInputRef.current) {
-                                                fileInputRef.current.removeAttribute('capture');
-                                                fileInputRef.current.click();
-                                            }
-                                        }}
-                                        disabled={!user}
-                                        style={{
-                                            flex: 1, padding: '12px', borderRadius: '8px',
-                                            border: '1px dashed var(--glass-border)',
-                                            background: 'rgba(255,255,255,0.05)',
-                                            color: user ? 'white' : 'rgba(255,255,255,0.3)',
-                                            cursor: user ? 'pointer' : 'not-allowed',
-                                            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px',
-                                            fontSize: '0.9rem'
-                                        }}
-                                    >
-                                        <ImageIcon size={18} />
-                                        From Gallery
-                                    </button>
+                        <div
+                            onClick={() => fileInputRef.current.click()}
+                            style={{
+                                border: '2px dashed var(--glass-border)',
+                                borderRadius: '12px',
+                                padding: '20px',
+                                textAlign: 'center',
+                                cursor: 'pointer',
+                                background: photoPreview ? `url(${photoPreview}) center/cover` : 'rgba(255,255,255,0.03)',
+                                transition: 'all 0.2s',
+                                position: 'relative',
+                                overflow: 'hidden',
+                                height: '120px',
+                                display: 'flex',
+                                flexDirection: 'column',
+                                alignItems: 'center',
+                                justifyContent: 'center'
+                            }}
+                        >
+                            {!photoPreview && (
+                                <>
+                                    <Camera size={24} style={{ marginBottom: '8px', opacity: 0.5 }} />
+                                    <span style={{ fontSize: '0.8rem', opacity: 0.5 }}>Upload fuel price or pump photo</span>
+                                </>
+                            )}
+                            {isScanning && (
+                                <div style={{
+                                    position: 'absolute', inset: 0, background: 'rgba(0,0,0,0.6)',
+                                    display: 'flex', alignItems: 'center', justifyContent: 'center', flexDirection: 'column', gap: '8px'
+                                }}>
+                                    <Loader2 className="animate-spin" size={24} />
+                                    <span style={{ fontSize: '0.75rem' }}>Analyzing price...</span>
                                 </div>
-                                <input
-                                    ref={fileInputRef}
-                                    type="file"
-                                    accept="image/*"
-                                    onChange={handlePhotoSelect}
-                                    style={{ display: 'none' }}
-                                />
-                            </div>
-                        ) : (
-                            <div style={{ position: 'relative', borderRadius: '8px', overflow: 'hidden', border: '1px solid var(--glass-border)' }}>
-                                <img src={photoPreview} alt="Preview" style={{ width: '100%', height: '200px', objectFit: 'cover', opacity: isScanning ? 0.5 : 1 }} />
-
-                                {isScanning && (
-                                    <div style={{
-                                        position: 'absolute', top: 0, left: 0, right: 0, bottom: 0,
-                                        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-                                        background: 'rgba(0,0,0,0.4)', color: 'white', gap: '12px'
-                                    }}>
-                                        <Loader2 size={32} className="animate-spin" />
-                                        <span style={{ fontWeight: 'bold', fontSize: '1.1rem', textShadow: '0 2px 4px rgba(0,0,0,0.5)' }}>AI SCANNING...</span>
-                                        <div style={{ display: 'flex', gap: '4px' }}>
-                                            {[0, 1, 2].map(i => (
-                                                <div key={i} style={{
-                                                    width: '8px', height: '8px', borderRadius: '50%',
-                                                    background: '#22c55e', animation: `pulse 1s infinite ${i * 0.2}s`
-                                                }} />
-                                            ))}
-                                        </div>
-                                    </div>
-                                )}
-
-                                <button
-                                    type="button"
-                                    onClick={handleRemovePhoto}
-                                    style={{
-                                        position: 'absolute', top: '8px', right: '8px',
-                                        background: 'rgba(0,0,0,0.7)', border: 'none', borderRadius: '50%',
-                                        width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center',
-                                        cursor: 'pointer', color: 'white'
-                                    }}
-                                >
+                            )}
+                            {photoPreview && !isScanning && (
+                                <div style={{
+                                    position: 'absolute', top: '8px', right: '8px',
+                                    background: 'rgba(0,0,0,0.7)', border: 'none', borderRadius: '50%',
+                                    width: '32px', height: '32px', display: 'flex', alignItems: 'center', justifyContent: 'center',
+                                    cursor: 'pointer', color: 'white'
+                                }} onClick={(e) => { e.stopPropagation(); handleRemovePhoto(); }}>
                                     <X size={18} />
-                                </button>
-
-                                {!isScanning && (
-                                    <div style={{
-                                        position: 'absolute', bottom: '12px', left: '12px',
-                                        background: 'rgba(34, 197, 94, 0.9)', color: 'white',
-                                        padding: '4px 10px', borderRadius: '20px', fontSize: '0.75rem',
-                                        display: 'flex', alignItems: 'center', gap: '6px', fontWeight: 'bold'
-                                    }}>
-                                        <Sparkles size={12} />
-                                        AI READY
-                                    </div>
-                                )}
-                            </div>
-                        )}
+                                </div>
+                            )}
+                        </div>
+                        <input
+                            type="file"
+                            ref={fileInputRef}
+                            onChange={handlePhotoSelect}
+                            accept="image/*"
+                            style={{ display: 'none' }}
+                        />
                         {photoError && (
                             <span style={{ fontSize: '0.75rem', color: '#ef4444', marginTop: '4px', display: 'block' }}>
                                 {photoError}
                             </span>
                         )}
                         <span style={{ fontSize: '0.7rem', color: '#64748b', marginTop: '4px', display: 'block' }}>
-                            💡 Photos help verify reports and build trust
+                            💡 Verified photos build the most trust in the community.
                         </span>
                     </div>
 

@@ -118,16 +118,21 @@ const StationDetailsModal = ({ isOpen, onClose, station, user, onLoginRequest, u
                                 )}
                                 {station.lastComment && (
                                     <div style={{
-                                        marginTop: '10px',
-                                        padding: '8px 12px',
-                                        backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                                        marginBottom: '16px',
+                                        padding: '12px',
+                                        background: 'rgba(255, 255, 255, 0.05)',
                                         borderRadius: '8px',
-                                        fontSize: '0.85rem',
-                                        borderLeft: '3px solid var(--color-active)',
-                                        color: '#efefef',
-                                        fontStyle: 'italic'
+                                        border: '1px solid var(--glass-border)'
                                     }}>
-                                        "{station.lastComment}"
+                                        <h4 style={{ fontSize: '0.75rem', textTransform: 'uppercase', color: '#94a3b8', marginBottom: '8px', letterSpacing: '0.05em' }}>
+                                            Latest Insight from the Street
+                                        </h4>
+                                        <p style={{ fontSize: '0.9rem', color: 'white', fontStyle: 'italic', margin: 0 }}>
+                                            "{station.lastComment}"
+                                        </p>
+                                        <div style={{ marginTop: '8px', fontSize: '0.7rem', opacity: 0.6 }}>
+                                            Reported by {station.lastReporter || 'Anonymous'} {station.trustLevel === 'verified-fresh' && '🛡️'}
+                                        </div>
                                     </div>
                                 )}
                             </div>
@@ -150,9 +155,19 @@ const StationDetailsModal = ({ isOpen, onClose, station, user, onLoginRequest, u
 
                         {/* Status Badges */}
                         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                            <span className={`status-badge status-${station.status}`}>
-                                {station.status === 'active' ? '🟢 Active' : '🔴 Inactive'}
+                            <span className={`status-badge status-${station.status}`} style={{
+                                padding: '4px 8px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 'bold'
+                            }}>
+                                {station.status === 'active'
+                                    ? (station.trustLevel === 'uncertain' ? 'Mixing Reports ⚠️' : 'Active')
+                                    : 'Inactive'}
                             </span>
+                            {station.trustLevel === 'verified-fresh' && (
+                                <span style={{ fontSize: '0.75rem', color: '#4ade80', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                    ✨ Verified Fresh
+                                </span>
+                            )}
+                            <span style={{ fontSize: '0.8rem', opacity: 0.6 }}>Updated {formatTimeAgo(station.lastUpdated)}</span>
                             {isVerified && (
                                 <span style={{
                                     padding: '4px 10px',
