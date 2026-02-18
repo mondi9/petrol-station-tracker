@@ -45,12 +45,19 @@ const createCustomIcon = (station, userLocation, isNearby = false) => {
     if (status === 'active') {
         let trustEmoji = '';
         if (trustLevel === 'verified-fresh') trustEmoji = '✨';
-        else if (trustLevel === 'uncertain') trustEmoji = '⚠️';
+        else if (trustLevel === 'community-sync') trustEmoji = '👥';
+        else if (trustLevel === 'recently-seen') trustEmoji = '👤';
+        else if (trustLevel === 'mixed-reports') trustEmoji = '⚠️';
+        else if (trustLevel === 'outdated') trustEmoji = '⏳';
         else if (queueStatus === 'short') trustEmoji = '⚡';
         else if (queueStatus === 'mild') trustEmoji = '⏳';
         else if (queueStatus === 'long') trustEmoji = '🚨';
 
         label = `${trustEmoji} ${label}`;
+    } else if (status === 'inactive') {
+        if (trustLevel === 'confirmed-dry') {
+            label = `⚪ ${label}`;
+        }
     }
 
     // Add highlight if it's one of the closest stations
@@ -71,7 +78,14 @@ const createCustomIcon = (station, userLocation, isNearby = false) => {
             color = '#dc2626'; // Red
         }
     } else {
-        label = 'Empty';
+        // Inactive/Unknown status
+        // Don't overwrite label if we have a price OR distance!
+        const hasPrice = price !== undefined && price !== null;
+        const hasDistance = distance !== undefined && distance !== null;
+
+        if (!hasPrice && !hasDistance) {
+            label = 'Empty';
+        }
         color = '#475569'; // Darker grey
     }
 
@@ -376,10 +390,33 @@ const MapComponent = ({ stations, onStationSelect, onViewDetails, selectedStatio
             <div style={{
                 position: 'absolute',
                 top: 0, left: 0, right: 0, height: '100px',
-                background: 'linear-gradient(to bottom, var(--bg-primary) 0%, transparent 100%)',
+                background: 'linear-gradient(to bottom, var(--bg-primary) 10%, transparent 100%)',
                 zIndex: 400,
                 pointerEvents: 'none'
             }}></div>
+
+            {/* Hint Banner */}
+            <div style={{
+                position: 'absolute',
+                top: '20px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                zIndex: 401,
+                padding: '8px 16px',
+                borderRadius: '20px',
+                background: 'rgba(31, 41, 55, 0.95)',
+                backdropFilter: 'blur(8px)',
+                border: '1px solid rgba(34, 197, 94, 0.3)',
+                color: 'white',
+                fontSize: '0.8rem',
+                fontWeight: '500',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
+                whiteSpace: 'nowrap',
+                pointerEvents: 'none',
+                opacity: 0.9
+            }}>
+                Tap a station to see current price and verify it for others.
+            </div>
 
             <MapContainer
                 center={position}
@@ -595,6 +632,23 @@ const MapComponent = ({ stations, onStationSelect, onViewDetails, selectedStatio
             </MapContainer>
 
             <LocationButton onFindNearest={onFindNearest} isLocating={isLocating} />
+
+            {/* Persistent Trust Disclaimer */}
+            <div style={{
+                position: 'absolute',
+                bottom: '10px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                zIndex: 1001,
+                fontSize: '0.65rem',
+                color: 'rgba(255, 255, 255, 0.6)',
+                fontStyle: 'italic',
+                textAlign: 'center',
+                width: '100%',
+                pointerEvents: 'none'
+            }}>
+                Crowd-sourced data changes fast. Always verify the 'Last Updated' time before you drive.
+            </div>
 
         </div>
     );

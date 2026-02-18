@@ -31,36 +31,75 @@ export const subscribeToStations = (onUpdate, onError) => {
             const hoursOld = lastUpdated ? (new Date() - lastUpdated) / (1000 * 60 * 60) : Infinity;
             const freshnessStatus = hoursOld <= 4 ? 'fresh' : hoursOld <= 12 ? 'stale' : 'unknown';
 
-            // Determine Trust Level
+            // Determine Trust Level (Confidence System)
             let trustLevel = 'unknown';
+            const confirmationCount = data.confirmations?.length || 0;
+            const flagCount = data.flags?.length || 0;
+
             if (data.status === 'active') {
                 if (freshnessStatus === 'fresh') {
-                    // High confidence if it has photo or verified reporter
-                    if (data.lastPhotoUrl || (data.lastReporter && data.lastReporter.includes('🛡️'))) {
+                    // High confidence: Photo or Verified Reporter
+                    if (data.hasPhoto || (data.lastReporter && data.lastReporter.includes('🛡️'))) {
                         trustLevel = 'verified-fresh';
+                    } else if (confirmationCount >= 3) {
+                        // Community sync: 3+ confirmations
+                        trustLevel = 'community-sync';
                     } else {
-                        trustLevel = 'fresh';
+                        // Recently seen: 1+ confirmation or fresh report
+                        trustLevel = 'recently-seen';
                     }
                 } else if (freshnessStatus === 'stale') {
-                    trustLevel = 'stale';
+                    trustLevel = 'outdated';
+                }
+
+                // Check for conflict (Mixed Reports)
+                if (flagCount > 0 && flagCount < confirmationCount) {
+                    trustLevel = 'mixed-reports';
+                }
+            } else if (data.status === 'inactive') {
+                if (flagCount >= 3) {
+                    trustLevel = 'confirmed-dry';
+                } else {
+                    trustLevel = 'inactive';
                 }
             }
 
-            // Check for conflict (e.g. availability mix)
+            // Safety check for mixed reports from availability object
             if (data.availability) {
                 const vals = Object.values(data.availability);
-                if (vals.includes('available') && vals.includes('empty')) {
-                    trustLevel = 'uncertain';
+                if (vals.includes('available') && vals.includes('empty') && trustLevel !== 'mixed-reports') {
+                    trustLevel = 'mixed-reports';
                 }
             }
+
+            // APPLY DATA DECAY (TTL) RULES
+            // Queue: Soft 2h, Hard 4h
+            if (queueStatus && hoursOld > 4) {
+                queueStatus = null;
+            }
+
+            // Status: Hard 16h (Relaxed as per user request to avoid "Empty" markers)
+            let displayStatus = data.status;
+            // if (displayStatus !== 'unknown' && hoursOld > 24) {
+            //     displayStatus = 'unknown';
+            // }
+
+            // Prices: Soft 24h, Hard 48h (Calculate price status)
+            const lastPriceUpdate = data.lastPriceUpdate ? new Date(data.lastPriceUpdate) : null;
+            const priceHoursOld = lastPriceUpdate ? (new Date() - lastPriceUpdate) / (1000 * 60 * 60) : Infinity;
+            let displayPrices = { ...data.prices };
+            // Cut-off removed as per user request
 
             return {
                 id: doc.id,
                 ...data,
+                status: displayStatus,
+                prices: displayPrices,
                 queueStatus,
                 freshnessStatus,
                 trustLevel,
-                hoursOld
+                hoursOld,
+                priceHoursOld
             };
         }).filter(s => {
             // Strict Filter: Only show stations in Lagos, Nigeria
@@ -302,6 +341,15 @@ export const calculateTravelTime = (distanceKm, speedKmH = 30) => {
     if (!distanceKm) return null;
     const hours = distanceKm / speedKmH;
     return Math.ceil(hours * 60);
+};
+
+// Format travel time into a readable string
+export const formatTravelTime = (minutes) => {
+    if (minutes === null || minutes === undefined) return '';
+    if (minutes < 60) return `${minutes} mins`;
+    const h = Math.floor(minutes / 60);
+    const m = minutes % 60;
+    return m > 0 ? `${h}h ${m}m` : `${h}h`;
 };
 
 /**

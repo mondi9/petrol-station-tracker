@@ -5,7 +5,7 @@ import MapComponent from './components/MapContainer';
 import StationList from './components/StationList';
 import ReportModal from './components/ReportModal';
 import ReloadPrompt from './components/ReloadPrompt';
-import { subscribeToStations, updateStationStatus, addStation, recordUserPresence, calculateDistance, formatDistance, calculateTravelTime } from './services/stationService';
+import { subscribeToStations, updateStationStatus, addStation, recordUserPresence, calculateDistance, formatDistance, calculateTravelTime, formatTravelTime } from './services/stationService';
 
 import { subscribeToAuth, logout } from './services/authService';
 import { db } from './services/firebase';
@@ -318,49 +318,57 @@ function App() {
         setUserLocation({ lat: latitude, lng: longitude });
         setIsLocating(false);
 
-        // Find nearest ACTIVE station using proper distance calculation
+        // Find nearest station using proper distance calculation
         if (stations.length > 0) {
-          let nearest = null;
-          let minDistance = Infinity;
+          // Calculate distance for ALL stations
+          const stationsWithDistance = stations.map(s => ({
+            ...s,
+            d: calculateDistance(latitude, longitude, s.lat, s.lng)
+          })).filter(s => s.d !== null);
 
-          // Filter for active stations only
-          const activeStations = stations.filter(s => s.status === 'active');
+          // Get top 3 nearest
+          const top3Data = [...stationsWithDistance]
+            .sort((a, b) => a.d - b.d)
+            .slice(0, 3);
 
-          // Debug: Log all distances
-          console.log('=== Finding Nearest Station ===');
-          console.log('Your location:', { lat: latitude, lng: longitude });
-          console.log(`Total stations: ${stations.length}, Active stations: ${activeStations.length}`);
-
-          activeStations.forEach(station => {
-            const dist = calculateDistance(latitude, longitude, station.lat, station.lng);
-            console.log(`${station.name} (${station.status}): ${dist?.toFixed(2)}km`, { lat: station.lat, lng: station.lng });
-
-            if (dist !== null && dist < minDistance) {
-              minDistance = dist;
-              nearest = station;
-            }
-          });
-
-          console.log('Nearest station selected:', nearest?.name, minDistance.toFixed(2) + 'km');
-
-          if (nearest) {
-            setSelectedStation(nearest);
-
-            // Diagnostic Info: Top 3 closest stations
-            const top3Data = activeStations
-              .map(s => ({ ...s, d: calculateDistance(latitude, longitude, s.lat, s.lng) }))
-              .sort((a, b) => a.d - b.d)
-              .slice(0, 3);
-
-            // Set nearby stations for map highlighting
+          if (top3Data.length > 0) {
+            // Select the closest one
+            setSelectedStation(top3Data[0]);
             setNearbyStations(top3Data.map(s => s.id));
 
-            const diagHtml = top3Data.map((s, idx) => `
-                <div style="font-size: 0.8rem; margin-top: 4px; display: flex; justify-content: space-between; padding: 6px; background: rgba(255,255,255,0.05); borderRadius: 8px; border: 1px solid rgba(255,255,255,0.05);">
-                  <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 200px;">${idx + 1}. ${s.name}</span>
-                  <strong style="color: ${idx === 0 ? '#10b981' : 'white'}">${formatDistance(s.d)}</strong>
+            // Generate HTML for the top 3 results
+            const diagHtml = top3Data.map((s, idx) => {
+              const travelTime = calculateTravelTime(s.d);
+              const formattedTime = formatTravelTime(travelTime);
+              const isDry = s.status === 'inactive';
+
+              // Queue Status determination
+              let qBadge = '';
+              if (isDry) {
+                qBadge = '<span style="color: #f87171; font-weight: bold;">⚪ Pumps Dry</span>';
+              } else if (!s.queueStatus) {
+                qBadge = '<span style="color: #94a3b8;">⚪ Queue: Unknown</span>';
+              } else if (s.queueStatus === 'short') {
+                qBadge = '<span style="color: #10b981; font-weight: bold;">⚡ Short Queue</span>';
+              } else if (s.queueStatus === 'mild') {
+                qBadge = '<span style="color: #fbbf24; font-weight: bold;">⏳ Mild Queue</span>';
+              } else if (s.queueStatus === 'long') {
+                qBadge = '<span style="color: #ef4444; font-weight: bold;">🚨 Long Queue</span>';
+              }
+
+              return `
+                <div style="font-size: 0.8rem; margin-top: 6px; display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(0,0,0,0.2); borderRadius: 12px; border: 1px solid ${isDry ? 'rgba(239, 68, 68, 0.2)' : 'rgba(255,255,255,0.05)'};">
+                  <div style="display: flex; flex-direction: column; overflow: hidden; gap: 2px;">
+                    <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 170px; font-weight: 600;">${idx + 1}. ${s.name}</span>
+                    <div style="font-size: 0.7rem; opacity: 0.9;">${qBadge}</div>
+                  </div>
+                  <div style="text-align: right; line-height: 1.2;">
+                    <strong style="color: ${idx === 0 && !isDry ? '#10b981' : 'white'}; display: block;">${formatDistance(s.d)}</strong>
+                    <span style="font-size: 0.7rem; opacity: 0.6; display: block;">~${formattedTime}</span>
+                  </div>
                 </div>
-              `).join('');
+              `;
+            }).join('');
 
             // Create toast notification
             const toast = document.createElement('div');
@@ -372,46 +380,48 @@ function App() {
                             background: linear-gradient(135deg, #1f2937, #111827);
                             color: white;
                             padding: 24px;
-                            border-radius: 20px;
-                            box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+                            border-radius: 24px;
+                            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7);
                             z-index: 10000;
                             max-width: 90%;
-                            width: 340px;
+                            width: 360px;
                             border: 1px solid rgba(255,255,255,0.1);
                             animation: slideInDown 0.4s cubic-bezier(0.16, 1, 0.3, 1);
                         `;
             toast.innerHTML = `
-                            <div style="text-align: center; margin-bottom: 16px;">
-                                <div style="font-size: 1.3rem; font-weight: 800; color: #10b981; letter-spacing: -0.5px;">📍 Results Found</div>
-                                <div style="font-size: 0.8rem; opacity: 0.6;">Relative to pinned location</div>
+                            <div style="text-align: center; margin-bottom: 20px;">
+                                <div style="font-size: 1.4rem; font-weight: 900; color: #10b981; letter-spacing: -0.5px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                                  <span>📍</span> Nearest Found
+                                </div>
+                                <div style="font-size: 0.8rem; opacity: 0.6; margin-top: 4px;">Top 3 stations based on your location</div>
                             </div>
                             
                             <div style="margin-bottom: 20px;">
-                                <div style="font-size: 0.75rem; opacity: 0.5; font-weight: bold; margin-bottom: 8px; text-transform: uppercase;">Closest Stations:</div>
                                 ${diagHtml}
                             </div>
 
-                            <div style="background: rgba(0,0,0,0.2); padding: 12px; border-radius: 12px; margin-bottom: 16px;">
+                            <div style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 16px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.05);">
                                 <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 4px;">
                                     <span style="opacity: 0.6;">GPS Accuracy</span>
-                                    <span style="font-weight: bold; color: ${position.coords.accuracy < 30 ? '#10b981' : '#f59e0b'}">±${Math.round(position.coords.accuracy)}m</span>
+                                    <span style="font-weight: bold; color: ${position.coords.accuracy < 30 ? '#10b981' : '#fbbf24'}">±${Math.round(position.coords.accuracy)}m</span>
                                 </div>
-                                <div style="font-size: 0.7rem; opacity: 0.4; font-family: monospace;">
+                                <div style="font-size: 0.7rem; opacity: 0.4; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.5px;">
                                     ${latitude.toFixed(6)}, ${longitude.toFixed(6)}
                                 </div>
-                                ${position.coords.accuracy > 50 ? `<div style="margin-top: 8px; font-size: 0.7rem; color: #f59e0b; font-style: italic;">⚠️ Accuracy is low. You can click on the map to pin your exact home location.</div>` : ''}
                             </div>
                             
-                            <div style="display: flex; gap: 8px;">
-                                <button id="retry-gps" style="flex: 1; padding: 12px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.1); background: transparent; color: white; cursor: pointer; font-weight: 600;">Retry GPS</button>
-                                <button id="close-toast" style="flex: 1; padding: 12px; border-radius: 10px; border: none; background: #10b981; color: black; cursor: pointer; font-weight: 700;">OK</button>
+                            <div style="display: flex; gap: 10px;">
+                                <button id="retry-gps" style="flex: 1; padding: 14px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: white; cursor: pointer; font-weight: 700; font-size: 0.9rem; transition: all 0.2s;">Retry</button>
+                                <button id="close-toast" style="flex: 1; padding: 14px; border-radius: 14px; border: none; background: #10b981; color: #064e3b; cursor: pointer; font-weight: 800; font-size: 0.9rem; transition: all 0.2s;">Got it!</button>
                             </div>
 
                             <style>
                                 @keyframes slideInDown {
-                                    from { transform: translate(-50%, -100%); opacity: 0; }
+                                    from { transform: translate(-50%, -30px); opacity: 0; }
                                     to { transform: translate(-50%, 0); opacity: 1; }
                                 }
+                                #retry-gps:hover { background: rgba(255,255,255,0.1); }
+                                #close-toast:hover { background: #34d399; transform: translateY(-1px); }
                             </style>
                         `;
             document.body.appendChild(toast);
@@ -425,8 +435,8 @@ function App() {
               toast.remove();
             };
 
-            // Remove toast after 15 seconds
-            setTimeout(() => { if (toast.parentNode) toast.remove(); }, 15000);
+            // Remove toast after 20 seconds
+            setTimeout(() => { if (toast.parentNode) toast.remove(); }, 20000);
 
             if (isMobile) setViewMode('map');
           }
@@ -440,6 +450,7 @@ function App() {
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
   };
+
 
   return (
     <ThemeProvider>
