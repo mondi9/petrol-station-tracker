@@ -79,13 +79,6 @@ const PriceDisplay = ({
                 <Banknote size={14} style={{ color: freshness.color }} />
                 <span style={{ color: 'white' }}>{priceData.formatted}</span>
                 <TrendIcon size={12} style={{ color: priceData.color }} />
-                <span style={{
-                    fontSize: '0.7rem',
-                    color: freshness.color,
-                    fontWeight: '500'
-                }}>
-                    {freshness.label}
-                </span>
             </div>
         );
     }
@@ -101,34 +94,6 @@ const PriceDisplay = ({
             background: 'rgba(255, 255, 255, 0.03)',
             border: '1px solid var(--glass-border)'
         }}>
-            {/* Freshness Badge */}
-            <div style={{
-                display: 'flex',
-                justifyContent: 'space-between',
-                alignItems: 'center',
-                marginBottom: '4px'
-            }}>
-                <span style={{
-                    fontSize: '0.75rem',
-                    fontWeight: '600',
-                    color: '#94a3b8',
-                    textTransform: 'uppercase',
-                    letterSpacing: '0.5px'
-                }}>
-                    Fuel Prices
-                </span>
-                <span style={{
-                    fontSize: '0.7rem',
-                    padding: '2px 8px',
-                    borderRadius: '4px',
-                    background: `${freshness.color}20`,
-                    color: freshness.color,
-                    fontWeight: '600'
-                }}>
-                    {freshness.label}
-                </span>
-            </div>
-
             {/* Price List */}
             {Object.entries(displayPrices).map(([fuel, price]) => {
                 if (!price) return null;

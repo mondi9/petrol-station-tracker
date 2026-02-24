@@ -13,6 +13,8 @@ import { importLagosStationsV3, enrichStationData } from './services/osmService'
 import { grantAdminRole } from './services/userService';
 import { seedInitialData } from './services/stationService';
 import { getUserStats } from './services/statsService';
+import { logAppVisit } from './services/activityService';
+import { getBatchTravelTimes, formatDuration } from './services/trafficService';
 import AuthModal from './components/AuthModal';
 import UserProfileModal from './components/UserProfileModal';
 import MobileBottomNav from './components/MobileBottomNav';
@@ -97,6 +99,11 @@ function App() {
     });
     return () => unsubscribe();
   }, []);
+
+  // Log Visit on initial load
+  useEffect(() => {
+    logAppVisit(user?.uid, user?.email);
+  }, [user?.uid]); // Log when user state changes (e.g. login) to associate the session
 
   const handleLogout = async () => {
     try {
@@ -336,43 +343,53 @@ function App() {
             setSelectedStation(top3Data[0]);
             setNearbyStations(top3Data.map(s => s.id));
 
-            // Generate HTML for the top 3 results
-            const diagHtml = top3Data.map((s, idx) => {
-              const travelTime = calculateTravelTime(s.d);
-              const formattedTime = formatTravelTime(travelTime);
-              const isDry = s.status === 'inactive';
+            // Fetch real-time (or traffic-fallback) travel times for the top 3
+            getBatchTravelTimes({ lat: latitude, lng: longitude }, top3Data)
+              .then(travelResults => {
+                // Combine travel results with top3Data
+                const finalTop3 = top3Data.map((s, idx) => ({
+                  ...s,
+                  travel: travelResults[idx]
+                }));
 
-              // Queue Status determination
-              let qBadge = '';
-              if (isDry) {
-                qBadge = '<span style="color: #f87171; font-weight: bold;">⚪ Pumps Dry</span>';
-              } else if (!s.queueStatus) {
-                qBadge = '<span style="color: #94a3b8;">⚪ Queue: Unknown</span>';
-              } else if (s.queueStatus === 'short') {
-                qBadge = '<span style="color: #10b981; font-weight: bold;">⚡ Short Queue</span>';
-              } else if (s.queueStatus === 'mild') {
-                qBadge = '<span style="color: #fbbf24; font-weight: bold;">⏳ Mild Queue</span>';
-              } else if (s.queueStatus === 'long') {
-                qBadge = '<span style="color: #ef4444; font-weight: bold;">🚨 Long Queue</span>';
-              }
+                // Generate HTML for the top 3 results
+                const diagHtml = finalTop3.map((s, idx) => {
+                  const driveTime = s.travel?.durationInTrafficMinutes || s.travel?.durationMinutes || 0;
+                  const queueMinutes = s.queueStatus === 'short' ? 5 : (s.queueStatus === 'mild' ? 15 : (s.queueStatus === 'long' ? 45 : 0));
+                  const totalTime = driveTime + queueMinutes;
+                  const isDry = s.status === 'inactive';
 
-              return `
+                  // Queue Status determination
+                  let qBadge = '';
+                  if (isDry) {
+                    qBadge = '<span style="color: #f87171; font-weight: bold;">⚪ Pumps Dry</span>';
+                  } else if (!s.queueStatus) {
+                    qBadge = '<span style="color: #94a3b8;">⚪ Queue: Unknown</span>';
+                  } else if (s.queueStatus === 'short') {
+                    qBadge = '<span style="color: #10b981; font-weight: bold;">⚡ Short Queue</span>';
+                  } else if (s.queueStatus === 'mild') {
+                    qBadge = '<span style="color: #fbbf24; font-weight: bold;">⏳ Mild Queue</span>';
+                  } else if (s.queueStatus === 'long') {
+                    qBadge = '<span style="color: #ef4444; font-weight: bold;">🚨 Long Queue</span>';
+                  }
+
+                  return `
                 <div style="font-size: 0.8rem; margin-top: 6px; display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(0,0,0,0.2); borderRadius: 12px; border: 1px solid ${isDry ? 'rgba(239, 68, 68, 0.2)' : 'rgba(255,255,255,0.05)'};">
                   <div style="display: flex; flex-direction: column; overflow: hidden; gap: 2px;">
-                    <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 170px; font-weight: 600;">${idx + 1}. ${s.name}</span>
+                    <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 175px; font-weight: 600;">${idx + 1}. ${s.name}</span>
                     <div style="font-size: 0.7rem; opacity: 0.9;">${qBadge}</div>
                   </div>
                   <div style="text-align: right; line-height: 1.2;">
-                    <strong style="color: ${idx === 0 && !isDry ? '#10b981' : 'white'}; display: block;">${formatDistance(s.d)}</strong>
-                    <span style="font-size: 0.7rem; opacity: 0.6; display: block;">~${formattedTime}</span>
+                    <strong style="color: ${idx === 0 && !isDry ? '#10b981' : 'white'}; display: block;">${formatDuration(totalTime)} total</strong>
+                    <span style="font-size: 0.7rem; opacity: 0.6; display: block;">${formatDuration(driveTime)} drive</span>
                   </div>
                 </div>
               `;
-            }).join('');
+                }).join('');
 
-            // Create toast notification
-            const toast = document.createElement('div');
-            toast.style.cssText = `
+                // Create toast notification
+                const toast = document.createElement('div');
+                toast.style.cssText = `
                             position: fixed;
                             top: 80px;
                             left: 50%;
@@ -388,12 +405,16 @@ function App() {
                             border: 1px solid rgba(255,255,255,0.1);
                             animation: slideInDown 0.4s cubic-bezier(0.16, 1, 0.3, 1);
                         `;
-            toast.innerHTML = `
+                toast.innerHTML = `
                             <div style="text-align: center; margin-bottom: 20px;">
                                 <div style="font-size: 1.4rem; font-weight: 900; color: #10b981; letter-spacing: -0.5px; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                                  <span>📍</span> Nearest Found
+                                  <span>📍</span> Nearby Results
                                 </div>
-                                <div style="font-size: 0.8rem; opacity: 0.6; margin-top: 4px;">Top 3 stations based on your location</div>
+                                <div style="font-size: 0.8rem; opacity: 0.6; margin-top: 4px;">
+                                    ${top3Data[0].d > 50
+                    ? '<span style="color: #fbbf24;">⚠️ GPS may be set to another region!</span>'
+                    : 'Top 3 including traffic & queue times'}
+                                </div>
                             </div>
                             
                             <div style="margin-bottom: 20px;">
@@ -424,19 +445,20 @@ function App() {
                                 #close-toast:hover { background: #34d399; transform: translateY(-1px); }
                             </style>
                         `;
-            document.body.appendChild(toast);
+                document.body.appendChild(toast);
 
-            toast.querySelector('#retry-gps').onclick = () => {
-              toast.remove();
-              handleFindNearest();
-            };
+                toast.querySelector('#retry-gps').onclick = () => {
+                  toast.remove();
+                  handleFindNearest();
+                };
 
-            toast.querySelector('#close-toast').onclick = () => {
-              toast.remove();
-            };
+                toast.querySelector('#close-toast').onclick = () => {
+                  toast.remove();
+                };
 
-            // Remove toast after 20 seconds
-            setTimeout(() => { if (toast.parentNode) toast.remove(); }, 20000);
+                // Remove toast after 20 seconds
+                setTimeout(() => { if (toast.parentNode) toast.remove(); }, 20000);
+              });
 
             if (isMobile) setViewMode('map');
           }
@@ -452,14 +474,77 @@ function App() {
   };
 
 
+  if (isLoading) {
+    return (
+      <div className="loading-overlay">
+        <div className="loading-heart">⛽</div>
+        <div style={{
+          fontSize: '1.2rem',
+          fontWeight: '900',
+          letterSpacing: '0.1em',
+          textTransform: 'uppercase',
+          color: 'var(--color-active)',
+          textShadow: '0 0 10px var(--color-active-glow)'
+        }}>
+          FuelPulse
+        </div>
+        <div style={{
+          marginTop: '10px',
+          fontSize: '0.8rem',
+          opacity: 0.6,
+          letterSpacing: '0.05em'
+        }}>
+          Syncing with the street...
+        </div>
+      </div>
+    );
+  }
+
   return (
     <ThemeProvider>
       <ErrorBoundary>
         <div className="app-container">
+          {/* Location Rationale Helper */}
+          {(!userLocation || isLocating) && (
+            <div style={{
+              position: 'fixed',
+              top: '80px',
+              left: '50%',
+              transform: 'translateX(-50%)',
+              zIndex: 1000,
+              width: '90%',
+              maxWidth: '320px',
+              pointerEvents: 'none'
+            }}>
+              <div className="glass" style={{
+                padding: '12px 16px',
+                borderRadius: '16px',
+                border: '1px solid var(--color-active)',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '12px',
+                background: 'rgba(0,0,0,0.8)',
+                pointerEvents: 'auto'
+              }}>
+                <div style={{ fontSize: '1.2rem', animation: 'pulse-badge 1s infinite' }}>📍</div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ fontSize: '0.85rem', fontWeight: 'bold', color: 'white' }}>
+                    {isLocating ? 'Pinpointing you...' : 'Enter your area'}
+                  </div>
+                  <div style={{ fontSize: '0.7rem', opacity: 0.7, lineHeight: 1.3 }}>
+                    {isLocating
+                      ? 'Establishing high-accuracy GPS for Lagos neighborhoods.'
+                      : 'Search for a station or tap the map to find fuel near you.'}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
+
           <div className="main-content" style={{ display: 'flex', height: '100vh', width: '100vw', overflow: 'hidden' }}>
 
             {/* Sidebar / List View */}
-            <div className="sidebar" style={{
+            <div className={`sidebar ${viewMode === 'list' && isMobile ? 'visible' : ''}`} style={{
               width: isMobile ? '100%' : '400px',
               background: 'var(--bg-secondary)',
               borderRight: '1px solid var(--glass-border)',
@@ -559,33 +644,35 @@ function App() {
             onOpenProfile={() => setIsProfileModalOpen(true)}
           />
 
-          {/* Floating Action Buttons */}
-          <div style={{ position: 'fixed', top: '20px', right: '20px', display: 'flex', flexDirection: 'column', gap: '12px', zIndex: 1000 }}>
-            {user && (
-              <button className="btn btn-primary" style={{ borderRadius: '50%', width: '56px', height: '56px', padding: 0, justifyContent: 'center', boxShadow: '0 4px 20px rgba(34, 197, 94, 0.4)' }}
-                onClick={() => setIsAddStationModalOpen(true)} title="Add Station">
-                <span style={{ fontSize: '24px' }}>+</span>
-              </button>
-            )}
-
-            {user && user.role === 'admin' && (
-              <button className="glass" style={{ borderRadius: '50%', width: '48px', height: '48px', padding: 0, justifyContent: 'center', cursor: 'pointer', background: 'var(--color-active)', color: 'black', boxShadow: '0 4px 12px rgba(34, 197, 94, 0.4)' }}
-                onClick={() => setIsAdminDashboardOpen(true)} title="Admin Dashboard">
-                <span style={{ fontSize: '20px' }}>⚙️</span>
-              </button>
-            )}
-
-            <button className="glass" style={{ borderRadius: '50%', width: '48px', height: '48px', padding: 0, justifyContent: 'center', overflow: 'hidden', cursor: 'pointer' }}
-              onClick={() => user ? setIsProfileModalOpen(true) : setIsAuthModalOpen(true)} title={user ? "Profile" : "Login"}>
-              {user ? (
-                <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--color-active)', fontWeight: 'bold' }}>
-                  {user.email[0].toUpperCase()}
-                </div>
-              ) : (
-                <span style={{ fontSize: '20px' }}>👤</span>
+          {/* Floating Action Buttons - Hidden when Fleet/Admin dashboards are open */}
+          {!isFleetDashboardOpen && !isAdminDashboardOpen && (
+            <div style={{ position: 'fixed', top: '20px', right: '20px', display: 'flex', flexDirection: 'column', gap: '12px', zIndex: 1000 }}>
+              {user && (
+                <button className="btn btn-primary" style={{ borderRadius: '50%', width: '56px', height: '56px', padding: 0, justifyContent: 'center', boxShadow: '0 4px 20px rgba(34, 197, 94, 0.4)' }}
+                  onClick={() => setIsAddStationModalOpen(true)} title="Add Station">
+                  <span style={{ fontSize: '24px' }}>+</span>
+                </button>
               )}
-            </button>
-          </div>
+
+              {user && user.role === 'admin' && (
+                <button className="glass" style={{ borderRadius: '50%', width: '48px', height: '48px', padding: 0, justifyContent: 'center', cursor: 'pointer', background: 'var(--color-active)', color: 'black', boxShadow: '0 4px 12px rgba(34, 197, 94, 0.4)' }}
+                  onClick={() => setIsAdminDashboardOpen(true)} title="Admin Dashboard">
+                  <span style={{ fontSize: '20px' }}>⚙️</span>
+                </button>
+              )}
+
+              <button className="glass" style={{ borderRadius: '50%', width: '48px', height: '48px', padding: 0, justifyContent: 'center', overflow: 'hidden', cursor: 'pointer' }}
+                onClick={() => user ? setIsProfileModalOpen(true) : setIsAuthModalOpen(true)} title={user ? "Profile" : "Login"}>
+                {user ? (
+                  <div style={{ width: '100%', height: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center', background: 'var(--color-active)', fontWeight: 'bold' }}>
+                    {user.email[0].toUpperCase()}
+                  </div>
+                ) : (
+                  <span style={{ fontSize: '20px' }}>👤</span>
+                )}
+              </button>
+            </div>
+          )}
 
           {/* Modals & Overlays */}
           <StationDetailsModal

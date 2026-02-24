@@ -1,0 +1,20 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background Circle (Representing the adaptive icon background zone) -->
+  <rect width="512" height="512" rx="102" fill="#0A0A0A"/>
+  
+  <!-- Map Pin Silhouette -->
+  <path d="M256 64C176.471 64 112 128.471 112 208C112 316 256 448 256 448C256 448 400 316 400 208C400 128.471 335.529 64 256 64Z" fill="#1E1E1E" stroke="#22C55E" stroke-width="8"/>
+  
+  <!-- Glowing Fuel Drop -->
+  <path d="M256 120C220 120 190 150 190 186C190 220 256 320 256 320C256 320 322 220 322 186C322 150 292 120 256 120Z" fill="url(#dropGradient)"/>
+  
+  <!-- Pulse Line -->
+  <path d="M160 210H210L225 180L245 240L265 160L285 220L300 210H352" stroke="white" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" opacity="0.8"/>
+  
+  <defs>
+    <radialGradient id="dropGradient" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(256 186) rotate(90) scale(134 88)">
+      <stop offset="0" stop-color="#4ADE80"/>
+      <stop offset="1" stop-color="#166534"/>
+    </radialGradient>
+  </defs>
+</svg>

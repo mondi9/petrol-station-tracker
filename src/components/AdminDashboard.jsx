@@ -1,11 +1,48 @@
 import React from 'react';
-import { X, Database, MapPin, AlertTriangle, User, ShieldCheck, BarChart2 } from 'lucide-react';
+import { X, Database, MapPin, AlertTriangle, User, ShieldCheck, BarChart2, Users, Activity } from 'lucide-react';
+import { getAllUsers } from '../services/userService';
+import { getRecentActivity } from '../services/activityService';
 import AnalyticsPanel from './AnalyticsPanel';
 
 const AdminDashboard = ({ isOpen, onClose, onImport, onFixAddresses, onRestore, onAddStation, onGrantAdmin, onUpdateMRS, importStatus, stations, user }) => {
     if (!isOpen) return null;
     const [adminEmail, setAdminEmail] = React.useState('');
-    const [activeTab, setActiveTab] = React.useState('management'); // 'management' | 'analytics'
+    const [activeTab, setActiveTab] = React.useState('management'); // 'management' | 'analytics' | 'users' | 'activity'
+    const [allUsers, setAllUsers] = React.useState([]);
+    const [activityLogs, setActivityLogs] = React.useState([]);
+    const [isLoadingData, setIsLoadingData] = React.useState(false);
+
+    React.useEffect(() => {
+        if (activeTab === 'users' && isOpen) {
+            fetchUsers();
+        } else if (activeTab === 'activity' && isOpen) {
+            fetchActivity();
+        }
+    }, [activeTab, isOpen]);
+
+    const fetchUsers = async () => {
+        setIsLoadingData(true);
+        try {
+            const users = await getAllUsers();
+            setAllUsers(users);
+        } catch (error) {
+            console.error("Failed to fetch users", error);
+        } finally {
+            setIsLoadingData(false);
+        }
+    };
+
+    const fetchActivity = async () => {
+        setIsLoadingData(true);
+        try {
+            const logs = await getRecentActivity(50);
+            setActivityLogs(logs);
+        } catch (error) {
+            console.error("Failed to fetch activity logs", error);
+        } finally {
+            setIsLoadingData(false);
+        }
+    };
 
     return (
         <div className="modal-overlay" onClick={onClose}>
@@ -62,12 +99,110 @@ const AdminDashboard = ({ isOpen, onClose, onImport, onFixAddresses, onRestore, 
                             >
                                 <BarChart2 size={14} /> Analytics
                             </button>
+                            <button
+                                onClick={() => setActiveTab('users')}
+                                style={{
+                                    padding: '6px 12px',
+                                    borderRadius: '6px',
+                                    border: 'none',
+                                    background: activeTab === 'users' ? 'var(--color-active)' : 'transparent',
+                                    color: activeTab === 'users' ? 'black' : 'white',
+                                    cursor: 'pointer',
+                                    fontSize: '0.8rem',
+                                    fontWeight: 'bold',
+                                    display: 'flex', alignItems: 'center', gap: '6px',
+                                    transition: 'all 0.2s'
+                                }}
+                            >
+                                <Users size={14} /> Users
+                            </button>
+                            <button
+                                onClick={() => setActiveTab('activity')}
+                                style={{
+                                    padding: '6px 12px',
+                                    borderRadius: '6px',
+                                    border: 'none',
+                                    background: activeTab === 'activity' ? 'var(--color-active)' : 'transparent',
+                                    color: activeTab === 'activity' ? 'black' : 'white',
+                                    cursor: 'pointer',
+                                    fontSize: '0.8rem',
+                                    fontWeight: 'bold',
+                                    display: 'flex', alignItems: 'center', gap: '6px',
+                                    transition: 'all 0.2s'
+                                }}
+                            >
+                                <Activity size={14} /> Activity
+                            </button>
                         </div>
                     </div>
                 </div>
 
                 {activeTab === 'analytics' ? (
                     <AnalyticsPanel stations={stations} />
+                ) : activeTab === 'users' ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', minHeight: '300px' }}>
+                        <div className="glass" style={{ padding: '12px', borderRadius: '6px' }}>
+                            <h3 style={{ fontSize: '0.95rem', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <Users size={16} /> Registered Users ({allUsers.length})
+                            </h3>
+
+                            {isLoadingData ? (
+                                <div style={{ textAlign: 'center', padding: '20px', opacity: 0.6 }}>Loading users...</div>
+                            ) : (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+                                    {allUsers.map((u) => (
+                                        <div key={u.id} style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', padding: '10px', background: 'rgba(0,0,0,0.2)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                                            <div style={{ overflow: 'hidden' }}>
+                                                <div style={{ fontSize: '0.85rem', fontWeight: 'bold' }}>{u.displayName || 'Anonymous'}</div>
+                                                <div style={{ fontSize: '0.75rem', opacity: 0.6 }}>{u.email}</div>
+                                            </div>
+                                            <div style={{ textAlign: 'right' }}>
+                                                <div style={{ fontSize: '0.7rem', fontWeight: 'bold', color: u.role === 'admin' ? 'var(--color-active)' : 'white', textTransform: 'uppercase' }}>{u.role}</div>
+                                                <div style={{ fontSize: '0.65rem', opacity: 0.4 }}>{u.createdAt ? new Date(u.createdAt).toLocaleDateString() : 'Unknown'}</div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                    {allUsers.length === 0 && (
+                                        <div style={{ textAlign: 'center', padding: '20px', opacity: 0.6 }}>No users found.</div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    </div>
+                ) : activeTab === 'activity' ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', minHeight: '350px' }}>
+                        <div className="glass" style={{ padding: '12px', borderRadius: '6px' }}>
+                            <h3 style={{ fontSize: '0.95rem', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                <Activity size={16} /> Recent Visits & Activity ({activityLogs.length})
+                            </h3>
+
+                            {isLoadingData ? (
+                                <div style={{ textAlign: 'center', padding: '20px', opacity: 0.6 }}>Loading activity...</div>
+                            ) : (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '400px', overflowY: 'auto', paddingRight: '4px' }}>
+                                    {activityLogs.map((log) => (
+                                        <div key={log.id} style={{ padding: '10px', background: 'rgba(0,0,0,0.2)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)', fontSize: '0.8rem' }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
+                                                <span style={{ fontWeight: 'bold', color: log.email === 'Anonymous Visitor' ? '#94a3b8' : 'var(--color-active)' }}>
+                                                    {log.email}
+                                                </span>
+                                                <span style={{ opacity: 0.4, fontSize: '0.7rem' }}>
+                                                    {new Date(log.timestamp).toLocaleString()}
+                                                </span>
+                                            </div>
+                                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', opacity: 0.6, fontSize: '0.7rem' }}>
+                                                <span title="Referrer">🔗 {log.referrer}</span>
+                                                <span title="Platform">💻 {log.platform}</span>
+                                            </div>
+                                        </div>
+                                    ))}
+                                    {activityLogs.length === 0 && (
+                                        <div style={{ textAlign: 'center', padding: '20px', opacity: 0.6 }}>No activity recorded yet.</div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    </div>
                 ) : (
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr', gap: '12px' }}>
 
@@ -98,6 +233,7 @@ const AdminDashboard = ({ isOpen, onClose, onImport, onFixAddresses, onRestore, 
                                     Fetches real data from OpenStreetMap. Warning: Can create duplicates if not careful.
                                 </p>
 
+                                {/* 
                                 <button
                                     onClick={onRestore}
                                     className="btn"
@@ -108,6 +244,7 @@ const AdminDashboard = ({ isOpen, onClose, onImport, onFixAddresses, onRestore, 
                                 <p style={{ fontSize: '0.75rem', opacity: 0.5, marginTop: '-8px' }}>
                                     Re-adds the 12 curated/manual stations (Festac, etc).
                                 </p>
+                                */}
                             </div>
                         </div>
 
@@ -174,12 +311,12 @@ const AdminDashboard = ({ isOpen, onClose, onImport, onFixAddresses, onRestore, 
                                         width: '100%'
                                     }}
                                 >
-                                    Sync Festac Cluster Coords
+                                    Neighborhood Network Sync
                                 </button>
                             </div>
 
                             <p style={{ fontSize: '0.75rem', opacity: 0.5, marginTop: '8px' }}>
-                                Maintenance tools to fix data inconsistencies. The Sync button moves MRS Festac and AP to their correct physical locations.
+                                Maintenance tools to optimize station accuracy. The Sync button aligns local station coordinates with the latest verified GPS clusters.
                             </p>
                         </div>
 

@@ -394,30 +394,6 @@ const MapComponent = ({ stations, onStationSelect, onViewDetails, selectedStatio
                 pointerEvents: 'none'
             }}></div>
 
-            {/* Hint Banner */}
-            {!selectedStation && (
-                <div style={{
-                    position: 'absolute',
-                    top: '20px',
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    zIndex: 401,
-                    padding: '8px 16px',
-                    borderRadius: '20px',
-                    background: 'rgba(31, 41, 55, 0.95)',
-                    backdropFilter: 'blur(8px)',
-                    border: '1px solid rgba(34, 197, 94, 0.3)',
-                    color: 'white',
-                    fontSize: '0.8rem',
-                    fontWeight: '500',
-                    boxShadow: '0 4px 12px rgba(0,0,0,0.5)',
-                    whiteSpace: 'nowrap',
-                    pointerEvents: 'none',
-                    opacity: 0.9
-                }}>
-                    Tap a station to see current price and verify it for others.
-                </div>
-            )}
 
             <MapContainer
                 center={position}

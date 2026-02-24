@@ -1,6 +1,6 @@
 import React from 'react';
 import { MapPin, Fuel, Clock, Info } from 'lucide-react';
-import { formatTimeAgo, formatPrice, calculateTravelTime, formatDistance, getQueueFreshness } from '../services/stationService';
+import { formatTimeAgo, formatPrice, calculateTravelTime, formatDistance, getQueueFreshness, formatTravelTime } from '../services/stationService';
 import FilterBar from './FilterBar';
 import PriceDisplay from './PriceDisplay';
 
@@ -45,7 +45,7 @@ const StationList = ({ stations, onSelect, onViewDetails, selectedStationId, onA
     });
 
     return (
-        <div className="sidebar">
+        <div className="station-list-container" style={{ display: 'flex', flexDirection: 'column', height: '100%', width: '100%' }}>
             {/* ... Header and List sections remain roughly same, only Footer changes ... */}
 
             {/* Header */}
@@ -136,174 +136,210 @@ const StationList = ({ stations, onSelect, onViewDetails, selectedStationId, onA
                     gap: '10px',
                     paddingBottom: '20px'
                 }}>
-                    {sortedStations.map((station, index) => (
-                        <div
-                            key={station.id}
-                            onClick={() => onSelect(station)}
-                            className="glass"
-                            style={{
-                                padding: '10px',
-                                borderRadius: 'var(--radius-md)',
-                                cursor: 'pointer',
-                                transition: 'all 0.2s',
-                                border: selectedStationId === station.id ? '1px solid var(--color-active)' : '1px solid var(--glass-border)',
-                                background: selectedStationId === station.id ? 'rgba(34, 197, 94, 0.05)' : 'var(--glass-panel)',
-                                boxShadow: 'none',
-                                flexShrink: 0,
-                                minHeight: 'fit-content'
-                            }}
-                        >
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '6px' }}>
-                                <h3 style={{ fontWeight: '600', fontSize: '0.95rem', margin: 0 }}>{station.name}</h3>
-                                <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
-                                    <span className={`status-badge status-${station.status}`}>
-                                        {station.status === 'active'
-                                            ? (station.trustLevel === 'uncertain' ? 'Mixing Reports ⚠️' : 'Active')
-                                            : (station.status === 'inactive' ? 'Confirmed Empty ⚪' : 'Inactive')}
-                                    </span>
+                    {sortedStations.length > 0 ? (
+                        sortedStations.map((station, index) => (
+                            <div
+                                key={station.id}
+                                onClick={() => onSelect(station)}
+                                className="glass"
+                                style={{
+                                    padding: '10px',
+                                    borderRadius: 'var(--radius-md)',
+                                    cursor: 'pointer',
+                                    transition: 'all 0.2s',
+                                    border: selectedStationId === station.id ? '1px solid var(--color-active)' : '1px solid var(--glass-border)',
+                                    background: selectedStationId === station.id ? 'rgba(34, 197, 94, 0.05)' : 'var(--glass-panel)',
+                                    boxShadow: 'none',
+                                    flexShrink: 0,
+                                    minHeight: 'fit-content',
+                                    opacity: station.hoursOld > 16 ? 0.6 : station.hoursOld > 4 ? 0.85 : 1
+                                }}
+                            >
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'start', marginBottom: '6px' }}>
+                                    <h3 style={{ fontWeight: '600', fontSize: '0.95rem', margin: 0 }}>{station.name}</h3>
+                                    <div style={{ display: 'flex', gap: '8px', alignItems: 'center', flexWrap: 'wrap' }}>
+                                        <span className={`status-badge status-${station.status}`}>
+                                            {station.status === 'active'
+                                                ? (station.trustLevel === 'mixed-reports' ? 'Mixed Reports ⚠️' : 'Active')
+                                                : (station.status === 'inactive' ? (station.trustLevel === 'confirmed-dry' ? 'Confirmed Dry ⚪' : 'Confirmed Empty ⚪') : 'Inactive')}
+                                        </span>
 
-                                    {/* Queue Status Badge */}
-                                    <span style={{
-                                        padding: '4px 8px',
-                                        borderRadius: '6px',
-                                        fontSize: '0.7rem',
-                                        fontWeight: '600',
-                                        background: !station.queueStatus ? 'rgba(100, 116, 139, 0.1)' :
-                                            station.queueStatus === 'short' ? 'rgba(34, 197, 94, 0.2)' :
-                                                station.queueStatus === 'mild' ? 'rgba(234, 179, 8, 0.2)' :
-                                                    'rgba(239, 68, 68, 0.2)',
-                                        color: !station.queueStatus ? '#94a3b8' :
-                                            station.queueStatus === 'short' ? '#22c55e' :
-                                                station.queueStatus === 'mild' ? '#eab308' :
-                                                    '#ef4444',
-                                        border: `1px solid ${!station.queueStatus ? 'rgba(100, 116, 139, 0.2)' :
-                                            station.queueStatus === 'short' ? 'rgba(34, 197, 94, 0.3)' :
-                                                station.queueStatus === 'mild' ? 'rgba(234, 179, 8, 0.3)' :
-                                                    'rgba(239, 68, 68, 0.3)'}`,
-                                        display: 'inline-flex',
-                                        alignItems: 'center',
-                                        gap: '4px',
-                                        whiteSpace: 'nowrap'
-                                    }}>
-                                        {!station.queueStatus ?
-                                            (station.status === 'active' ? '⚪ Queue: Unknown' : '⚪ No Queue (Empty)') :
-                                            (station.queueStatus === 'short' ? '⚡ Queue: Quick (<15min)' :
-                                                station.queueStatus === 'mild' ? '⏳ Queue: Mild (~30min)' :
-                                                    '🚨 Queue: Long (30min+)')}
-                                    </span>
+                                        {/* Queue Status Badge */}
+                                        <span
+                                            title={!station.queueStatus ? "No current reports on wait times." :
+                                                station.queueStatus === 'short' ? "Movement is fast. Expect to be out in under 15 mins." :
+                                                    station.queueStatus === 'mild' ? "Steady progress. Estimated wait: 15–30 mins." :
+                                                        "Major backlog. Expect a wait of 30+ mins."}
+                                            style={{
+                                                padding: '4px 8px',
+                                                borderRadius: '6px',
+                                                fontSize: '0.7rem',
+                                                fontWeight: '600',
+                                                background: !station.queueStatus ? 'rgba(100, 116, 139, 0.1)' :
+                                                    station.queueStatus === 'short' ? 'rgba(34, 197, 94, 0.2)' :
+                                                        station.queueStatus === 'mild' ? 'rgba(234, 179, 8, 0.2)' :
+                                                            'rgba(239, 68, 68, 0.2)',
+                                                color: !station.queueStatus ? '#94a3b8' :
+                                                    station.queueStatus === 'short' ? '#22c55e' :
+                                                        station.queueStatus === 'mild' ? '#eab308' :
+                                                            '#ef4444',
+                                                border: `1px solid ${!station.queueStatus ? 'rgba(100, 116, 139, 0.2)' :
+                                                    station.queueStatus === 'short' ? 'rgba(34, 197, 94, 0.3)' :
+                                                        station.queueStatus === 'mild' ? 'rgba(234, 179, 8, 0.3)' :
+                                                            'rgba(239, 68, 68, 0.3)'}`,
+                                                display: 'inline-flex',
+                                                alignItems: 'center',
+                                                gap: '4px',
+                                                whiteSpace: 'nowrap',
+                                                cursor: 'help',
+                                                opacity: station.hoursOld > 4 ? 0.7 : 1
+                                            }}
+                                        >
+                                            {!station.queueStatus ?
+                                                (station.status === 'active' ? '⚪ Queue: Unknown' : '⚪ No Queue (Empty)') :
+                                                (station.queueStatus === 'short' ? '⚡ Queue: Quick (<15 mins)' :
+                                                    station.queueStatus === 'mild' ? '⏳ Queue: Steady (~30 mins)' :
+                                                        '🚨 Queue: Long (30+ mins)')}
+                                        </span>
 
-                                    {station.freshnessStatus === 'fresh' && (
-                                        <span style={{
-                                            padding: '4px 8px',
-                                            borderRadius: '6px',
-                                            fontSize: '0.7rem',
-                                            fontWeight: '700',
-                                            background: 'rgba(34, 197, 94, 0.1)',
-                                            color: '#4ade80',
-                                            border: '1px solid rgba(34, 197, 94, 0.2)',
-                                            display: 'inline-flex',
-                                            alignItems: 'center',
-                                            gap: '4px',
-                                            animation: 'pulse-badge 2s infinite'
-                                        }}>
-                                            ✨ FRESH
+                                        {station.freshnessStatus === 'fresh' && (
+                                            <span style={{
+                                                padding: '4px 8px',
+                                                borderRadius: '6px',
+                                                fontSize: '0.7rem',
+                                                fontWeight: '700',
+                                                background: 'rgba(34, 197, 94, 0.1)',
+                                                color: '#4ade80',
+                                                border: '1px solid rgba(34, 197, 94, 0.2)',
+                                                display: 'inline-flex',
+                                                alignItems: 'center',
+                                                gap: '4px',
+                                                animation: 'pulse-badge 2s infinite'
+                                            }}>
+                                                ✨ FRESH
+                                            </span>
+                                        )}
+
+                                        <button
+                                            onClick={(e) => {
+                                                e.stopPropagation();
+                                                onViewDetails(station);
+                                            }}
+                                            style={{
+                                                background: 'rgba(255, 255, 255, 0.1)',
+                                                border: 'none',
+                                                borderRadius: '50%',
+                                                width: '24px',
+                                                height: '24px',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                justifyContent: 'center',
+                                                cursor: 'pointer',
+                                                color: 'white'
+                                            }}
+                                            title="View Details"
+                                        >
+                                            <Info size={14} />
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', opacity: 0.7, fontSize: '0.85rem', marginBottom: '8px', color: station.trustLevel === 'uncertain' ? '#facc15' : 'inherit' }}>
+                                    <MapPin size={14} />
+                                    {station.address}
+                                    {station.distance !== undefined && station.distance !== null && (
+                                        <span style={{ color: 'var(--color-active)', fontWeight: '600' }}>
+                                            • {station.distance.toFixed(1)}km
+                                            <span style={{ fontSize: '0.75rem', opacity: 0.8, marginLeft: '4px', fontWeight: 'normal' }}>
+                                                (~{formatTravelTime(calculateTravelTime(station.distance))})
+                                            </span>
                                         </span>
                                     )}
-
-                                    <button
-                                        onClick={(e) => {
-                                            e.stopPropagation();
-                                            onViewDetails(station);
-                                        }}
-                                        style={{
-                                            background: 'rgba(255, 255, 255, 0.1)',
-                                            border: 'none',
-                                            borderRadius: '50%',
-                                            width: '24px',
-                                            height: '24px',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            justifyContent: 'center',
-                                            cursor: 'pointer',
-                                            color: 'white'
-                                        }}
-                                        title="View Details"
-                                    >
-                                        <Info size={14} />
-                                    </button>
                                 </div>
-                            </div>
 
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '6px', opacity: 0.7, fontSize: '0.85rem', marginBottom: '8px', color: station.trustLevel === 'uncertain' ? '#facc15' : 'inherit' }}>
-                                <MapPin size={14} />
-                                {station.address}
-                                {station.distance !== undefined && station.distance !== null && (
-                                    <span style={{ color: 'var(--color-active)', fontWeight: 'bold' }}>
-                                        • {station.distance.toFixed(1)}km
-                                    </span>
-                                )}
-                            </div>
+                                {/* Trust-Based Summary Microcopy */}
+                                <div style={{
+                                    fontSize: '0.8rem',
+                                    marginBottom: '8px',
+                                    fontWeight: '500',
+                                    color: station.status === 'active' ? '#4ade80' : '#94a3b8',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '6px'
+                                }}>
+                                    {station.status === 'active' && station.trustLevel === 'verified-fresh' && <span>✨ Verified Fresh</span>}
+                                    {station.status === 'active' && station.trustLevel === 'community-sync' && <span>👥 Community Sync</span>}
+                                    {station.status === 'active' && station.trustLevel === 'recently-seen' && <span>👤 Recently Seen</span>}
+                                    {station.status === 'active' && station.trustLevel === 'mixed-reports' && <span>⚠️ Conflicting data. Help verify.</span>}
+                                    {station.status === 'active' && station.trustLevel === 'outdated' && <span>⏳ Eyes Needed</span>}
+                                    {station.status === 'inactive' && station.trustLevel === 'confirmed-dry' && <span>⚪ Confirmed Dry</span>}
+                                    {station.status === 'inactive' && station.trustLevel !== 'confirmed-dry' && <span>⚪ Pumps dry today</span>}
+                                </div>
 
-                            {/* Trust-Based Summary Microcopy */}
-                            <div style={{
-                                fontSize: '0.8rem',
-                                marginBottom: '8px',
-                                fontWeight: '500',
-                                color: station.status === 'active' ? '#4ade80' : '#94a3b8',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '6px'
-                            }}>
-                                {station.status === 'active' && station.trustLevel === 'verified-fresh' && <span>✨ Petrol is moving fast</span>}
-                                {station.status === 'active' && station.trustLevel === 'fresh' && <span>⏳ Last seen available</span>}
-                                {station.status === 'active' && station.trustLevel === 'uncertain' && <span>⚠️ Status unclear, help verify</span>}
-                                {station.status === 'inactive' && <span>⚪ Pumps dry today</span>}
-                            </div>
-
-                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px' }}>
-                                <div style={{ display: 'flex', gap: '6px' }}>
-                                    <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', alignItems: 'center' }}>
-                                        <PriceDisplay
-                                            prices={station.prices}
-                                            lastPriceUpdate={station.lastPriceUpdate}
-                                            compact={true}
-                                        />
-                                    </div>
-
-                                    {station.hasPhoto && (
-                                        <div style={{
-                                            fontSize: '0.75rem', padding: '4px 8px', borderRadius: '6px',
-                                            fontWeight: 'bold',
-                                            boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
-                                            background: 'rgba(59, 130, 246, 0.2)',
-                                            color: '#60a5fa',
-                                            display: 'flex',
-                                            alignItems: 'center',
-                                            gap: '4px'
-                                        }}>
-                                            📸 Verified
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '8px' }}>
+                                    <div style={{ display: 'flex', gap: '6px' }}>
+                                        <div style={{ display: 'flex', gap: '4px', flexWrap: 'wrap', alignItems: 'center' }}>
+                                            <PriceDisplay
+                                                prices={station.prices}
+                                                lastPriceUpdate={station.lastPriceUpdate}
+                                                compact={true}
+                                            />
                                         </div>
-                                    )}
-                                </div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px', opacity: 0.7, fontSize: '0.75rem' }}>
-                                    <Clock size={12} />
-                                    {formatTimeAgo(station.lastUpdated)}
-                                    {station.lastReporter && (
-                                        <span style={{ opacity: 0.6 }}>by {station.lastReporter} {station.trustLevel === 'verified-fresh' && '🛡️'}</span>
-                                    )}
+
+                                        {station.hasPhoto && (
+                                            <div style={{
+                                                fontSize: '0.75rem', padding: '4px 8px', borderRadius: '6px',
+                                                fontWeight: 'bold',
+                                                boxShadow: '0 1px 2px rgba(0,0,0,0.1)',
+                                                background: 'rgba(59, 130, 246, 0.2)',
+                                                color: '#60a5fa',
+                                                display: 'flex',
+                                                alignItems: 'center',
+                                                gap: '4px'
+                                            }}>
+                                                📸 Verified
+                                            </div>
+                                        )}
+                                    </div>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '6px', opacity: 0.7, fontSize: '0.75rem' }}>
+                                        <Clock size={12} />
+                                        {formatTimeAgo(station.lastUpdated)}
+                                        {station.lastReporter && (
+                                            <span style={{ opacity: 0.6 }}>by {station.lastReporter} {station.trustLevel === 'verified-fresh' && '🛡️'}</span>
+                                        )}
+                                    </div>
                                 </div>
                             </div>
-
+                        ))
+                    ) : (
+                        <div style={{
+                            padding: '40px 20px',
+                            textAlign: 'center',
+                            opacity: 0.7,
+                            background: 'rgba(255,255,255,0.02)',
+                            borderRadius: '16px',
+                            border: '1px dashed var(--glass-border)',
+                            marginTop: '20px'
+                        }}>
+                            <div style={{ fontSize: '2rem', marginBottom: '12px' }}>🔍</div>
+                            <h3 style={{ fontSize: '1.2rem', marginBottom: '8px', color: 'white' }}>No stations match your search</h3>
+                            <p style={{ fontSize: '0.9rem', opacity: 0.7, marginBottom: '20px' }}>Try clearing your filters or checking a different area.</p>
+                            <button
+                                onClick={() => onFilterChange({ status: 'all', fuelType: 'all', searchQuery: '', queueLength: 'all' })}
+                                style={{
+                                    padding: '8px 16px',
+                                    borderRadius: '8px',
+                                    background: 'var(--color-active)',
+                                    color: 'black',
+                                    border: 'none',
+                                    fontWeight: 'bold',
+                                    cursor: 'pointer'
+                                }}
+                            >
+                                Clear All Filters
+                            </button>
                         </div>
-
-                    ))}
-                    <div style={{
-                        padding: '40px 20px', textAlign: 'center', opacity: 0.7
-                    }}>
-                        <div style={{ fontSize: '2rem', marginBottom: '12px' }}>🔍</div>
-                        <h3 style={{ fontSize: '1rem', marginBottom: '8px' }}>No eyes on these stations yet</h3>
-                        <p style={{ fontSize: '0.85rem', opacity: 0.7 }}>Are you nearby? Your report helps the whole community.</p>
-                    </div>
+                    )}
                 </div>
             </div>
 

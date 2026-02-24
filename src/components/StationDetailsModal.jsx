@@ -155,11 +155,16 @@ const StationDetailsModal = ({ isOpen, onClose, station, user, onLoginRequest, u
 
                         {/* Status Badges */}
                         <div style={{ display: 'flex', gap: '8px', flexWrap: 'wrap' }}>
-                            <span className={`status-badge status-${station.status}`} style={{
-                                padding: '4px 8px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 'bold'
-                            }}>
+                            <span className={`status-badge status-${station.status}`}
+                                title={station.status === 'active'
+                                    ? "Recent reports confirm pumps are dispensing fuel."
+                                    : "Community members on-site report pumps are dry."}
+                                style={{
+                                    padding: '4px 8px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 'bold', cursor: 'help'
+                                }}
+                            >
                                 {station.status === 'active'
-                                    ? (station.trustLevel === 'uncertain' ? 'Mixing Reports ⚠️' : 'Active')
+                                    ? (station.trustLevel === 'mixed-reports' ? 'Mixed Reports ⚠️' : 'Active')
                                     : 'Inactive'}
                             </span>
                             {station.trustLevel === 'verified-fresh' && (
@@ -168,6 +173,16 @@ const StationDetailsModal = ({ isOpen, onClose, station, user, onLoginRequest, u
                                 </span>
                             )}
                             <span style={{ fontSize: '0.8rem', opacity: 0.6 }}>Updated {formatTimeAgo(station.lastUpdated)}</span>
+                            {station.hoursOld > 8 && (
+                                <span style={{
+                                    fontSize: '0.75rem',
+                                    color: '#facc15',
+                                    fontWeight: '600',
+                                    animation: 'pulse-soft 2s infinite'
+                                }}>
+                                    • Needs Update
+                                </span>
+                            )}
                             {isVerified && (
                                 <span style={{
                                     padding: '4px 10px',
@@ -198,6 +213,28 @@ const StationDetailsModal = ({ isOpen, onClose, station, user, onLoginRequest, u
                                     <AlertTriangle size={12} /> Disputed
                                 </span>
                             )}
+
+                            {/* New Reliability Badge */}
+                            <span style={{
+                                padding: '4px 10px',
+                                borderRadius: '6px',
+                                fontSize: '0.75rem',
+                                background: 'rgba(255, 255, 255, 0.05)',
+                                color: 'rgba(255, 255, 255, 0.8)',
+                                border: '1px solid var(--glass-border)',
+                                fontWeight: '600',
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '4px'
+                            }}>
+                                {station.trustLevel === 'verified-fresh' && <>✨ Verified Fresh</>}
+                                {station.trustLevel === 'community-sync' && <>👥 Community Sync</>}
+                                {station.trustLevel === 'recently-seen' && <>👤 Recently Seen</>}
+                                {station.trustLevel === 'mixed-reports' && <>⚠️ Mixed Reports</>}
+                                {station.trustLevel === 'outdated' && <>⏳ Eyes Needed</>}
+                                {station.trustLevel === 'confirmed-dry' && <>⚪ Confirmed Dry</>}
+                                {station.trustLevel === 'unknown' && <>❓ Status Unclear</>}
+                            </span>
                         </div>
                     </div>
 
@@ -345,8 +382,8 @@ const StationDetailsModal = ({ isOpen, onClose, station, user, onLoginRequest, u
                                     }}
                                 >
                                     <ThumbsUp size={18} />
-                                    <span>{hasConfirmed ? 'Confirmed' : 'Confirm'}</span>
-                                    <span style={{ fontSize: '0.7rem', opacity: 0.7 }}>{confirmCount}</span>
+                                    <span>{hasConfirmed ? 'Confirmed' : 'Verify Availability'}</span>
+                                    <span style={{ fontSize: '0.7rem', opacity: 0.7 }}>{confirmCount} upvotes</span>
                                 </button>
                                 <button
                                     onClick={() => handleVerify('flag')}
@@ -368,8 +405,8 @@ const StationDetailsModal = ({ isOpen, onClose, station, user, onLoginRequest, u
                                     }}
                                 >
                                     <ThumbsDown size={18} />
-                                    <span>{hasFlagged ? 'Flagged' : 'Flag'}</span>
-                                    <span style={{ fontSize: '0.7rem', opacity: 0.7 }}>{flagCount}</span>
+                                    <span>{hasFlagged ? 'Flagged Dry' : 'Report Dry'}</span>
+                                    <span style={{ fontSize: '0.7rem', opacity: 0.7 }}>{flagCount} downvotes</span>
                                 </button>
                             </div>
                         </div>

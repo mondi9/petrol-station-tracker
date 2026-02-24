@@ -617,7 +617,7 @@ graph TB
 **v0.5.0** - Reviews and ratings  
 **v0.6.0** - Admin roles and smart navigation  
 **v0.7.0** - Fleet dashboard and mobile polish  
-**Current** - Photo uploads, verification system, price alerts
+**Current** - AI Price Extraction, Trust UX System, Travel Time Estimates, Global Price Alerts
 
 ### Key Milestones
 
@@ -630,7 +630,11 @@ graph TB
 7. ✅ Price alert system
 8. ✅ Mobile optimization
 9. ✅ PWA deployment
-10. 🔄 Android app (in progress)
+10. ✅ Travel Time Estimates
+11. ✅ Trust UX System
+12. ✅ AI Price Extraction
+13. ✅ Global Price Alerts
+14. 🔄 Android app (Synced via Capacitor)
 
 ---
 
@@ -715,6 +719,6 @@ For issues, feature requests, or contributions, please refer to the project repo
 
 ---
 
-**Last Updated**: February 3, 2026  
-**Version**: 0.7.0+  
-**Status**: Active Development
+**Last Updated**: February 17, 2026  
+**Version**: 0.9.0  
+**Status**: Feature Complete / Optimization Phase

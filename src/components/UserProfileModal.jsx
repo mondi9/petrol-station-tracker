@@ -338,20 +338,31 @@ const UserProfileModal = ({ isOpen, onClose, user, stats = { contributions: 0, r
                                 </button>
                             </div>
 
-                            {/* Badges (Placeholder) */}
-                            <div style={{ width: '100%' }}>
-                                <h4 style={{ fontSize: '0.9rem', color: 'var(--text-secondary)', marginBottom: '12px', textTransform: 'uppercase', letterSpacing: '0.05em' }}>Achievements</h4>
-                                <div style={{ display: 'flex', gap: '12px' }}>
-                                    <div title="Early Adopter" style={{
-                                        padding: '8px', background: 'rgba(255,215,0,0.1)', borderRadius: '8px', border: '1px solid rgba(255,215,0,0.3)',
-                                        color: '#ffd700', display: 'flex', alignItems: 'center', gap: '6px', fontSize: '0.8rem'
-                                    }}>
-                                        <Award size={16} />
-                                        <span>Early Adopter</span>
-                                    </div>
+                            <div style={{ width: '100%', marginTop: 'auto', paddingTop: '20px', borderTop: '1px solid var(--glass-border)' }}>
+                                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', opacity: 0.7, fontSize: '0.75rem' }}>
+                                    <span>FuelPulse v2.1 (Production)</span>
+                                    <button
+                                        onClick={() => setHistoryType('privacy')}
+                                        style={{ background: 'transparent', border: 'none', color: 'var(--color-active)', cursor: 'pointer', fontWeight: 'bold' }}
+                                    >
+                                        Privacy & Legal
+                                    </button>
                                 </div>
                             </div>
                         </>
+                    )}
+
+                    {historyType === 'privacy' && (
+                        <div style={{ width: '100%', fontSize: '0.85rem', color: 'var(--text-secondary)', lineHeight: '1.5' }}>
+                            <h3 style={{ color: 'white', marginBottom: '12px' }}>Privacy Policy</h3>
+                            <p style={{ marginBottom: '12px' }}><strong>Lagos Petrol Pulse</strong> is a community-driven app. We value your privacy.</p>
+                            <p style={{ marginBottom: '12px' }}>📍 <strong>Location:</strong> We use your location to show nearby stations. This data is never sold or shared.</p>
+                            <p style={{ marginBottom: '12px' }}>👥 <strong>Community:</strong> Your reports are shared with other drivers to help everyone save time.</p>
+                            <p style={{ marginBottom: '12px' }}>🔒 <strong>Security:</strong> We use Industry-standard Firebase encryption to protect your account.</p>
+                            <div style={{ marginTop: '20px', padding: '12px', background: 'rgba(255,255,255,0.05)', borderRadius: '8px', fontSize: '0.75rem' }}>
+                                For full legal terms and data deletion requests, visit <strong>fuelpulse.app/legal</strong>
+                            </div>
+                        </div>
                     )}
 
                     {activeTab === 'media' && (

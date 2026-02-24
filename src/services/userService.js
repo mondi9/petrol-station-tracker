@@ -80,3 +80,21 @@ export const grantAdminRole = async (email) => {
         throw error;
     }
 };
+/**
+ * Fetches all user profiles from Firestore.
+ * @returns {Promise<Array>}
+ */
+export const getAllUsers = async () => {
+    try {
+        const usersRef = collection(db, COLLECTION_NAME);
+        const q = query(usersRef, orderBy('createdAt', 'desc'));
+        const querySnapshot = await getDocs(q);
+        return querySnapshot.docs.map(doc => ({
+            id: doc.id,
+            ...doc.data()
+        }));
+    } catch (error) {
+        console.error("Error fetching all users:", error);
+        throw error;
+    }
+};

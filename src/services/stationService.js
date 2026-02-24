@@ -102,6 +102,14 @@ export const subscribeToStations = (onUpdate, onError) => {
                 priceHoursOld
             };
         }).filter(s => {
+            // Filter out unknown stations
+            const isUnknown = s.name === 'Unknown Station' ||
+                s.status === 'unknown' ||
+                !s.address ||
+                s.address === 'Lagos, Nigeria';
+
+            if (isUnknown) return false;
+
             // Strict Filter: Only show stations in Lagos, Nigeria
             // Lat: 6.2 - 6.8, Lng: 2.5 - 4.5
             if (!s.lat || !s.lng) return true; // Keep manual ones without coords or allow editing later
@@ -184,10 +192,26 @@ export const updateStationStatus = async (stationId, reportData, userId = null, 
         device: 'web'
     };
 
+    // 3. Price History for Analytics (write per fuel type if price was reported)
+    const priceHistoryWrites = [];
+    if (reportData.price && reportData.fuelType) {
+        priceHistoryWrites.push(
+            addDoc(collection(db, COLLECTION_NAME, stationId, 'priceHistory'), {
+                timestamp: serverTimestamp(),
+                fuelType: reportData.fuelType,
+                price: reportData.price,
+                stationId,
+                stationName,
+                userId: userId || 'anonymous'
+            })
+        );
+    }
+
     // Perform writes
     await Promise.all([
         updateDoc(stationRef, updatePayload),
-        addDoc(collection(db, COLLECTION_NAME, stationId, 'reports'), historyData)
+        addDoc(collection(db, COLLECTION_NAME, stationId, 'reports'), historyData),
+        ...priceHistoryWrites
     ]);
 
     // Check if any price alerts should trigger
@@ -341,6 +365,45 @@ export const calculateTravelTime = (distanceKm, speedKmH = 30) => {
     if (!distanceKm) return null;
     const hours = distanceKm / speedKmH;
     return Math.ceil(hours * 60);
+};
+
+/**
+ * Calculate the potential savings or loss by driving to a specific station
+ * compared to a reference price (e.g., the average or highest price).
+ * 
+ * @param {number} stationPrice - Price per liter at the target station
+ * @param {number} referencePrice - The baseline price to compare against
+ * @param {number} distanceKm - Distance from depot/start to station
+ * @param {number} tankSizeL - Total liters to purchase
+ * @param {number} fuelConsumption - Fuel consumption in Liters per km (e.g. 0.1 for 10km/L)
+ * @returns {object} { netSavings, travelCost, grossSavings, isProfitable }
+ */
+export const calculateSavings = (stationPrice, referencePrice, distanceKm, tankSizeL = 50, fuelConsumption = 0.15) => {
+    if (!stationPrice || !referencePrice || distanceKm == null) return null;
+
+    // 1. Gross Savings: (RefPrice - StationPrice) * Volume
+    const priceDiff = referencePrice - stationPrice;
+    const grossSavings = priceDiff * tankSizeL;
+
+    // 2. Travel Cost: Distance * FuelConsumption * RefPrice (Cost of fuel burnt to get there)
+    // We assume the fuel burnt effectively costs the reference price (or average market rate)
+    // Note: This is one-way distance. Should it be round trip? 
+    // Usually fleet logistics is A -> Sales -> B, but let's assume simple detailed diversion cost.
+    // Let's use 2x distance for "Round Trip" cost if they have to come back, 
+    // but for Fleet (Depot -> Station -> Route), 1x distance is diversion cost. 
+    // Let's stick to 1x for "Distance from Depot" as the metric.
+    const fuelConsumed = distanceKm * fuelConsumption;
+    const travelCost = fuelConsumed * referencePrice;
+
+    // 3. Net Benefit
+    const netSavings = grossSavings - travelCost;
+
+    return {
+        grossSavings,
+        travelCost,
+        netSavings,
+        isProfitable: netSavings > 0
+    };
 };
 
 // Format travel time into a readable string

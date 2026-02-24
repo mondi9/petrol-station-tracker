@@ -22,6 +22,24 @@ All notable changes to the "FuelPulse" project will be documented in this file.
 - **Removed**: "Wait Time" reporting feature (removed in favor of smart navigation).
 - **Navigation**: Improved "Find Nearest Station" logic.
 
+## [0.9.0] - 2026-02-17
+### Added
+- **Travel Time Estimates**: Integrated OSM-based travel duration for the top 3 nearest stations.
+- **Trust UX System**: Added reliability badges, microcopy for data uncertainty, and report verification UI.
+- **AI Price Extraction**: Mock OCR service to automatically detect fuel prices from uploaded photos.
+- **Global Price Alerts**: Users can now set alerts for "Any Station" within the general vicinity.
+- **Android Sync**: Full synchronization of web code to native Android using Capacitor.
+
+## [0.8.0] - 2026-02-11
+### Changed
+- **Queue Status Refinement**: Renamed "Medium" queue status to "Mild" for better clarity.
+- **Labeling Logic**: Improved status display for "No Queue" and "Unknown" states.
+
+## [0.7.5] - 2026-02-07
+### Added
+- **Smart Price Alerts**: Initial implementation of target price notifications.
+- **Any Station Toggle**: Option to set alerts globally instead of per-station.
+
 ## [Unreleased]
 - Proposed: Gamification, Admin Dashboard UI Polishing.
 

@@ -20,38 +20,47 @@ const FilterBar = ({ filters, onFilterChange }) => {
 
             {/* Status Filter */}
             <div style={{ display: 'flex', gap: '8px' }}>
-                {['all', 'active', 'inactive'].map(status => (
-                    <button
-                        key={status}
-                        onClick={() => onFilterChange({ ...filters, status })}
-                        style={{
-                            flex: 1,
-                            padding: '8px',
-                            borderRadius: '8px',
-                            border: filters.status === status ?
-                                (status === 'active' ? '1px solid rgba(34, 197, 94, 0.5)' :
-                                    status === 'inactive' ? '1px solid rgba(239, 68, 68, 0.5)' :
-                                        '1px solid var(--glass-border)')
-                                : '1px solid transparent',
-                            background: filters.status === status ?
-                                (status === 'active' ? 'rgba(34, 197, 94, 0.1)' :
-                                    status === 'inactive' ? 'rgba(239, 68, 68, 0.1)' :
-                                        'rgba(255,255,255,0.1)')
-                                : 'rgba(0,0,0,0.2)',
-                            color: filters.status === status ?
-                                (status === 'active' ? 'var(--color-active)' :
-                                    status === 'inactive' ? 'var(--color-inactive)' :
-                                        'white')
-                                : 'var(--text-secondary)',
-                            fontSize: '0.75rem',
-                            fontWeight: '600',
-                            cursor: 'pointer',
-                            textTransform: 'capitalize'
-                        }}
-                    >
-                        {status}
-                    </button>
-                ))}
+                {['all', 'active', 'inactive'].map(status => {
+                    const tooltipText = status === 'active'
+                        ? "Recent reports confirm pumps are dispensing fuel."
+                        : status === 'inactive'
+                            ? "Community members on-site report pumps are dry."
+                            : "Show all stations regardless of current status.";
+
+                    return (
+                        <button
+                            key={status}
+                            onClick={() => onFilterChange({ ...filters, status })}
+                            title={tooltipText}
+                            style={{
+                                flex: 1,
+                                padding: '8px',
+                                borderRadius: '8px',
+                                border: filters.status === status ?
+                                    (status === 'active' ? '1px solid rgba(34, 197, 94, 0.5)' :
+                                        status === 'inactive' ? '1px solid rgba(239, 68, 68, 0.5)' :
+                                            '1px solid var(--glass-border)')
+                                    : '1px solid transparent',
+                                background: filters.status === status ?
+                                    (status === 'active' ? 'rgba(34, 197, 94, 0.1)' :
+                                        status === 'inactive' ? 'rgba(239, 68, 68, 0.1)' :
+                                            'rgba(255,255,255,0.1)')
+                                    : 'rgba(0,0,0,0.2)',
+                                color: filters.status === status ?
+                                    (status === 'active' ? 'var(--color-active)' :
+                                        status === 'inactive' ? 'var(--color-inactive)' :
+                                            'white')
+                                    : 'var(--text-secondary)',
+                                fontSize: '0.75rem',
+                                fontWeight: '600',
+                                cursor: 'pointer',
+                                textTransform: 'capitalize'
+                            }}
+                        >
+                            {status}
+                        </button>
+                    );
+                })}
             </div>
 
             {/* Fuel Type Filter */}

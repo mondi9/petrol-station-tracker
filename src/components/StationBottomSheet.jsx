@@ -1,6 +1,7 @@
 import React from 'react';
 import { X, Navigation, Fuel, Clock, MapPin } from 'lucide-react';
 import { formatTimeAgo, formatPrice, calculateTravelTime } from '../services/stationService';
+import { formatDuration } from '../services/trafficService';
 
 const StationBottomSheet = ({ station, onClose, onNavigate }) => {
     if (!station) return null;
@@ -149,6 +150,42 @@ const StationBottomSheet = ({ station, onClose, onNavigate }) => {
                     Waze
                 </button>
             </div>
+
+            {/* Travel Time Breakdown */}
+            {station.distance && (
+                <div style={{
+                    marginTop: '16px',
+                    padding: '12px',
+                    background: 'rgba(255, 255, 255, 0.03)',
+                    borderRadius: '12px',
+                    border: '1px solid var(--glass-border)',
+                }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            <Clock size={14} style={{ opacity: 0.6 }} />
+                            <span style={{ fontSize: '0.85rem', fontWeight: 'bold', color: 'var(--color-active)' }}>Time to Fuel</span>
+                        </div>
+                        <div style={{ fontSize: '1rem', fontWeight: '900' }}>
+                            {(() => {
+                                const driveTime = calculateTravelTime(station.distance);
+                                const queueMins = station.queueStatus === 'short' ? 5 : (station.queueStatus === 'mild' ? 15 : (station.queueStatus === 'long' ? 45 : 0));
+                                return formatDuration(driveTime + queueMins);
+                            })()}
+                        </div>
+                    </div>
+                    <div style={{ display: 'flex', gap: '10px', marginTop: '6px', fontSize: '0.7rem', opacity: 0.6 }}>
+                        <span>🚗 Drive: {formatDuration(calculateTravelTime(station.distance))}</span>
+                        <span>•</span>
+                        <span>⏳ Queue: {station.queueStatus === 'short' ? '5' : (station.queueStatus === 'mild' ? '15' : (station.queueStatus === 'long' ? '45' : '0'))}m</span>
+                    </div>
+
+                    {station.distance > 1000 && (
+                        <div style={{ marginTop: '10px', padding: '8px', background: 'rgba(239, 68, 68, 0.1)', border: '1px solid rgba(239, 68, 68, 0.3)', borderRadius: '8px', fontSize: '0.7rem', color: '#fca5a5', textAlign: 'center' }}>
+                            ⚠️ Result seems high? Check your GPS settings (currently {Math.round(station.distance)}km away).
+                        </div>
+                    )}
+                </div>
+            )}
 
             <style>{`
                 @keyframes slideUp {

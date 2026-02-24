@@ -1,33 +1,54 @@
 # 🚛 Fleet Command: Professional Logistics Tools
 
-The **Fleet Command** dashboard is an enterprise-grade extension of Petrol Pulse designed for high-volume drivers, fleet managers, and logistics companies in Lagos.
-
-## 🎯 Purpose
-While the main application is designed for individual drivers, Fleet Command focuses on **operational efficiency** and **bulk management**. It provides the tools necessary to coordinate multiple vehicles and optimize fuel expenses on a city-wide scale.
-
-## 🛠️ Key Features
-
-### 1. Depot-Based Logistics
-Standard navigation follows the user's current GPS. In Fleet Command, managers can set fixed **Depots** (e.g., *Apapa Port, Ikeja Warehouse, or Lekki Office*).
-- **Proximity Ranking**: The dashboard automatically calculates the exact distance from the Depot to every active station, allowing managers to direct drivers to the most efficient refueling points.
-
-### 2. Fleet Analytics 📊
-The Analytics tab provides high-level business intelligence to help with budgeting and planning:
-- **City-Wide Availability**: A real-time pie chart showing the percentage of the station network that is currently active.
-- **Average Price Index**: Bar charts showing the average cost of Petrol (PMS) and Diesel (AGO) across Lagos, helping managers set realistic daily fuel allowances.
-
-### 3. Dedicated Fuel Filters
-Fleet Command allows for instant filtering by fuel type:
-- **Diesel (AGO) Focus**: Essential for logistics trucks and heavy machinery.
-- **Petrol (PMS) Focus**: For general delivery fleets.
-This view hides inactive stations to keep the manager focused on "viable" fueling options.
-
-### 4. Data Portability (Export) 📥
-Managers can export the current state of Lagos fuel stations into a **CSV file**. 
-- **Use Case**: This data can be imported into accounting software, used for auditing fuel expenses, or sent to drivers as a static "Daily Fuel Sheet."
+**Fleet Command** is an enterprise-grade extension of the Petrol Pulse platform, specifically engineered for high-volume drivers, fleet managers, and logistics companies operating in Lagos. It transforms real-time fuel data into actionable business intelligence.
 
 ---
 
-## 🚀 Future Roadmap for Fleets
-- **Fleet Dispatch**: The ability to "push" a recommended station marker directly to a driver's mobile app.
-- **Expense Logging**: A digital ledger where drivers can log liters bought and attach photos of receipts for instant approval by the manager.
+## 🎯 Proximity & Cost Optimization
+The core value of Fleet Command lies in shifting from "where is the fuel?" to "where is the best ROI for my fleet?".
+
+### 1. Depot-Based Logistics
+Standard navigation follows an individual's GPS. Fleet Command allows managers to register fixed **Depots** (e.g., Apapa Port, Ikeja Warehouse, or Lekki Office).
+- **Proximity Ranking**: The dashboard automatically calculates the exact distance from your Depot to every active station.
+- **Automatic Geocoding**: Simply enter an address; the system automatically resolves the map coordinates for you.
+
+### 2. The Cost Optimizer (Logistics Brain)
+When toggled on, the system analyzes the trade-off between driving distance and fuel price:
+- **Fuel Burnt (Travel Cost)**: Calculates the cost of the fuel burnt just to drive your specific vehicle type to the station.
+- **Net Savings**: Subtracts the "Fuel Burnt" cost from the "Gross Savings" at the pump.
+- **ROI Recommendation**: Highlights the station with the best financial return, which might not always be the cheapest one if it’s too far away.
+
+---
+
+## 🛠️ Operational Tools
+
+### 3. Digital Driver Dispatch
+Bridge the gap between the office and the road.
+- **One-Click Dispatch**: Select a station and click "Dispatch" to generate a professional assignment.
+- **WhatsApp Integration**: Sends a pre-formatted message to the driver containing the address, current prices, queue status, and a direct Google Maps navigation link.
+
+### 4. Unified Fuel Ledger (Expense Tracking)
+Eliminate paper receipts and manual spreadsheets with a digital audit trail.
+- **Log Fill-Ups**: Drivers or managers log liters bought, price per liter, vehicle ID, and driver name.
+- **Financial Summary**: Automatically calculates monthly spend, average price paid per liter, and total fuel volume consumed across the network.
+- **Fraud Prevention**: Maintains a permanent record of all fueling transactions for easy auditing.
+
+### 5. Fleet Analytics 📊
+High-level intelligence for city-wide budgeting.
+- **Price Trend Index**: A 30-day view showing if fuel costs are rising or falling in Lagos, helping you time your bulk purchases.
+- **Network Stats**: Real-time distribution of station availability (Active vs. Inactive).
+- **Price Spread**: Visualizes the gap between the highest and lowest prices in the city, showing your potential savings opportunity.
+
+---
+
+## 📥 Data & Portability
+
+- **CSV Export**: Instantly download the current state of Lagos fuel stations into a spreadsheet for use in accounting software, third-party logistics planning, or "Daily Fuel Sheets."
+- **Dedicated Fuel Filters**: Instant filtering for **Diesel (AGO)** or **Petrol (PMS)** to remove irrelevant data for heavy machinery operations.
+
+---
+
+## 🚀 Roadmap
+- **Fleet Push**: Mobile push notifications for drivers.
+- **Receipt AI**: Automatic extraction of liters/price from photos of receipts.
+- **Bulk Fueling contracts**: Managing company-wide pre-paid fueling accounts.
