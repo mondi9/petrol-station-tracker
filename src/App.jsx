@@ -321,7 +321,17 @@ function App() {
     setIsLocating(true);
     navigator.geolocation.getCurrentPosition(
       (position) => {
-        const { latitude, longitude } = position.coords;
+        let { latitude, longitude } = position.coords;
+
+        // EMULATOR FALLBACK: If we detect the default Google HQ location (California), 
+        // redirect to Lagos for better testing experience.
+        const isGoogleHQ = Math.abs(latitude - 37.422) < 0.01 && Math.abs(longitude - (-122.084)) < 0.01;
+        if (isGoogleHQ) {
+          console.warn("📍 Emulator detected in California. Teleporting to Lagos NNPC Mega Station...");
+          latitude = 6.4323;
+          longitude = 3.4682;
+        }
+
         setUserLocation({ lat: latitude, lng: longitude });
         setIsLocating(false);
 
@@ -505,7 +515,7 @@ function App() {
       <ErrorBoundary>
         <div className="app-container">
           {/* Location Rationale Helper */}
-          {(!userLocation || isLocating) && (
+          {(!userLocation || isLocating) && !filters.searchQuery && !selectedStation && (
             <div style={{
               position: 'fixed',
               top: '80px',
