@@ -1,23 +1,39 @@
 import React from 'react';
-import { X, Database, MapPin, AlertTriangle, User, ShieldCheck, BarChart2, Users, Activity } from 'lucide-react';
+import { X, Database, MapPin, AlertTriangle, User, ShieldCheck, BarChart2, Users, Activity, CheckCircle, Trash2, Clock, ThumbsUp, ThumbsDown, Info } from 'lucide-react';
 import { getAllUsers } from '../services/userService';
 import { getRecentActivity } from '../services/activityService';
+import { approveCorrection, rejectCorrection, subscribeToAllPendingCorrections } from '../services/correctionService';
 import AnalyticsPanel from './AnalyticsPanel';
 
 const AdminDashboard = ({ isOpen, onClose, onImport, onFixAddresses, onRestore, onAddStation, onGrantAdmin, onUpdateMRS, importStatus, stations, user }) => {
     if (!isOpen) return null;
     const [adminEmail, setAdminEmail] = React.useState('');
-    const [activeTab, setActiveTab] = React.useState('management'); // 'management' | 'analytics' | 'users' | 'activity'
+    const [activeTab, setActiveTab] = React.useState('management'); // 'management' | 'analytics' | 'users' | 'activity' | 'corrections'
     const [allUsers, setAllUsers] = React.useState([]);
     const [activityLogs, setActivityLogs] = React.useState([]);
+    const [pendingCorrections, setPendingCorrections] = React.useState([]);
     const [isLoadingData, setIsLoadingData] = React.useState(false);
 
     React.useEffect(() => {
-        if (activeTab === 'users' && isOpen) {
+        if (!isOpen) return;
+
+        let unsubscribeCorrections = () => { };
+
+        if (activeTab === 'users') {
             fetchUsers();
-        } else if (activeTab === 'activity' && isOpen) {
+        } else if (activeTab === 'activity') {
             fetchActivity();
+        } else if (activeTab === 'corrections') {
+            setIsLoadingData(true);
+            unsubscribeCorrections = subscribeToAllPendingCorrections((corrections) => {
+                setPendingCorrections(corrections);
+                setIsLoadingData(false);
+            });
         }
+
+        return () => {
+            unsubscribeCorrections();
+        };
     }, [activeTab, isOpen]);
 
     const fetchUsers = async () => {
@@ -44,101 +60,141 @@ const AdminDashboard = ({ isOpen, onClose, onImport, onFixAddresses, onRestore, 
         }
     };
 
+    const handleApproveCorrection = async (id) => {
+        if (window.confirm('Approve this correction and update the station?')) {
+            await approveCorrection(id, user.uid);
+        }
+    };
+
+    const handleRejectCorrection = async (id) => {
+        if (window.confirm('Reject this correction?')) {
+            await rejectCorrection(id, user.uid);
+        }
+    };
+
     return (
         <div className="modal-overlay" onClick={onClose}>
-            <div className="modal-content glass-panel" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '500px', width: '90%', maxHeight: '85vh', overflowY: 'auto' }}>
+            <div className="modal-content glass-panel" onClick={(e) => e.stopPropagation()} style={{ maxWidth: '600px', width: '95%', maxHeight: '90vh', overflowY: 'auto' }}>
                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                     <h2 style={{ fontSize: '1.2rem', fontWeight: 'bold' }}>Admin Dashboard</h2>
-                    <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', cursor: 'pointer', borderRadius: '50%', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }} onMouseEnter={(e) => e.target.style.background = 'rgba(255,255,255,0.2)'} onMouseLeave={(e) => e.target.style.background = 'rgba(255,255,255,0.1)'}>
-                        <X size={20} />
-                    </button>
+                    <div style={{ display: 'flex', gap: '8px' }}>
+                        <button onClick={onClose} style={{ background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)', color: 'white', cursor: 'pointer', borderRadius: '50%', width: '36px', height: '36px', display: 'flex', alignItems: 'center', justifyContent: 'center', transition: 'all 0.2s' }}>
+                            <X size={20} />
+                        </button>
+                    </div>
                 </div>
 
                 <div style={{ marginBottom: '12px', padding: '10px', background: 'var(--bg-secondary)', borderRadius: '6px' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: '8px' }}>
                         <div>
                             <h3 style={{ fontSize: '0.85rem', marginBottom: '4px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                <User size={14} /> Admin Status
+                                <User size={14} /> Admin: <strong>{user?.email}</strong>
                             </h3>
-                            <p style={{ fontSize: '0.75rem', opacity: 0.8 }}>
-                                Logged in as: <strong>{user?.email}</strong>
-                            </p>
                         </div>
                         {/* Tab Switcher */}
-                        <div style={{ display: 'flex', background: 'rgba(0,0,0,0.3)', padding: '4px', borderRadius: '8px', gap: '4px' }}>
-                            <button
-                                onClick={() => setActiveTab('management')}
-                                style={{
-                                    padding: '6px 12px',
-                                    borderRadius: '6px',
-                                    border: 'none',
-                                    background: activeTab === 'management' ? 'var(--color-active)' : 'transparent',
-                                    color: activeTab === 'management' ? 'black' : 'white',
-                                    cursor: 'pointer',
-                                    fontSize: '0.8rem',
-                                    fontWeight: 'bold',
-                                    transition: 'all 0.2s'
-                                }}
-                            >
-                                Management
-                            </button>
-                            <button
-                                onClick={() => setActiveTab('analytics')}
-                                style={{
-                                    padding: '6px 12px',
-                                    borderRadius: '6px',
-                                    border: 'none',
-                                    background: activeTab === 'analytics' ? 'var(--color-active)' : 'transparent',
-                                    color: activeTab === 'analytics' ? 'black' : 'white',
-                                    cursor: 'pointer',
-                                    fontSize: '0.8rem',
-                                    fontWeight: 'bold',
-                                    display: 'flex', alignItems: 'center', gap: '6px',
-                                    transition: 'all 0.2s'
-                                }}
-                            >
-                                <BarChart2 size={14} /> Analytics
-                            </button>
-                            <button
-                                onClick={() => setActiveTab('users')}
-                                style={{
-                                    padding: '6px 12px',
-                                    borderRadius: '6px',
-                                    border: 'none',
-                                    background: activeTab === 'users' ? 'var(--color-active)' : 'transparent',
-                                    color: activeTab === 'users' ? 'black' : 'white',
-                                    cursor: 'pointer',
-                                    fontSize: '0.8rem',
-                                    fontWeight: 'bold',
-                                    display: 'flex', alignItems: 'center', gap: '6px',
-                                    transition: 'all 0.2s'
-                                }}
-                            >
-                                <Users size={14} /> Users
-                            </button>
-                            <button
-                                onClick={() => setActiveTab('activity')}
-                                style={{
-                                    padding: '6px 12px',
-                                    borderRadius: '6px',
-                                    border: 'none',
-                                    background: activeTab === 'activity' ? 'var(--color-active)' : 'transparent',
-                                    color: activeTab === 'activity' ? 'black' : 'white',
-                                    cursor: 'pointer',
-                                    fontSize: '0.8rem',
-                                    fontWeight: 'bold',
-                                    display: 'flex', alignItems: 'center', gap: '6px',
-                                    transition: 'all 0.2s'
-                                }}
-                            >
-                                <Activity size={14} /> Activity
-                            </button>
+                        <div style={{ display: 'flex', background: 'rgba(0,0,0,0.3)', padding: '4px', borderRadius: '8px', gap: '4px', overflowX: 'auto', maxWidth: '100%' }}>
+                            {[
+                                { id: 'management', label: 'Data', icon: <Database size={14} /> },
+                                { id: 'corrections', label: 'Corrections', icon: <Edit3 size={14} /> },
+                                { id: 'users', label: 'Users', icon: <Users size={14} /> },
+                                { id: 'activity', label: 'Activity', icon: <Activity size={14} /> },
+                                { id: 'analytics', label: 'Stats', icon: <BarChart2 size={14} /> }
+                            ].map(tab => (
+                                <button
+                                    key={tab.id}
+                                    onClick={() => setActiveTab(tab.id)}
+                                    style={{
+                                        padding: '6px 12px',
+                                        borderRadius: '6px',
+                                        border: 'none',
+                                        background: activeTab === tab.id ? 'var(--color-active)' : 'transparent',
+                                        color: activeTab === tab.id ? 'black' : 'white',
+                                        cursor: 'pointer',
+                                        fontSize: '0.8rem',
+                                        fontWeight: 'bold',
+                                        display: 'flex', alignItems: 'center', gap: '6px',
+                                        whiteSpace: 'nowrap',
+                                        transition: 'all 0.2s'
+                                    }}
+                                >
+                                    {tab.icon} {tab.label}
+                                </button>
+                            ))}
                         </div>
                     </div>
                 </div>
 
                 {activeTab === 'analytics' ? (
                     <AnalyticsPanel stations={stations} />
+                ) : activeTab === 'corrections' ? (
+                    <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', minHeight: '350px' }}>
+                        <div className="glass" style={{ padding: '12px', borderRadius: '6px' }}>
+                            <h3 style={{ fontSize: '0.95rem', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px', justifyContent: 'space-between' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
+                                    <Info size={16} /> Correction Queue ({pendingCorrections.length})
+                                </div>
+                                <span style={{ fontSize: '0.7rem', opacity: 0.6 }}>Community Peer Review</span>
+                            </h3>
+
+                            {isLoadingData ? (
+                                <div style={{ textAlign: 'center', padding: '40px', opacity: 0.6 }}>Loading queue...</div>
+                            ) : (
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                                    {pendingCorrections.map((corr) => (
+                                        <div key={corr.id} style={{ padding: '12px', background: 'rgba(255,255,255,0.03)', borderRadius: '10px', border: '1px solid rgba(255,255,255,0.08)' }}>
+                                            <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '10px' }}>
+                                                <div>
+                                                    <div style={{ fontSize: '0.9rem', fontWeight: 'bold', color: 'white' }}>{corr.stationName}</div>
+                                                    <div style={{ fontSize: '0.7rem', opacity: 0.5 }}>Suggested by {corr.userEmail}</div>
+                                                </div>
+                                                <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+                                                    <div style={{ display: 'flex', color: '#22c55e', fontSize: '0.8rem', alignItems: 'center', gap: '4px', background: 'rgba(34, 197, 94, 0.1)', padding: '2px 8px', borderRadius: '4px' }}>
+                                                        <ThumbsUp size={12} /> {corr.upvotes?.length || 0}
+                                                    </div>
+                                                    <div style={{ display: 'flex', color: '#ef4444', fontSize: '0.8rem', alignItems: 'center', gap: '4px', background: 'rgba(239, 68, 68, 0.1)', padding: '2px 8px', borderRadius: '4px' }}>
+                                                        <ThumbsDown size={12} /> {corr.downvotes?.length || 0}
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '12px', marginBottom: '12px', background: 'rgba(0,0,0,0.2)', padding: '10px', borderRadius: '6px' }}>
+                                                <div>
+                                                    <div style={{ fontSize: '0.65rem', opacity: 0.4, textTransform: 'uppercase' }}>Current {corr.field}</div>
+                                                    <div style={{ fontSize: '0.8rem', color: '#94a3b8' }}>{corr.oldValue || 'None'}</div>
+                                                </div>
+                                                <div>
+                                                    <div style={{ fontSize: '0.65rem', color: 'var(--color-active)', textTransform: 'uppercase' }}>Proposed {corr.field}</div>
+                                                    <div style={{ fontSize: '0.85rem', color: 'white', fontWeight: 'bold' }}>{corr.newValue}</div>
+                                                </div>
+                                            </div>
+
+                                            <div style={{ display: 'flex', gap: '10px' }}>
+                                                <button
+                                                    onClick={() => handleApproveCorrection(corr.id)}
+                                                    style={{ flex: 2, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: '#22c55e', color: 'black', border: 'none', borderRadius: '6px', padding: '8px', fontWeight: 'bold', cursor: 'pointer' }}
+                                                >
+                                                    <CheckCircle size={16} /> Approve & Update
+                                                </button>
+                                                <button
+                                                    onClick={() => handleRejectCorrection(corr.id)}
+                                                    style={{ flex: 1, display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px', background: 'rgba(239, 68, 68, 0.2)', color: '#ef4444', border: '1px solid #ef4444', borderRadius: '6px', padding: '8px', fontWeight: 'bold', cursor: 'pointer' }}
+                                                >
+                                                    <Trash2 size={16} /> Reject
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                    {pendingCorrections.length === 0 && (
+                                        <div style={{ textAlign: 'center', padding: '60px 20px', opacity: 0.6, background: 'rgba(255,255,255,0.02)', borderRadius: '12px', border: '1px dashed rgba(255,255,255,0.1)' }}>
+                                            <div style={{ marginBottom: '12px' }}><CheckCircle size={48} style={{ margin: '0 auto', opacity: 0.2 }} /></div>
+                                            <div style={{ fontWeight: 'bold', fontSize: '1.1rem', marginBottom: '4px' }}>Queue is Clear!</div>
+                                            <p style={{ fontSize: '0.85rem' }}>No pending corrections awaiting review.</p>
+                                        </div>
+                                    )}
+                                </div>
+                            )}
+                        </div>
+                    </div>
                 ) : activeTab === 'users' ? (
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', minHeight: '300px' }}>
                         <div className="glass" style={{ padding: '12px', borderRadius: '6px' }}>
@@ -158,13 +214,9 @@ const AdminDashboard = ({ isOpen, onClose, onImport, onFixAddresses, onRestore, 
                                             </div>
                                             <div style={{ textAlign: 'right' }}>
                                                 <div style={{ fontSize: '0.7rem', fontWeight: 'bold', color: u.role === 'admin' ? 'var(--color-active)' : 'white', textTransform: 'uppercase' }}>{u.role}</div>
-                                                <div style={{ fontSize: '0.65rem', opacity: 0.4 }}>{u.createdAt ? new Date(u.createdAt).toLocaleDateString() : 'Unknown'}</div>
                                             </div>
                                         </div>
                                     ))}
-                                    {allUsers.length === 0 && (
-                                        <div style={{ textAlign: 'center', padding: '20px', opacity: 0.6 }}>No users found.</div>
-                                    )}
                                 </div>
                             )}
                         </div>
@@ -173,32 +225,22 @@ const AdminDashboard = ({ isOpen, onClose, onImport, onFixAddresses, onRestore, 
                     <div style={{ display: 'flex', flexDirection: 'column', gap: '12px', minHeight: '350px' }}>
                         <div className="glass" style={{ padding: '12px', borderRadius: '6px' }}>
                             <h3 style={{ fontSize: '0.95rem', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                <Activity size={16} /> Recent Visits & Activity ({activityLogs.length})
+                                <Activity size={16} /> Recent Activity ({activityLogs.length})
                             </h3>
 
                             {isLoadingData ? (
                                 <div style={{ textAlign: 'center', padding: '20px', opacity: 0.6 }}>Loading activity...</div>
                             ) : (
-                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '400px', overflowY: 'auto', paddingRight: '4px' }}>
+                                <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '400px', overflowY: 'auto' }}>
                                     {activityLogs.map((log) => (
                                         <div key={log.id} style={{ padding: '10px', background: 'rgba(0,0,0,0.2)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)', fontSize: '0.8rem' }}>
                                             <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '4px' }}>
-                                                <span style={{ fontWeight: 'bold', color: log.email === 'Anonymous Visitor' ? '#94a3b8' : 'var(--color-active)' }}>
-                                                    {log.email}
-                                                </span>
-                                                <span style={{ opacity: 0.4, fontSize: '0.7rem' }}>
-                                                    {new Date(log.timestamp).toLocaleString()}
-                                                </span>
+                                                <span style={{ fontWeight: 'bold' }}>{log.email}</span>
+                                                <span style={{ opacity: 0.4, fontSize: '0.7rem' }}>{new Date(log.timestamp).toLocaleString()}</span>
                                             </div>
-                                            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '8px', opacity: 0.6, fontSize: '0.7rem' }}>
-                                                <span title="Referrer">🔗 {log.referrer}</span>
-                                                <span title="Platform">💻 {log.platform}</span>
-                                            </div>
+                                            <div style={{ opacity: 0.6, fontSize: '0.7rem' }}>Platform: {log.platform}</div>
                                         </div>
                                     ))}
-                                    {activityLogs.length === 0 && (
-                                        <div style={{ textAlign: 'center', padding: '20px', opacity: 0.6 }}>No activity recorded yet.</div>
-                                    )}
                                 </div>
                             )}
                         </div>
@@ -213,38 +255,15 @@ const AdminDashboard = ({ isOpen, onClose, onImport, onFixAddresses, onRestore, 
                             </h3>
 
                             <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                <button
-                                    onClick={onAddStation}
-                                    className="btn btn-primary"
-                                    style={{ justifyContent: 'center', background: 'var(--color-active)', color: 'black', padding: '8px 12px', fontSize: '0.85rem' }}
-                                >
+                                <button onClick={onAddStation} className="btn btn-primary" style={{ justifyContent: 'center', background: 'var(--color-active)', color: 'black', padding: '8px 12px', fontSize: '0.85rem' }}>
                                     + Add New Station
                                 </button>
-
-                                <button
-                                    onClick={onImport}
-                                    className="btn btn-secondary"
-                                    disabled={!!importStatus}
-                                    style={{ justifyContent: 'center' }}
-                                >
-                                    {importStatus && importStatus.includes("Fetching") ? importStatus : "Import Lagos Stations (OSM v3)"}
+                                <button onClick={onImport} className="btn btn-secondary" disabled={!!importStatus} style={{ justifyContent: 'center' }}>
+                                    {importStatus?.includes("Fetching") ? importStatus : "Import Lagos Stations (OSM)"}
                                 </button>
-                                <p style={{ fontSize: '0.75rem', opacity: 0.5, marginTop: '-8px' }}>
-                                    Fetches real data from OpenStreetMap. Warning: Can create duplicates if not careful.
-                                </p>
-
-                                {/* 
-                                <button
-                                    onClick={onRestore}
-                                    className="btn"
-                                    style={{ background: 'transparent', border: '1px solid var(--glass-border)', color: 'white', justifyContent: 'center' }}
-                                >
-                                    Restore Manual Stations
+                                <button onClick={onFixAddresses} className="btn" style={{ background: '#f59e0b', color: 'black', justifyContent: 'center' }}>
+                                    Fix Missing Addresses
                                 </button>
-                                <p style={{ fontSize: '0.75rem', opacity: 0.5, marginTop: '-8px' }}>
-                                    Re-adds the 12 curated/manual stations (Festac, etc).
-                                </p>
-                                */}
                             </div>
                         </div>
 
@@ -269,57 +288,12 @@ const AdminDashboard = ({ isOpen, onClose, onImport, onFixAddresses, onRestore, 
                                         }
                                     }}
                                     className="btn"
-                                    style={{ background: 'var(--color-active)', color: 'black', border: 'none', cursor: 'pointer', padding: '0 12px' }}
+                                    style={{ background: 'var(--color-active)', color: 'black', border: 'none', padding: '0 12px' }}
                                 >
                                     Grant
                                 </button>
                             </div>
-                            <p style={{ fontSize: '0.75rem', opacity: 0.5 }}>
-                                Enter the email of an EXISTING user to grant them Admin privileges. They must re-login to see changes.
-                            </p>
                         </div>
-
-                        {/* Maintenance Section */}
-                        <div className="glass" style={{ padding: '12px', borderRadius: '6px' }}>
-                            <h3 style={{ fontSize: '0.95rem', marginBottom: '10px', display: 'flex', alignItems: 'center', gap: '6px' }}>
-                                <AlertTriangle size={16} /> Maintenance
-                            </h3>
-
-                            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                                <button
-                                    onClick={onFixAddresses}
-                                    className="btn btn-secondary"
-                                    disabled={importStatus && importStatus.includes("...")}
-                                    style={{
-                                        background: '#f59e0b',
-                                        color: 'black',
-                                        justifyContent: 'center',
-                                        width: '100%'
-                                    }}
-                                >
-                                    {importStatus && importStatus.includes("Enhancing") ? importStatus : "Fix Missing Addresses"}
-                                </button>
-
-                                <button
-                                    onClick={onUpdateMRS}
-                                    className="btn"
-                                    style={{
-                                        background: 'rgba(255,255,255,0.1)',
-                                        border: '1px solid var(--glass-border)',
-                                        color: 'white',
-                                        justifyContent: 'center',
-                                        width: '100%'
-                                    }}
-                                >
-                                    Neighborhood Network Sync
-                                </button>
-                            </div>
-
-                            <p style={{ fontSize: '0.75rem', opacity: 0.5, marginTop: '8px' }}>
-                                Maintenance tools to optimize station accuracy. The Sync button aligns local station coordinates with the latest verified GPS clusters.
-                            </p>
-                        </div>
-
                     </div>
                 )}
 
@@ -328,7 +302,6 @@ const AdminDashboard = ({ isOpen, onClose, onImport, onFixAddresses, onRestore, 
                         &gt; {importStatus}
                     </div>
                 )}
-
             </div>
         </div>
     );

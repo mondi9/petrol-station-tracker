@@ -1,31 +1,39 @@
 import React, { useState, useEffect } from 'react';
-import { X, MapPin, Clock, Navigation, Star, TrendingUp, Bell, Camera, ShieldCheck, Maximize2 } from 'lucide-react';
+import { X, MapPin, Clock, Navigation, Star, TrendingUp, Bell, Camera, ShieldCheck, CheckCircle, AlertTriangle, ThumbsUp, ThumbsDown, Edit3, Info } from 'lucide-react';
 import ReviewList from './ReviewList';
 import AddReviewModal from './AddReviewModal';
 import PriceDisplay from './PriceDisplay';
 import PriceAlertModal from './PriceAlertModal';
+import AddCorrectionModal from './AddCorrectionModal';
 import { addReview } from '../services/reviewService';
 import { formatTimeAgo, calculateTravelTime, verifyStation, verifyPrice, subscribeToStationPhotos } from '../services/stationService';
-import { CheckCircle, AlertTriangle, ThumbsUp, ThumbsDown } from 'lucide-react';
+import { submitCorrection, voteCorrection, subscribeToStationCorrections } from '../services/correctionService';
 
 const StationDetailsModal = ({ isOpen, onClose, station, user, onLoginRequest, userLocation, onNavigate }) => {
     const [isReviewOpen, setIsReviewOpen] = useState(false);
     const [isAlertOpen, setIsAlertOpen] = useState(false);
+    const [isCorrectionOpen, setIsCorrectionOpen] = useState(false);
     const [photos, setPhotos] = useState([]);
+    const [corrections, setCorrections] = useState([]);
     const [selectedPhoto, setSelectedPhoto] = useState(null);
 
     useEffect(() => {
         if (isOpen && station?.id) {
-            const unsubscribe = subscribeToStationPhotos(station.id, (newPhotos) => {
+            const unsubscribePhotos = subscribeToStationPhotos(station.id, (newPhotos) => {
                 setPhotos(newPhotos);
             });
-            return () => unsubscribe();
+            const unsubscribeCorrections = subscribeToStationCorrections(station.id, (newCorrections) => {
+                setCorrections(newCorrections);
+            });
+            return () => {
+                unsubscribePhotos();
+                unsubscribeCorrections();
+            };
         }
     }, [isOpen, station?.id]);
 
     if (!isOpen) return null;
 
-    // Safety check for empty station object
     if (!station) {
         return (
             <div style={{
@@ -59,6 +67,18 @@ const StationDetailsModal = ({ isOpen, onClose, station, user, onLoginRequest, u
             return;
         }
         await verifyPrice(station.id, fuelType, user.uid);
+    };
+
+    const handleSubmitCorrection = async (data) => {
+        await submitCorrection(station.id, station.name, data, user);
+    };
+
+    const handleVoteCorrection = async (correctionId, type) => {
+        if (!user) {
+            onLoginRequest();
+            return;
+        }
+        await voteCorrection(correctionId, user.uid, type);
     };
 
     const confirmCount = station.confirmations?.length || 0;
@@ -118,7 +138,7 @@ const StationDetailsModal = ({ isOpen, onClose, station, user, onLoginRequest, u
                                 )}
                                 {station.lastComment && (
                                     <div style={{
-                                        marginBottom: '16px',
+                                        marginTop: '16px',
                                         padding: '12px',
                                         background: 'rgba(255, 255, 255, 0.05)',
                                         borderRadius: '8px',
@@ -160,7 +180,7 @@ const StationDetailsModal = ({ isOpen, onClose, station, user, onLoginRequest, u
                                     ? "Recent reports confirm pumps are dispensing fuel."
                                     : "Community members on-site report pumps are dry."}
                                 style={{
-                                    padding: '4px 8px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 'bold', cursor: 'help'
+                                    padding: '4px 8px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 'bold'
                                 }}
                             >
                                 {station.status === 'active'
@@ -172,17 +192,7 @@ const StationDetailsModal = ({ isOpen, onClose, station, user, onLoginRequest, u
                                     ✨ Verified Fresh
                                 </span>
                             )}
-                            <span style={{ fontSize: '0.8rem', opacity: 0.6 }}>Updated {formatTimeAgo(station.lastUpdated)}</span>
-                            {station.hoursOld > 8 && (
-                                <span style={{
-                                    fontSize: '0.75rem',
-                                    color: '#facc15',
-                                    fontWeight: '600',
-                                    animation: 'pulse-soft 2s infinite'
-                                }}>
-                                    • Needs Update
-                                </span>
-                            )}
+                            <span style={{ fontSize: '0.8rem', opacity: 0.6, color: 'white' }}>Updated {formatTimeAgo(station.lastUpdated)}</span>
                             {isVerified && (
                                 <span style={{
                                     padding: '4px 10px',
@@ -213,36 +223,85 @@ const StationDetailsModal = ({ isOpen, onClose, station, user, onLoginRequest, u
                                     <AlertTriangle size={12} /> Disputed
                                 </span>
                             )}
-
-                            {/* New Reliability Badge */}
-                            <span style={{
-                                padding: '4px 10px',
-                                borderRadius: '6px',
-                                fontSize: '0.75rem',
-                                background: 'rgba(255, 255, 255, 0.05)',
-                                color: 'rgba(255, 255, 255, 0.8)',
-                                border: '1px solid var(--glass-border)',
-                                fontWeight: '600',
-                                display: 'flex',
-                                alignItems: 'center',
-                                gap: '4px'
-                            }}>
-                                {station.trustLevel === 'verified-fresh' && <>✨ Verified Fresh</>}
-                                {station.trustLevel === 'community-sync' && <>👥 Community Sync</>}
-                                {station.trustLevel === 'recently-seen' && <>👤 Recently Seen</>}
-                                {station.trustLevel === 'mixed-reports' && <>⚠️ Mixed Reports</>}
-                                {station.trustLevel === 'outdated' && <>⏳ Eyes Needed</>}
-                                {station.trustLevel === 'confirmed-dry' && <>⚪ Confirmed Dry</>}
-                                {station.trustLevel === 'unknown' && <>❓ Status Unclear</>}
-                            </span>
                         </div>
                     </div>
+
+                    {/* Pending Corrections Alert */}
+                    {corrections.length > 0 && (
+                        <div style={{
+                            margin: '16px 20px 0',
+                            padding: '12px 16px',
+                            background: 'rgba(59, 130, 246, 0.1)',
+                            border: '1px solid rgba(59, 130, 246, 0.2)',
+                            borderRadius: '12px',
+                            display: 'flex',
+                            flexDirection: 'column',
+                            gap: '10px'
+                        }}>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#60a5fa', fontSize: '0.85rem', fontWeight: 'bold' }}>
+                                <Info size={16} />
+                                <span>Pending Community Corrections ({corrections.length})</span>
+                            </div>
+                            {corrections.map(corr => (
+                                <div key={corr.id} style={{
+                                    padding: '10px',
+                                    background: 'rgba(255,255,255,0.03)',
+                                    borderRadius: '8px',
+                                    border: '1px solid rgba(255,255,255,0.05)',
+                                    display: 'flex',
+                                    justifyContent: 'space-between',
+                                    alignItems: 'center'
+                                }}>
+                                    <div style={{ flex: 1 }}>
+                                        <div style={{ fontSize: '0.75rem', opacity: 0.6, textTransform: 'uppercase', color: '#94a3b8' }}>
+                                            Suggested {corr.field}
+                                        </div>
+                                        <div style={{ fontSize: '0.9rem', color: 'white', fontWeight: '500' }}>
+                                            {corr.newValue}
+                                        </div>
+                                    </div>
+                                    <div style={{ display: 'flex', gap: '8px' }}>
+                                        <button
+                                            onClick={() => handleVoteCorrection(corr.id, 'up')}
+                                            style={{
+                                                background: corr.upvotes?.includes(user?.uid) ? 'rgba(34, 197, 94, 0.2)' : 'rgba(255,255,255,0.05)',
+                                                border: '1px solid var(--glass-border)',
+                                                borderRadius: '6px',
+                                                padding: '4px 8px',
+                                                color: corr.upvotes?.includes(user?.uid) ? '#22c55e' : 'white',
+                                                cursor: 'pointer',
+                                                display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem'
+                                            }}
+                                        >
+                                            <ThumbsUp size={14} />
+                                            {corr.upvotes?.length || 0}
+                                        </button>
+                                        <button
+                                            onClick={() => handleVoteCorrection(corr.id, 'down')}
+                                            style={{
+                                                background: corr.downvotes?.includes(user?.uid) ? 'rgba(239, 68, 68, 0.2)' : 'rgba(255,255,255,0.05)',
+                                                border: '1px solid var(--glass-border)',
+                                                borderRadius: '6px',
+                                                padding: '4px 8px',
+                                                color: corr.downvotes?.includes(user?.uid) ? '#ef4444' : 'white',
+                                                cursor: 'pointer',
+                                                display: 'flex', alignItems: 'center', gap: '4px', fontSize: '0.8rem'
+                                            }}
+                                        >
+                                            <ThumbsDown size={14} />
+                                            {corr.downvotes?.length || 0}
+                                        </button>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
 
                     {/* Scrollable Content */}
                     <div style={{ flex: 1, overflowY: 'auto', padding: '20px' }}>
 
                         {/* Price Section */}
-                        <div style={{ marginBottom: '20px' }}>
+                        <div style={{ marginBottom: '24px' }}>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                                 <h3 style={{
                                     fontSize: '0.9rem',
@@ -271,8 +330,7 @@ const StationDetailsModal = ({ isOpen, onClose, station, user, onLoginRequest, u
                                         fontWeight: '600',
                                         display: 'flex',
                                         alignItems: 'center',
-                                        gap: '6px',
-                                        transition: 'all 0.2s'
+                                        gap: '6px'
                                     }}
                                 >
                                     <Bell size={14} />
@@ -288,76 +346,45 @@ const StationDetailsModal = ({ isOpen, onClose, station, user, onLoginRequest, u
                             />
                         </div>
 
-                        {/* Last Updated */}
+                        {/* Last Updated Action Bar */}
                         <div style={{
                             padding: '12px',
                             borderRadius: '8px',
                             background: 'rgba(255,255,255,0.03)',
                             border: '1px solid var(--glass-border)',
-                            marginBottom: '20px'
+                            marginBottom: '24px',
+                            display: 'flex',
+                            alignItems: 'center',
+                            gap: '8px',
+                            fontSize: '0.85rem'
                         }}>
-                            <div style={{ display: 'flex', alignItems: 'center', gap: '8px', fontSize: '0.85rem', opacity: 0.7 }}>
-                                <Clock size={14} />
-                                <span>Last updated {formatTimeAgo(station.lastUpdated)}</span>
-                                {station.lastReporter && (
-                                    <span>by {station.lastReporter}</span>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* Navigation Buttons */}
-                        <div style={{ marginBottom: '20px' }}>
-                            <h3 style={{ fontSize: '0.9rem', fontWeight: '600', marginBottom: '12px', color: '#94a3b8' }}>
-                                Get Directions
-                            </h3>
-                            <div style={{ display: 'flex', gap: '12px' }}>
-                                <button
-                                    onClick={() => onNavigate(station, 'google')}
-                                    style={{
-                                        flex: 1,
-                                        padding: '12px',
-                                        borderRadius: '8px',
-                                        border: '1px solid var(--color-active)',
-                                        background: 'rgba(34, 197, 94, 0.1)',
-                                        color: 'var(--color-active)',
-                                        cursor: 'pointer',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        gap: '8px',
-                                        fontWeight: '600',
-                                        fontSize: '0.9rem'
-                                    }}
-                                >
-                                    <MapPin size={18} />
-                                    Google Maps
-                                </button>
-                                <button
-                                    onClick={() => onNavigate(station, 'waze')}
-                                    style={{
-                                        flex: 1,
-                                        padding: '12px',
-                                        borderRadius: '8px',
-                                        border: '1px solid #33b1ff',
-                                        background: 'rgba(51, 177, 255, 0.1)',
-                                        color: '#33b1ff',
-                                        cursor: 'pointer',
-                                        display: 'flex',
-                                        alignItems: 'center',
-                                        justifyContent: 'center',
-                                        gap: '8px',
-                                        fontWeight: '600',
-                                        fontSize: '0.9rem'
-                                    }}
-                                >
-                                    <Navigation size={18} />
-                                    Waze
-                                </button>
-                            </div>
+                            <Clock size={14} color="#94a3b8" />
+                            <span style={{ opacity: 0.7, color: 'white' }}>Updated {formatTimeAgo(station.lastUpdated)}</span>
+                            {station.lastReporter && (
+                                <span style={{ opacity: 0.7, color: 'white' }}>by {station.lastReporter}</span>
+                            )}
+                            <button
+                                onClick={() => user ? setIsCorrectionOpen(true) : onLoginRequest()}
+                                style={{
+                                    marginLeft: 'auto',
+                                    background: 'none',
+                                    border: 'none',
+                                    color: 'var(--color-active)',
+                                    fontSize: '0.75rem',
+                                    cursor: 'pointer',
+                                    display: 'flex',
+                                    alignItems: 'center',
+                                    gap: '4px',
+                                    fontWeight: '600'
+                                }}
+                            >
+                                <Edit3 size={12} />
+                                Suggest Correction
+                            </button>
                         </div>
 
                         {/* Community Verification */}
-                        <div style={{ marginBottom: '20px' }}>
+                        <div style={{ marginBottom: '24px' }}>
                             <h3 style={{ fontSize: '0.9rem', fontWeight: '600', marginBottom: '12px', color: '#94a3b8' }}>
                                 Community Verification
                             </h3>
@@ -373,12 +400,7 @@ const StationDetailsModal = ({ isOpen, onClose, station, user, onLoginRequest, u
                                         background: hasConfirmed ? 'rgba(34, 197, 94, 0.1)' : 'rgba(255,255,255,0.05)',
                                         color: hasConfirmed ? '#22c55e' : 'white',
                                         cursor: hasConfirmed ? 'default' : 'pointer',
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        alignItems: 'center',
-                                        gap: '6px',
-                                        fontWeight: '600',
-                                        fontSize: '0.85rem'
+                                        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', fontWeight: '600', fontSize: '0.85rem'
                                     }}
                                 >
                                     <ThumbsUp size={18} />
@@ -396,12 +418,7 @@ const StationDetailsModal = ({ isOpen, onClose, station, user, onLoginRequest, u
                                         background: hasFlagged ? 'rgba(239, 68, 68, 0.1)' : 'rgba(255,255,255,0.05)',
                                         color: hasFlagged ? '#ef4444' : 'white',
                                         cursor: hasFlagged ? 'default' : 'pointer',
-                                        display: 'flex',
-                                        flexDirection: 'column',
-                                        alignItems: 'center',
-                                        gap: '6px',
-                                        fontWeight: '600',
-                                        fontSize: '0.85rem'
+                                        display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '6px', fontWeight: '600', fontSize: '0.85rem'
                                     }}
                                 >
                                     <ThumbsDown size={18} />
@@ -411,98 +428,79 @@ const StationDetailsModal = ({ isOpen, onClose, station, user, onLoginRequest, u
                             </div>
                         </div>
 
-                        {/* Photo Evidence Gallery */}
+                        {/* Directions */}
+                        <div style={{ marginBottom: '24px' }}>
+                            <h3 style={{ fontSize: '0.9rem', fontWeight: '600', marginBottom: '12px', color: '#94a3b8' }}>
+                                Get Directions
+                            </h3>
+                            <div style={{ display: 'flex', gap: '12px' }}>
+                                <button
+                                    onClick={() => onNavigate(station, 'google')}
+                                    style={{
+                                        flex: 1, padding: '12px', borderRadius: '8px',
+                                        border: '1px solid var(--color-active)',
+                                        background: 'rgba(34, 197, 94, 0.1)',
+                                        color: 'var(--color-active)',
+                                        cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontWeight: '600'
+                                    }}
+                                >
+                                    <MapPin size={18} /> Google Maps
+                                </button>
+                                <button
+                                    onClick={() => onNavigate(station, 'waze')}
+                                    style={{
+                                        flex: 1, padding: '12px', borderRadius: '8px',
+                                        border: '1px solid #33b1ff',
+                                        background: 'rgba(51, 177, 255, 0.1)',
+                                        color: '#33b1ff',
+                                        cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '8px', fontWeight: '600'
+                                    }}
+                                >
+                                    <Navigation size={18} /> Waze
+                                </button>
+                            </div>
+                        </div>
+
+                        {/* Photo Evidence */}
                         {photos.length > 0 && (
-                            <div style={{ marginBottom: '20px' }}>
-                                <h3 style={{
-                                    fontSize: '0.9rem',
-                                    fontWeight: '600',
-                                    color: '#94a3b8',
-                                    marginBottom: '12px',
-                                    display: 'flex',
-                                    alignItems: 'center',
-                                    gap: '8px'
-                                }}>
-                                    <Camera size={16} />
-                                    Station Evidence ({photos.length})
+                            <div style={{ marginBottom: '24px' }}>
+                                <h3 style={{ fontSize: '0.9rem', fontWeight: '600', color: '#94a3b8', marginBottom: '12px', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                    <Camera size={16} /> Evidence ({photos.length})
                                 </h3>
-                                <div style={{
-                                    display: 'flex',
-                                    gap: '12px',
-                                    overflowX: 'auto',
-                                    paddingBottom: '8px',
-                                    scrollbarWidth: 'none',
-                                    msOverflowStyle: 'none'
-                                }}>
+                                <div style={{ display: 'flex', gap: '12px', overflowX: 'auto', paddingBottom: '8px' }}>
                                     {photos.map((photo) => (
                                         <div
                                             key={photo.id}
                                             onClick={() => setSelectedPhoto(photo)}
                                             style={{
-                                                flex: '0 0 140px',
-                                                height: '140px',
-                                                borderRadius: '12px',
-                                                overflow: 'hidden',
-                                                position: 'relative',
-                                                border: '1px solid var(--glass-border)',
-                                                cursor: 'pointer',
-                                                transition: 'transform 0.2s',
-                                                backgroundColor: 'rgba(0,0,0,0.2)'
+                                                flex: '0 0 140px', height: '140px', borderRadius: '12px', overflow: 'hidden',
+                                                position: 'relative', border: '1px solid var(--glass-border)', cursor: 'pointer'
                                             }}
-                                            onMouseEnter={e => e.currentTarget.style.transform = 'scale(1.02)'}
-                                            onMouseLeave={e => e.currentTarget.style.transform = 'scale(1)'}
                                         >
-                                            <img
-                                                src={photo.thumbUrl || photo.url}
-                                                alt="Station evidence"
-                                                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-                                            />
+                                            <img src={photo.thumbUrl || photo.url} alt="Evidence" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
                                             {photo.isVerified && (
-                                                <div style={{
-                                                    position: 'absolute', top: '8px', right: '8px',
-                                                    background: '#22c55e', color: 'white',
-                                                    padding: '2px 6px', borderRadius: '4px',
-                                                    display: 'flex', alignItems: 'center', gap: '3px',
-                                                    fontSize: '0.6rem', fontWeight: 'bold',
-                                                    boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
-                                                }}>
-                                                    <ShieldCheck size={10} />
-                                                    VERIFIED
+                                                <div style={{ position: 'absolute', top: '8px', right: '8px', background: '#22c55e', color: 'white', padding: '2px 6px', borderRadius: '4px', fontSize: '0.6rem', fontWeight: 'bold' }}>
+                                                    <ShieldCheck size={10} /> VERIFIED
                                                 </div>
                                             )}
-                                            <div style={{
-                                                position: 'absolute', bottom: 0, left: 0, right: 0,
-                                                padding: '8px 4px', background: 'linear-gradient(transparent, rgba(0,0,0,0.7))',
-                                                color: 'white', fontSize: '0.65rem', display: 'flex', justifyContent: 'space-between'
-                                            }}>
-                                                <span>{photo.reporterName}</span>
-                                                <span>{formatTimeAgo(photo.timestamp)}</span>
-                                            </div>
                                         </div>
                                     ))}
                                 </div>
                             </div>
                         )}
 
-                        {/* Reviews Section */}
+                        {/* Reviews */}
                         <div>
                             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '12px' }}>
                                 <h3 style={{ fontSize: '0.9rem', fontWeight: '600', color: '#94a3b8' }}>
-                                    <Star size={16} style={{ display: 'inline', marginRight: '6px' }} />
-                                    Reviews
+                                    <Star size={16} style={{ display: 'inline', marginRight: '6px' }} /> Reviews
                                 </h3>
                                 <button
                                     onClick={handleWriteReviewClick}
-                                    aria-label="Write a review for this station"
                                     style={{
-                                        padding: '6px 12px',
-                                        borderRadius: '6px',
-                                        border: '1px solid var(--color-active)',
-                                        background: 'rgba(34, 197, 94, 0.1)',
-                                        color: 'var(--color-active)',
-                                        cursor: 'pointer',
-                                        fontSize: '0.8rem',
-                                        fontWeight: '600'
+                                        padding: '6px 12px', borderRadius: '6px', border: '1px solid var(--color-active)',
+                                        background: 'rgba(34, 197, 94, 0.1)', color: 'var(--color-active)',
+                                        cursor: 'pointer', fontSize: '0.8rem', fontWeight: '600'
                                     }}
                                 >
                                     Write Review
@@ -517,42 +515,16 @@ const StationDetailsModal = ({ isOpen, onClose, station, user, onLoginRequest, u
                 {selectedPhoto && (
                     <div style={{
                         position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
-                        backgroundColor: 'rgba(0,0,0,0.9)',
-                        zIndex: 4000, display: 'flex', flexDirection: 'column',
-                        justifyContent: 'center', alignItems: 'center', padding: '20px'
+                        backgroundColor: 'rgba(0,0,0,0.9)', zIndex: 4000,
+                        display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '20px'
                     }} onClick={() => setSelectedPhoto(null)}>
-                        <button style={{
-                            position: 'absolute', top: '20px', right: '20px',
-                            background: 'white', border: 'none', borderRadius: '50%',
-                            width: '40px', height: '40px', cursor: 'pointer',
-                            display: 'flex', alignItems: 'center', justifyContent: 'center'
-                        }}>
+                        <button style={{ position: 'absolute', top: '20px', right: '20px', background: 'white', border: 'none', borderRadius: '50%', width: '40px', height: '40px', cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
                             <X size={24} color="black" />
                         </button>
-                        <img
-                            src={selectedPhoto.url}
-                            alt="Evidence overview"
-                            style={{
-                                maxWidth: '100%', maxHeight: '80vh',
-                                borderRadius: '12px', border: '2px solid white',
-                                objectFit: 'contain'
-                            }}
-                            onClick={e => e.stopPropagation()}
-                        />
+                        <img src={selectedPhoto.url} alt="Evidence" style={{ maxWidth: '100%', maxHeight: '80vh', borderRadius: '12px', border: '2px solid white', objectFit: 'contain' }} onClick={e => e.stopPropagation()} />
                         <div style={{ color: 'white', marginTop: '20px', textAlign: 'center' }} onClick={e => e.stopPropagation()}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '8px', justifyContent: 'center', marginBottom: '8px' }}>
-                                <Camera size={20} />
-                                <span style={{ fontSize: '1.1rem', fontWeight: '600' }}>Report by {selectedPhoto.reporterName}</span>
-                                {selectedPhoto.isVerified && (
-                                    <span style={{
-                                        background: '#22c55e', color: 'white',
-                                        padding: '4px 8px', borderRadius: '4px',
-                                        display: 'flex', alignItems: 'center', gap: '4px',
-                                        fontSize: '0.75rem', fontWeight: 'bold'
-                                    }}>
-                                        <ShieldCheck size={14} /> VERIFIED EVIDENCE
-                                    </span>
-                                )}
+                                <Camera size={20} /> <span style={{ fontSize: '1.1rem', fontWeight: '600' }}>Report by {selectedPhoto.reporterName}</span>
                             </div>
                             <p style={{ opacity: 0.7 }}>Captured {new Date(selectedPhoto.timestamp).toLocaleString()}</p>
                         </div>
@@ -572,10 +544,14 @@ const StationDetailsModal = ({ isOpen, onClose, station, user, onLoginRequest, u
                 onClose={() => setIsAlertOpen(false)}
                 station={station}
                 user={user}
-                onSuccess={() => {
-                    // Could show success message or refresh alerts
-                    console.log('Alert created successfully');
-                }}
+                onSuccess={() => console.log('Alert created successfully')}
+            />
+
+            <AddCorrectionModal
+                isOpen={isCorrectionOpen}
+                onClose={() => setIsCorrectionOpen(false)}
+                onSubmit={handleSubmitCorrection}
+                station={station}
             />
         </>
     );
