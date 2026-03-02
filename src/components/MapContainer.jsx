@@ -444,6 +444,29 @@ const MapComponent = ({ stations, onStationSelect, onViewDetails, selectedStatio
                 </div>
             )}
 
+            {stations.length === 0 && (
+                <div style={{
+                    position: 'absolute',
+                    top: '50%',
+                    left: '50%',
+                    transform: 'translate(-50%, -50%)',
+                    zIndex: 1001,
+                    background: 'rgba(15, 23, 42, 0.8)',
+                    backdropFilter: 'blur(4px)',
+                    color: 'white',
+                    padding: '24px',
+                    borderRadius: '24px',
+                    textAlign: 'center',
+                    border: '1px solid rgba(255,255,255,0.1)',
+                    maxWidth: '280px',
+                    width: '100%'
+                }}>
+                    <div style={{ fontSize: '2rem', marginBottom: '12px' }}>🔎</div>
+                    <div style={{ fontWeight: 'bold', marginBottom: '8px' }}>No stations in this view</div>
+                    <div style={{ fontSize: '0.8rem', opacity: 0.7 }}>Try changing your filters or searching another part of Lagos.</div>
+                </div>
+            )}
+
 
             <MapContainer
                 center={position}

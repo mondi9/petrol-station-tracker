@@ -26,6 +26,14 @@ import FleetDashboard from './components/FleetDashboard';
 import FilterBar from './components/FilterBar.jsx';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
 import LocationDisclosure from './components/LocationDisclosure';
+import LagosOnlyModal from './components/LagosOnlyModal';
+
+const LAGOS_BOUNDS = {
+  latMin: 6.30,
+  latMax: 6.75,
+  lngMin: 3.10,
+  lngMax: 3.65
+};
 
 // Temporary Initial Data for Seeding
 const INITIAL_DATA_SEED = [
@@ -64,6 +72,7 @@ function App() {
   const [importStatus, setImportStatus] = useState("");
   const [userStats, setUserStats] = useState({ contributions: 0, reviews: 0 });
   const [showLocationDisclosure, setShowLocationDisclosure] = useState(false);
+  const [showLagosOnlyModal, setShowLagosOnlyModal] = useState(false);
   const [hasLocationConsent, setHasLocationConsent] = useState(localStorage.getItem('locationConsent') === 'true');
 
   // Mobile View State
@@ -339,6 +348,14 @@ function App() {
           console.warn("📍 Emulator detected in California. Teleporting to Lagos NNPC Mega Station...");
           latitude = 6.4323;
           longitude = 3.4682;
+        }
+
+        // Check if within Lagos bounds
+        const isOutsideLagos = latitude < LAGOS_BOUNDS.latMin || latitude > LAGOS_BOUNDS.latMax ||
+          longitude < LAGOS_BOUNDS.lngMin || longitude > LAGOS_BOUNDS.lngMax;
+
+        if (isOutsideLagos && !isGoogleHQ) { // Don't block the emulator teleport
+          setShowLagosOnlyModal(true);
         }
 
         setUserLocation({ lat: latitude, lng: longitude });
@@ -772,6 +789,12 @@ function App() {
               onDecline={() => setShowLocationDisclosure(false)}
             />
           )}
+
+          <LagosOnlyModal
+            isOpen={showLagosOnlyModal}
+            onClose={() => setShowLagosOnlyModal(false)}
+            userLocation={userLocation}
+          />
         </div>
       </ErrorBoundary>
     </ThemeProvider>
