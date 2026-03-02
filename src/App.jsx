@@ -27,6 +27,7 @@ import FilterBar from './components/FilterBar.jsx';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
 import LocationDisclosure from './components/LocationDisclosure';
 import LagosOnlyModal from './components/LagosOnlyModal';
+import OnboardingFlow from './components/OnboardingFlow';
 
 const LAGOS_BOUNDS = {
   latMin: 6.30,
@@ -74,6 +75,7 @@ function App() {
   const [showLocationDisclosure, setShowLocationDisclosure] = useState(false);
   const [showLagosOnlyModal, setShowLagosOnlyModal] = useState(false);
   const [hasLocationConsent, setHasLocationConsent] = useState(localStorage.getItem('locationConsent') === 'true');
+  const [showOnboarding, setShowOnboarding] = useState(localStorage.getItem('hasSeenOnboarding') !== 'true');
 
   // Mobile View State
   const [viewMode, setViewMode] = useState('map'); // 'map' | 'list'
@@ -517,6 +519,11 @@ function App() {
     setTimeout(() => handleFindNearest(), 100);
   };
 
+  const handleOnboardingComplete = () => {
+    localStorage.setItem('hasSeenOnboarding', 'true');
+    setShowOnboarding(false);
+  };
+
 
   if (isLoading) {
     return (
@@ -542,6 +549,10 @@ function App() {
         </div>
       </div>
     );
+  }
+
+  if (showOnboarding) {
+    return <OnboardingFlow onComplete={handleOnboardingComplete} />;
   }
 
   return (
