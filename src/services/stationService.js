@@ -1,6 +1,7 @@
 import { db } from './firebase';
 import { collection, doc, updateDoc, addDoc, getDocs, query, where, serverTimestamp, getDoc, onSnapshot, setDoc, arrayUnion, arrayRemove, orderBy, limit } from 'firebase/firestore';
 import { checkPriceAlerts } from './alertService';
+import { calculateConsensusValue, CONSENSUS_THRESHOLD, getReportWeight } from './verificationService';
 
 const COLLECTION_NAME = 'stations';
 
@@ -125,74 +126,75 @@ export const subscribeToStations = (onUpdate, onError) => {
 // Update a station's status and log the report
 export const updateStationStatus = async (stationId, reportData, userId = null, stationName = 'Unknown Station') => {
     const stationRef = doc(db, COLLECTION_NAME, stationId);
-    // reportData = { fuelType, availability, queueLength, price, reporterName }
 
-    // 1. Prepare Main Station Update
-    // We update the specific availability for the reported fuel type.
-    // Logic: If 'availability' is 'empty', we set that fuel to false/empty? 
-    // Previous schema was { petrol: true/false }. New schema needs 'available' | 'low' | 'empty'.
-    // Let's migrate/adapt the schema on the fly.
-    // 'availablity' field in DB will now be { petrol: 'available', diesel: 'low', ... } instead of boolean?
-    // Or we keep simple boolean for 'active' filter but add 'statusDetails'?
-    // Let's go with a robust nested update.
+    // 1. Calculate the weight of this specific report
+    const incomingWeight = getReportWeight({ ...reportData, userId });
 
-    // We will use dot notation for nested updates to avoid overwriting other fields
-    // e.g. "availability.petrol": "low"
-
-    const updatePayload = {
-        lastUpdated: new Date().toISOString(),
-        [`availability.${reportData.fuelType}`]: reportData.availability, // 'available' | 'low' | 'empty'
-        [`queue.${reportData.fuelType}`]: reportData.queueLength,
-        confirmations: userId ? [userId] : [],
-        flags: []
+    // 2. Prepare the standard audit log
+    const historyData = {
+        timestamp: serverTimestamp(),
+        userId: userId || 'anonymous',
+        ...reportData,
+        device: 'web',
+        weight: incomingWeight
     };
 
-    // Update overall station status
-    // If ANY fuel is available or low, station is 'active'. If ALL are empty, 'inactive'.
-    // Since we don't know the others without reading, we optimistically set to 'active' if this report is 'available'/'low'.
-    if (reportData.availability !== 'empty') {
-        updatePayload.status = 'active';
-    }
-    // If report is 'empty', we might flip to inactive if others are known empty? 
-    // For now, let's keep it simple: If submitting a positive report, ensure active.
+    // 3. Evaluate Consensus for display fields
+    // We check if this report + recent ones cross the threshold to change the main UI
+    const fuelType = reportData.fuelType;
 
-    // Update Price if provided
-    if (reportData.price) {
-        updatePayload[`prices.${reportData.fuelType}`] = reportData.price;
-        updatePayload.lastPriceUpdate = new Date().toISOString();
+    // Fields we want to validate via consensus
+    const priceConsensus = await calculateConsensusValue(stationId, 'price', fuelType);
+    const availabilityConsensus = await calculateConsensusValue(stationId, 'availability', fuelType);
+    const queueConsensus = await calculateConsensusValue(stationId, 'queueLength', fuelType);
+
+    // Prepare update payload
+    const updatePayload = {
+        lastUpdated: new Date().toISOString(),
+    };
+
+    // PRICE CONSENSUS
+    // Update main price ONLY if new consensus is reached or if this report is "verified" (Weight 1.0)
+    if (incomingWeight >= 1.0 || (priceConsensus.value && priceConsensus.totalWeight >= CONSENSUS_THRESHOLD)) {
+        const targetPrice = incomingWeight >= 1.0 ? reportData.price : priceConsensus.value;
+        if (targetPrice) {
+            updatePayload[`prices.${fuelType}`] = targetPrice;
+            updatePayload.lastPriceUpdate = new Date().toISOString();
+        }
     }
 
-    // Add Reporter Name to Main Document for easier display
-    if (reportData.reporterName) {
-        updatePayload.lastReporter = reportData.reporterName;
+    // AVAILABILITY & STATUS CONSENSUS
+    if (incomingWeight >= 1.0 || (availabilityConsensus.value && availabilityConsensus.totalWeight >= CONSENSUS_THRESHOLD)) {
+        const targetAvailability = incomingWeight >= 1.0 ? reportData.availability : availabilityConsensus.value;
+        updatePayload[`availability.${fuelType}`] = targetAvailability;
+
+        // Update overall station status
+        if (targetAvailability !== 'empty') {
+            updatePayload.status = 'active';
+        } else {
+            // Check if others are empty (Simplified: stay active if any was available, but here we just follow the consensus of the current fuel)
+            // A more complex check would look at diesel/premium too.
+            // For now, if petrol is dry, and it's the main thing people check, we might mark inactive or let decay handle it.
+        }
     }
 
-    // Add Latest Comment to Main Document
-    if (reportData.comment) {
-        updatePayload.lastComment = reportData.comment;
+    // QUEUE CONSENSUS
+    if (incomingWeight >= 1.0 || (queueConsensus.value !== null && queueConsensus.totalWeight >= CONSENSUS_THRESHOLD)) {
+        const targetQueue = incomingWeight >= 1.0 ? reportData.queueLength : queueConsensus.value;
+        updatePayload[`queue.${fuelType}`] = targetQueue;
     }
 
-    // Add Photo URL if provided
+    // Metadata updates
+    if (reportData.reporterName) updatePayload.lastReporter = reportData.reporterName;
+    if (reportData.comment) updatePayload.lastComment = reportData.comment;
     if (reportData.photoUrl) {
         updatePayload.lastPhotoUrl = reportData.photoUrl;
         updatePayload.lastPhotoThumbUrl = reportData.photoThumbUrl;
         updatePayload.hasPhoto = true;
     }
+    if (reportData.quality !== undefined) updatePayload.reportQuality = reportData.quality;
 
-    // Add Quality Score if provided
-    if (reportData.quality !== undefined) {
-        updatePayload.reportQuality = reportData.quality;
-    }
-
-    // 2. Add to Reports Subcollection (Audit History)
-    const historyData = {
-        timestamp: serverTimestamp(),
-        userId: userId || 'anonymous',
-        ...reportData,
-        device: 'web'
-    };
-
-    // 3. Price History for Analytics (write per fuel type if price was reported)
+    // Price History (always log the raw report price to history)
     const priceHistoryWrites = [];
     if (reportData.price && reportData.fuelType) {
         priceHistoryWrites.push(
@@ -214,9 +216,9 @@ export const updateStationStatus = async (stationId, reportData, userId = null, 
         ...priceHistoryWrites
     ]);
 
-    // Check if any price alerts should trigger
-    if (reportData.price && reportData.fuelType) {
-        await checkPriceAlerts(stationId, reportData.fuelType, reportData.price, stationName);
+    // Check if any price alerts should trigger (only on confirmed updates)
+    if (updatePayload[`prices.${fuelType}`]) {
+        await checkPriceAlerts(stationId, fuelType, updatePayload[`prices.${fuelType}`], stationName);
     }
 };
 

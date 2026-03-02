@@ -29,6 +29,7 @@ const ReportModal = ({ isOpen, onClose, onSubmit, station, user, userLocation })
     const [duplicateWarning, setDuplicateWarning] = useState(null);
     const [rateLimitError, setRateLimitError] = useState(null);
     const [validationErrors, setValidationErrors] = useState([]);
+    const [isSubmitted, setIsSubmitted] = useState(false);
 
     const fileInputRef = useRef(null);
 
@@ -49,7 +50,10 @@ const ReportModal = ({ isOpen, onClose, onSubmit, station, user, userLocation })
             setShowConfirmation(false);
             setDuplicateWarning(null);
             setRateLimitError(null);
+            setDuplicateWarning(null);
+            setRateLimitError(null);
             setValidationErrors([]);
+            setIsSubmitted(false);
         }
     }, [isOpen]);
 
@@ -204,7 +208,13 @@ const ReportModal = ({ isOpen, onClose, onSubmit, station, user, userLocation })
             };
 
             await onSubmit(reportData);
+            setIsSubmitted(true);
             setIsUploading(false);
+
+            // Auto-close after a few seconds
+            setTimeout(() => {
+                onClose();
+            }, 3000);
         } catch (error) {
             console.error('Error submitting report:', error);
             alert('Failed to submit report. Please try again.');
@@ -306,6 +316,57 @@ const ReportModal = ({ isOpen, onClose, onSubmit, station, user, userLocation })
                                 Submitting...
                             </>
                         ) : 'Submit Truthful Report'}
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    // Success State
+    if (isSubmitted) {
+        return (
+            <div style={{
+                position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
+                background: 'rgba(0,0,0,0.6)', backdropFilter: 'blur(8px)',
+                zIndex: 1000, display: 'flex', alignItems: 'center', justifyContent: 'center',
+                animation: 'fadeIn 0.2s ease-out'
+            }}>
+                <div className="glass" style={{
+                    width: '90%', maxWidth: '400px', padding: '32px 24px',
+                    borderRadius: '16px', border: '1px solid rgba(34, 197, 94, 0.3)',
+                    background: '#1a1a1a', boxShadow: '0 20px 50px rgba(0,0,0,0.5)',
+                    textAlign: 'center'
+                }}>
+                    <div style={{
+                        width: '64px', height: '64px', background: 'rgba(34, 197, 94, 0.1)',
+                        borderRadius: '50%', display: 'flex', alignItems: 'center',
+                        justifyContent: 'center', margin: '0 auto 20px', color: '#22c55e'
+                    }}>
+                        <CheckCircle size={40} />
+                    </div>
+                    <h2 style={{ fontSize: '1.5rem', fontWeight: 'bold', marginBottom: '12px' }}>Thank You!</h2>
+
+                    {!user ? (
+                        <div style={{ marginBottom: '24px' }}>
+                            <p style={{ opacity: 0.8, lineHeight: '1.5' }}>
+                                Your report has been submitted as a <strong>Guest</strong>.
+                            </p>
+                            <p style={{ fontSize: '0.9rem', color: '#eab308', marginTop: '12px', background: 'rgba(234, 179, 8, 0.1)', padding: '10px', borderRadius: '8px' }}>
+                                💡 It's currently <strong>Pending Verification</strong> by the community. Sign in next time for instant updates!
+                            </p>
+                        </div>
+                    ) : (
+                        <p style={{ opacity: 0.8, marginBottom: '24px' }}>
+                            Your verified report is live and helping the community save time! ✨
+                        </p>
+                    )}
+
+                    <button
+                        onClick={onClose}
+                        className="btn btn-primary"
+                        style={{ width: '100%', justifyContent: 'center', padding: '12px' }}
+                    >
+                        Return to Map
                     </button>
                 </div>
             </div>

@@ -77,3 +77,16 @@ Since the platform interface might not persist chat history, this file archives 
     *   Created the basic React application.
     *   Integrated Leaflet Map.
     *   Created initial Station List and Filter logic.
+## [Session 12] - Weighted Consensus Validation (Mar 2, 2026)
+*   **Objective:** Prevent fake/erratic data from refreshing the app.
+*   **Actions:**
+    *   Implemented a Weighted Consensus model in `verificationService.js`.
+    *   Set update thresholds for Prices, Inactive Status, and Queue Times.
+    *   Verified that Photo-verified reports (Weight 1.0) update the UI immediately.
+    *   Added "LIVE COMMUNITY REFRESH" UI toast and marker pulse to `MapContainer.jsx`.
+## [Session 13] - APK Fresh Build (Mar 2, 2026)
+*   **Objective:** Sync latest changes to Android and prepare for APK generation.
+*   **Actions:**
+    *   Synthesized latest web assets using `npm run build`.
+    *   Synchronized changes to the Capacitor Android project via `npx cap sync`.
+    *   Guided the user through building the `app-debug.apk` in Android Studio.

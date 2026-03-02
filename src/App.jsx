@@ -25,6 +25,7 @@ import AdminDashboard from './components/AdminDashboard';
 import FleetDashboard from './components/FleetDashboard';
 import FilterBar from './components/FilterBar.jsx';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
+import LocationDisclosure from './components/LocationDisclosure';
 
 // Temporary Initial Data for Seeding
 const INITIAL_DATA_SEED = [
@@ -62,6 +63,8 @@ function App() {
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [importStatus, setImportStatus] = useState("");
   const [userStats, setUserStats] = useState({ contributions: 0, reviews: 0 });
+  const [showLocationDisclosure, setShowLocationDisclosure] = useState(false);
+  const [hasLocationConsent, setHasLocationConsent] = useState(localStorage.getItem('locationConsent') === 'true');
 
   // Mobile View State
   const [viewMode, setViewMode] = useState('map'); // 'map' | 'list'
@@ -313,6 +316,12 @@ function App() {
   };
 
   const handleFindNearest = () => {
+    // 1. Check if we have prominent disclosure consent (Play Store Requirement)
+    if (!hasLocationConsent) {
+      setShowLocationDisclosure(true);
+      return;
+    }
+
     if (!navigator.geolocation) {
       alert("Geolocation is not supported by your browser");
       return;
@@ -481,6 +490,14 @@ function App() {
       },
       { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 }
     );
+  };
+
+  const handleAcceptLocation = () => {
+    localStorage.setItem('locationConsent', 'true');
+    setHasLocationConsent(true);
+    setShowLocationDisclosure(false);
+    // Trigger location immediately after consent
+    setTimeout(() => handleFindNearest(), 100);
   };
 
 
@@ -748,6 +765,13 @@ function App() {
           )}
 
           <ReloadPrompt />
+
+          {showLocationDisclosure && (
+            <LocationDisclosure
+              onAccept={handleAcceptLocation}
+              onDecline={() => setShowLocationDisclosure(false)}
+            />
+          )}
         </div>
       </ErrorBoundary>
     </ThemeProvider>

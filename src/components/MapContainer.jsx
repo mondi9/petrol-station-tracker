@@ -3,7 +3,7 @@ import { MapContainer, TileLayer, Marker, Popup, useMap, useMapEvents, Polyline,
 import L from 'leaflet';
 import 'leaflet/dist/leaflet.css';
 import { formatTimeAgo, formatDistance, calculateDistance } from '../services/stationService';
-import { Navigation, Clock, MapPin } from 'lucide-react';
+import { Navigation, Clock, MapPin, Activity } from 'lucide-react';
 
 // Fix for default Leaflet icon issues in React
 import icon from 'leaflet/dist/images/marker-icon.png';
@@ -382,6 +382,31 @@ const RoutingController = ({ selectedStation, userLocation }) => {
 
 const MapComponent = ({ stations, onStationSelect, onViewDetails, selectedStation, onReportClick, onFindNearest, userLocation, isLocating, onMapClick, nearbyStations = [] }) => {
     const position = [6.5244, 3.3792]; // Default Lagos center
+    const [lastStationsCount, setLastStationsCount] = React.useState(0);
+    const [showLiveUpdate, setShowLiveUpdate] = React.useState(false);
+    const [pulseMarkers, setPulseMarkers] = React.useState(false);
+
+    // Detect live updates
+    useEffect(() => {
+        if (stations.length > 0 && lastStationsCount > 0) {
+            // Check if any station was updated recently (last 10 seconds)
+            const hasRecentUpdate = stations.some(s => {
+                const updated = new Date(s.lastUpdated);
+                return (new Date() - updated) < 10000;
+            });
+
+            if (hasRecentUpdate) {
+                setShowLiveUpdate(true);
+                setPulseMarkers(true);
+                const timer = setTimeout(() => {
+                    setShowLiveUpdate(false);
+                    setPulseMarkers(false);
+                }, 4000);
+                return () => clearTimeout(timer);
+            }
+        }
+        setLastStationsCount(stations.length);
+    }, [stations]);
 
     return (
         <div className="map-wrapper" style={{ height: '100%', width: '100%', position: 'relative', zIndex: 0 }}>
@@ -393,6 +418,31 @@ const MapComponent = ({ stations, onStationSelect, onViewDetails, selectedStatio
                 zIndex: 400,
                 pointerEvents: 'none'
             }}></div>
+
+            {/* Live Update Toast */}
+            {showLiveUpdate && (
+                <div style={{
+                    position: 'absolute',
+                    top: '80px',
+                    left: '50%',
+                    transform: 'translateX(-50%)',
+                    zIndex: 1001,
+                    background: 'rgba(34, 197, 94, 0.9)',
+                    color: 'white',
+                    padding: '8px 16px',
+                    borderRadius: '20px',
+                    fontSize: '0.8rem',
+                    fontWeight: 'bold',
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    boxShadow: '0 4px 15px rgba(0,0,0,0.3)',
+                    animation: 'fadeInDown 0.5s ease-out'
+                }}>
+                    <Activity size={14} className="animate-pulse" />
+                    LIVE COMMUNITY REFRESH
+                </div>
+            )}
 
 
             <MapContainer
@@ -675,6 +725,10 @@ const LocationButton = ({ onFindNearest, isLocating }) => {
                     0% { transform: scale(1); box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
                     50% { transform: scale(1.15); box-shadow: 0 0 25px var(--color-active-glow); }
                     100% { transform: scale(1); box-shadow: 0 4px 12px rgba(0,0,0,0.5); }
+                }
+                @keyframes fadeInDown {
+                    from { opacity: 0; transform: translate(-50%, -20px); }
+                    to { opacity: 1; transform: translate(-50%, 0); }
                 }
             `}</style>
         </div>

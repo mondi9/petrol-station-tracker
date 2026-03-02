@@ -1,5 +1,11 @@
-import { db } from './firebase';
-import { collection, query, where, getDocs, orderBy, limit } from 'firebase/firestore';
+import { collection, query, where, getDocs, orderBy, limit, serverTimestamp } from 'firebase/firestore';
+import { calculateDistance } from './stationService';
+
+// Weight Constants for consensus
+export const WEIGHT_VERIFIED_PHOTO = 1.0;  // Photo taken near station
+export const WEIGHT_LOGGED_IN_USER = 0.6;   // Authenticated user
+export const WEIGHT_GUEST = 0.2;            // Anonymous user
+export const CONSENSUS_THRESHOLD = 0.7;     // Minimum weight required to change "Source of Truth"
 
 /**
  * Check if user has submitted a duplicate report recently
@@ -249,6 +255,84 @@ export const getUserReportCount = async (userId, timeWindowMinutes = 60) => {
  * @param {Date} resetTime - Reset time
  * @returns {string} Formatted time remaining
  */
+/**
+ * Calculate the weight of a report based on evidence and user status
+ * @param {object} report - Report data
+ * @returns {number} Weight (0-1)
+ */
+export const getReportWeight = (report) => {
+    if (report.isVerifiedEvidence) return WEIGHT_VERIFIED_PHOTO;
+    if (report.userId && report.userId !== 'anonymous') return WEIGHT_LOGGED_IN_USER;
+    return WEIGHT_GUEST;
+};
+
+/**
+ * Aggregates recent reports to find a weighted consensus value for a field.
+ * @param {string} stationId - ID of the station
+ * @param {string} field - The field to check (e.g., 'price', 'availability', 'queueLength')
+ * @param {string} fuelType - Fuel type for scoping
+ * @param {number} windowMinutes - Time window for "recent" reports
+ * @returns {Promise<{value: any, totalWeight: number, confidence: number}>}
+ */
+export const calculateConsensusValue = async (stationId, field, fuelType, windowMinutes = 240) => {
+    try {
+        const timeThreshold = new Date(Date.now() - windowMinutes * 60 * 1000);
+        const reportsRef = collection(db, 'stations', stationId, 'reports');
+
+        // We fetch more than limit(1) to get consensus
+        const q = query(
+            reportsRef,
+            where('fuelType', '==', fuelType),
+            where('timestamp', '>', timeThreshold),
+            orderBy('timestamp', 'desc'),
+            limit(10)
+        );
+
+        const snapshot = await getDocs(q);
+        if (snapshot.empty) return { value: null, totalWeight: 0, confidence: 0 };
+
+        const reports = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+
+        // Group values and sum weights
+        const aggregations = {};
+        let totalWeightInWindow = 0;
+
+        reports.forEach(report => {
+            const val = report[field];
+            if (val === undefined || val === null) return;
+
+            const weight = getReportWeight(report);
+            aggregations[val] = (aggregations[val] || 0) + weight;
+            totalWeightInWindow += weight;
+        });
+
+        // Find the value with the highest weight
+        let bestValue = null;
+        let maxWeight = 0;
+
+        for (const [val, weight] of Object.entries(aggregations)) {
+            if (weight > maxWeight) {
+                maxWeight = weight;
+                bestValue = val;
+            }
+        }
+
+        // Handle numeric values (prices, queueLength) as numbers if appropriate
+        if (field === 'price' || field === 'queueLength') {
+            bestValue = parseFloat(bestValue);
+        }
+
+        return {
+            value: bestValue,
+            totalWeight: maxWeight,
+            confidence: maxWeight / totalWeightInWindow
+        };
+    } catch (error) {
+        console.error('Error calculating consensus:', error);
+        return { value: null, totalWeight: 0, confidence: 0 };
+    }
+};
+
 export const formatResetTime = (resetTime) => {
     if (!resetTime) return '';
 
