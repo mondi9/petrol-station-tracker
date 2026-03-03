@@ -66,19 +66,23 @@ const createCustomIcon = (station, userLocation, isNearby = false) => {
     }
 
     // Determine color based on queue status (no icons)
+    let glowColor = 'rgba(100, 116, 139, 0.3)';
     if (status === 'active') {
         if (!queueStatus) {
             color = '#64748b'; // Grey for unknown queue
+            glowColor = 'rgba(100, 116, 139, 0.4)';
         } else if (queueStatus === 'short') {
             color = '#16a34a'; // Green
+            glowColor = 'rgba(22, 163, 74, 0.6)';
         } else if (queueStatus === 'mild') {
             color = '#ca8a04'; // Dark Yellow
+            glowColor = 'rgba(202, 138, 4, 0.6)';
         } else if (queueStatus === 'long') {
             color = '#dc2626'; // Red
+            glowColor = 'rgba(220, 38, 38, 0.6)';
         }
     } else {
         // Inactive/Unknown status
-        // Don't overwrite label if we have a price OR distance!
         const hasPrice = price !== undefined && price !== null;
         const hasDistance = distance !== undefined && distance !== null;
 
@@ -86,6 +90,7 @@ const createCustomIcon = (station, userLocation, isNearby = false) => {
             label = 'Empty';
         }
         color = '#475569'; // Darker grey
+        glowColor = 'rgba(71, 85, 105, 0.4)';
     }
 
     // CSS for the marker
@@ -97,7 +102,7 @@ const createCustomIcon = (station, userLocation, isNearby = false) => {
             filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5));
             opacity: ${freshness === 'stale' ? '0.5' : '1'};
             transition: all 0.3s ease;
-            animation: ${freshness === 'fresh' ? 'fresh-pulse 2s infinite' : 'none'};
+            animation: ${status === 'active' ? 'status-marker-pulse 2s infinite ease-in-out' : 'status-marker-pulse-slow 3s infinite ease-in-out'};
         ">
             <div style="
                 background: ${color};
@@ -107,7 +112,7 @@ const createCustomIcon = (station, userLocation, isNearby = false) => {
                 font-weight: bold;
                 font-size: 13px;
                 border: ${isNearby ? '3px solid #fbbf24' : '2px solid white'};
-                box-shadow: ${isNearby ? '0 0 15px #fbbf24' : '0 2px 8px rgba(0,0,0,0.3)'};
+                box-shadow: 0 0 10px ${glowColor};
                 white-space: nowrap;
                 display: flex;
                 align-items: center;
@@ -128,6 +133,14 @@ const createCustomIcon = (station, userLocation, isNearby = false) => {
             "></div>
         </div>
         <style>
+            @keyframes status-marker-pulse {
+                0%, 100% { transform: scale(1); filter: drop-shadow(0 2px 6px ${glowColor}); }
+                50% { transform: scale(1.04); filter: drop-shadow(0 6px 18px ${glowColor}); }
+            }
+            @keyframes status-marker-pulse-slow {
+                0%, 100% { transform: scale(1); opacity: 0.8; }
+                50% { transform: scale(1.02); opacity: 1; filter: drop-shadow(0 4px 12px ${glowColor}); }
+            }
             @keyframes fresh-pulse {
                 0%, 100% { transform: scale(1); filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5)); }
                 50% { transform: scale(1.05); filter: drop-shadow(0 4px 15px var(--color-active-glow)); }
@@ -138,8 +151,8 @@ const createCustomIcon = (station, userLocation, isNearby = false) => {
     return L.divIcon({
         className: 'custom-price-marker',
         html: htmlContent,
-        iconSize: [60, 45], // Increased from [40, 30]
-        iconAnchor: [30, 45], // Anchor at bottom tip (half of width, full height)
+        iconSize: [60, 45],
+        iconAnchor: [30, 45],
         popupAnchor: [0, -45]
     });
 };

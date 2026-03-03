@@ -170,28 +170,8 @@ const StationList = ({ stations, onSelect, onViewDetails, selectedStationId, onA
                                                 station.queueStatus === 'short' ? "Movement is fast. Expect to be out in under 15 mins." :
                                                     station.queueStatus === 'mild' ? "Steady progress. Estimated wait: 15–30 mins." :
                                                         "Major backlog. Expect a wait of 30+ mins."}
+                                            className={`queue-badge ${!station.queueStatus ? 'queue-unknown' : `queue-${station.queueStatus}`}`}
                                             style={{
-                                                padding: '4px 8px',
-                                                borderRadius: '6px',
-                                                fontSize: '0.7rem',
-                                                fontWeight: '600',
-                                                background: !station.queueStatus ? 'rgba(100, 116, 139, 0.1)' :
-                                                    station.queueStatus === 'short' ? 'rgba(34, 197, 94, 0.2)' :
-                                                        station.queueStatus === 'mild' ? 'rgba(234, 179, 8, 0.2)' :
-                                                            'rgba(239, 68, 68, 0.2)',
-                                                color: !station.queueStatus ? '#94a3b8' :
-                                                    station.queueStatus === 'short' ? '#22c55e' :
-                                                        station.queueStatus === 'mild' ? '#eab308' :
-                                                            '#ef4444',
-                                                border: `1px solid ${!station.queueStatus ? 'rgba(100, 116, 139, 0.2)' :
-                                                    station.queueStatus === 'short' ? 'rgba(34, 197, 94, 0.3)' :
-                                                        station.queueStatus === 'mild' ? 'rgba(234, 179, 8, 0.3)' :
-                                                            'rgba(239, 68, 68, 0.3)'}`,
-                                                display: 'inline-flex',
-                                                alignItems: 'center',
-                                                gap: '4px',
-                                                whiteSpace: 'nowrap',
-                                                cursor: 'help',
                                                 opacity: station.hoursOld > 4 ? 0.7 : 1
                                             }}
                                         >

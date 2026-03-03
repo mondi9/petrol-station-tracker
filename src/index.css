@@ -5,9 +5,9 @@
   --text-secondary: #a1a1aa;
 
   --color-active: #22c55e;
-  --color-active-glow: rgba(34, 197, 94, 0.4);
-  --color-inactive: #ef4444;
-  --color-inactive-glow: rgba(239, 68, 68, 0.4);
+  --color-active-glow: rgba(34, 197, 94, 0.8);
+  --color-inactive-glow: rgba(239, 68, 68, 0.8);
+  --color-empty-glow: rgba(148, 163, 184, 0.5);
 
   --glass-panel: rgba(23, 23, 23, 0.7);
   --glass-border: rgba(255, 255, 255, 0.1);
@@ -106,17 +106,141 @@ body {
 }
 
 .status-active {
-  background: rgba(34, 197, 94, 0.2);
-  color: var(--color-active);
-  border: 1px solid rgba(34, 197, 94, 0.3);
-  box-shadow: 0 0 10px var(--color-active-glow);
+  background: rgba(34, 197, 94, 0.25);
+  color: #4ade80;
+  border: 1px solid rgba(34, 197, 94, 0.8);
+  box-shadow:
+    0 0 8px var(--color-active-glow),
+    0 0 16px rgba(34, 197, 94, 0.4),
+    inset 0 0 4px rgba(34, 197, 94, 0.3);
+  text-shadow: 0 0 8px rgba(34, 197, 94, 0.9);
+  animation: status-glow-active 2s infinite ease-in-out;
 }
 
 .status-inactive {
+  background: rgba(239, 68, 68, 0.25);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.8);
+  box-shadow:
+    0 0 8px var(--color-inactive-glow),
+    0 0 16px rgba(239, 68, 68, 0.4),
+    inset 0 0 4px rgba(239, 68, 68, 0.3);
+  text-shadow: 0 0 8px rgba(239, 68, 68, 0.9);
+  animation: status-glow-inactive 2s infinite ease-in-out;
+}
+
+.status-empty {
+  background: rgba(148, 163, 184, 0.15);
+  color: #cbd5e1;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  box-shadow: 0 0 6px var(--color-empty-glow);
+  animation: status-glow-empty 3s infinite ease-in-out;
+}
+
+/* Queue Badge Styles */
+.queue-badge {
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 0.7rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  white-space: nowrap;
+  cursor: help;
+  transition: all 0.3s;
+  border-style: solid;
+  border-width: 1px;
+}
+
+.queue-unknown {
+  background: rgba(148, 163, 184, 0.1);
+  color: #94a3b8;
+  border-color: rgba(148, 163, 184, 0.2);
+}
+
+.queue-short {
+  background: rgba(34, 197, 94, 0.2);
+  color: #4ade80;
+  border-color: rgba(34, 197, 94, 0.5);
+  box-shadow: 0 0 12px rgba(34, 197, 94, 0.4);
+  animation: status-glow-active 2s infinite ease-in-out;
+}
+
+.queue-mild {
+  background: rgba(234, 179, 8, 0.2);
+  color: #fbbf24;
+  border-color: rgba(234, 179, 8, 0.5);
+  box-shadow: 0 0 12px rgba(234, 179, 8, 0.4);
+  animation: status-glow-mild 2s infinite ease-in-out;
+}
+
+.queue-long {
   background: rgba(239, 68, 68, 0.2);
-  color: var(--color-inactive);
-  border: 1px solid rgba(239, 68, 68, 0.3);
-  box-shadow: 0 0 10px var(--color-inactive-glow);
+  color: #f87171;
+  border-color: rgba(239, 68, 68, 0.5);
+  box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
+  animation: status-glow-inactive 2s infinite ease-in-out;
+}
+
+@keyframes status-glow-active {
+
+  0%,
+  100% {
+    box-shadow:
+      0 0 6px var(--color-active-glow),
+      0 0 12px rgba(34, 197, 94, 0.3);
+    transform: scale(1);
+  }
+
+  50% {
+    box-shadow:
+      0 0 15px var(--color-active-glow),
+      0 0 30px rgba(34, 197, 94, 0.5);
+    transform: scale(1.02);
+  }
+}
+
+@keyframes status-glow-inactive {
+
+  0%,
+  100% {
+    box-shadow:
+      0 0 6px var(--color-inactive-glow),
+      0 0 12px rgba(239, 68, 68, 0.3);
+    transform: scale(1);
+  }
+
+  50% {
+    box-shadow:
+      0 0 15px var(--color-inactive-glow),
+      0 0 30px rgba(239, 68, 68, 0.5);
+    transform: scale(1.02);
+  }
+}
+
+@keyframes status-glow-mild {
+
+  0%,
+  100% {
+    box-shadow: 0 0 8px rgba(234, 179, 8, 0.4);
+  }
+
+  50% {
+    box-shadow: 0 0 20px rgba(234, 179, 8, 0.6);
+  }
+}
+
+@keyframes status-glow-empty {
+
+  0%,
+  100% {
+    box-shadow: 0 0 4px var(--color-empty-glow);
+  }
+
+  50% {
+    box-shadow: 0 0 12px var(--color-empty-glow);
+  }
 }
 
 /* Allow selection in specific areas */

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { X, User, Edit2, Check, Award, MessageSquare, Activity, Bell, Camera, Image as ImageIcon, ShieldCheck } from 'lucide-react';
+import { X, User, Edit2, Check, Award, MessageSquare, Activity, Bell, Camera, Image as ImageIcon, ShieldCheck, Shield } from 'lucide-react';
 import { updateProfile } from 'firebase/auth';
+import { db } from '../services/firebase';
+import { doc, setDoc } from 'firebase/firestore';
 import AlertsList from './AlertsList';
 import { getActiveAlertCount } from '../services/alertService';
 import { useTheme } from '../context/ThemeContext';
@@ -16,6 +18,7 @@ const UserProfileModal = ({ isOpen, onClose, user, stats = { contributions: 0, r
     const [loading, setLoading] = useState(false);
     const [userPhotos, setUserPhotos] = useState([]);
     const [loadingPhotos, setLoadingPhotos] = useState(false);
+    const [claimingAdmin, setClaimingAdmin] = useState(false);
 
     // History State
     const [historyType, setHistoryType] = useState('none'); // 'none' | 'reports' | 'reviews'
@@ -80,6 +83,20 @@ const UserProfileModal = ({ isOpen, onClose, user, stats = { contributions: 0, r
             alert("Failed to update profile.");
         } finally {
             setLoading(false);
+        }
+    };
+
+    const handleClaimAdmin = async () => {
+        if (!user) return;
+        setClaimingAdmin(true);
+        try {
+            await setDoc(doc(db, 'users', user.uid), { role: 'admin' }, { merge: true });
+            alert('✅ Admin granted! The page will now reload.');
+            window.location.reload();
+        } catch (error) {
+            console.error('Error claiming admin:', error);
+            alert('❌ Failed: ' + error.message);
+            setClaimingAdmin(false);
         }
     };
 
@@ -337,6 +354,34 @@ const UserProfileModal = ({ isOpen, onClose, user, stats = { contributions: 0, r
                                     <div style={{ fontSize: '0.8rem', color: 'var(--text-secondary)' }}>Reviews</div>
                                 </button>
                             </div>
+
+                            {/* Claim Admin Button - only shown when not yet admin */}
+                            {user.role !== 'admin' && (
+                                <button
+                                    onClick={handleClaimAdmin}
+                                    disabled={claimingAdmin}
+                                    style={{
+                                        width: '100%',
+                                        padding: '12px',
+                                        borderRadius: '12px',
+                                        border: '1px solid rgba(234, 179, 8, 0.4)',
+                                        background: 'rgba(234, 179, 8, 0.08)',
+                                        color: '#eab308',
+                                        cursor: claimingAdmin ? 'not-allowed' : 'pointer',
+                                        fontWeight: '700',
+                                        fontSize: '0.85rem',
+                                        display: 'flex',
+                                        alignItems: 'center',
+                                        justifyContent: 'center',
+                                        gap: '8px',
+                                        transition: 'all 0.2s',
+                                        opacity: claimingAdmin ? 0.6 : 1
+                                    }}
+                                >
+                                    <Shield size={16} />
+                                    {claimingAdmin ? 'Granting...' : 'Claim Admin Access 🔑'}
+                                </button>
+                            )}
 
                             <div style={{ width: '100%', marginTop: 'auto', paddingTop: '20px', borderTop: '1px solid var(--glass-border)' }}>
                                 <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', opacity: 0.7, fontSize: '0.75rem' }}>
