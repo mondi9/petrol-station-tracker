@@ -68,5 +68,14 @@ service cloud.firestore {
       // Users can update their own alerts (mark as triggered, etc.)
       allow update: if isAuth() && request.auth.uid == resource.data.userId;
     }
+
+    // Activity Collection (Visits)
+    match /activity/{activityId} {
+      // Allow everyone to CREATE logs (used by logAppVisit)
+      allow create: if true;
+      
+      // Only Admins can READ activity logs
+      allow read: if isAdmin();
+    }
   }
 }
