@@ -1,5 +1,5 @@
 import { db } from './firebase';
-import { collection, query, where, getDocs } from 'firebase/firestore';
+import { collection, query, where, getDocs, collectionGroup } from 'firebase/firestore';
 
 /**
  * Get user statistics (contributions and reviews)
@@ -12,29 +12,21 @@ export const getUserStats = async (userId) => {
     }
 
     try {
-        // Count contributions (reports across all stations)
-        let contributionsCount = 0;
-        const stationsSnapshot = await getDocs(collection(db, 'stations'));
+        // Count contributions (reports across all stations using collectionGroup)
+        const reportsQuery = query(
+            collectionGroup(db, 'reports'),
+            where('userId', '==', userId)
+        );
+        const reportsSnapshot = await getDocs(reportsQuery);
+        const contributionsCount = reportsSnapshot.size;
 
-        for (const stationDoc of stationsSnapshot.docs) {
-            const reportsQuery = query(
-                collection(db, 'stations', stationDoc.id, 'reports'),
-                where('userId', '==', userId)
-            );
-            const reportsSnapshot = await getDocs(reportsQuery);
-            contributionsCount += reportsSnapshot.size;
-        }
-
-        // Count reviews across all stations
-        let reviewsCount = 0;
-        for (const stationDoc of stationsSnapshot.docs) {
-            const reviewsQuery = query(
-                collection(db, 'stations', stationDoc.id, 'reviews'),
-                where('userId', '==', userId)
-            );
-            const reviewsSnapshot = await getDocs(reviewsQuery);
-            reviewsCount += reviewsSnapshot.size;
-        }
+        // Count reviews across all stations using collectionGroup
+        const reviewsQuery = query(
+            collectionGroup(db, 'reviews'),
+            where('userId', '==', userId)
+        );
+        const reviewsSnapshot = await getDocs(reviewsQuery);
+        const reviewsCount = reviewsSnapshot.size;
 
         return {
             contributions: contributionsCount,
