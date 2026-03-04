@@ -364,16 +364,24 @@ function App() {
         setIsLocating(false);
 
         // Find nearest station using proper distance calculation
-        if (stations.length > 0) {
-          // Calculate distance for ALL stations
-          const stationsWithDistance = stations.map(s => ({
+        // We now use filteredStations to respect user search/filters, but also ensure 
+        // we prioritize active stations in the top 3 results.
+        if (filteredStations.length > 0) {
+          // Calculate distance for ALL currently filtered stations
+          const matchedStations = filteredStations.map(s => ({
             ...s,
             d: calculateDistance(latitude, longitude, s.lat, s.lng)
           })).filter(s => s.d !== null);
 
-          // Get top 3 nearest
-          const top3Data = [...stationsWithDistance]
-            .sort((a, b) => a.d - b.d)
+          // Get top 3 nearest, prioritizing ACTIVE stations if available
+          const top3Data = [...matchedStations]
+            .sort((a, b) => {
+              // Priority 1: Active stations first
+              if (a.status === 'active' && b.status !== 'active') return -1;
+              if (a.status !== 'active' && b.status === 'active') return 1;
+              // Priority 2: Distance
+              return a.d - b.d;
+            })
             .slice(0, 3);
 
           if (top3Data.length > 0) {

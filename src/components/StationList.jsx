@@ -89,6 +89,7 @@ const StationList = ({ stations, onSelect, onViewDetails, selectedStationId, onA
                     {/* Sort Controls */}
                     {[
                         { id: 'price', label: '💰 Cheapest' },
+                        { id: 'distance', label: '📍 Nearest' },
                         { id: 'queue', label: '⏱️ Fastest' }
                     ].map(opt => (
                         <button

@@ -529,7 +529,13 @@ const MapComponent = ({ stations, onStationSelect, onViewDetails, selectedStatio
                         {nearbyStations.length > 0 && (
                             <Circle
                                 center={[userLocation.lat, userLocation.lng]}
-                                radius={stations.find(s => s.id === nearbyStations[nearbyStations.length - 1])?.distance * 1000 || 500}
+                                radius={Math.max(
+                                    ...nearbyStations
+                                        .map(id => stations.find(s => s.id === id)?.distance)
+                                        .filter(d => d !== undefined && d !== null)
+                                        .map(d => d * 1000),
+                                    500 // Min radius 500m
+                                )}
                                 pathOptions={{
                                     color: '#fbbf24',
                                     fillColor: '#fbbf24',
