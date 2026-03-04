@@ -16,48 +16,33 @@ service cloud.firestore {
 
     // Stations Collection
     match /stations/{stationId} {
-      // Public Read
       allow read: if true;
-      
-      // CREATE: Only Admins can add new stations
-      allow create: if isAdmin();
-      
-      // DELETE: Only Admins can delete stations
+      allow create: if isAuth(); 
       allow delete: if isAdmin();
-      
-      // UPDATE: 
-      // Admins can update anything.
-      // Users can only update 'status', 'lastUpdated', 'waitTime', 'prices', 'lastPriceUpdate', 'availability', 'queue', 'confirmations', 'flags', 'lastReporter'.
       allow update: if isAdmin() || (
         isAuth() && 
         request.resource.data.diff(resource.data).affectedKeys()
         .hasOnly(['status', 'lastUpdated', 'waitTime', 'reports', 'prices', 'lastPriceUpdate', 'availability', 'queue', 'confirmations', 'flags', 'lastReporter'])
       );
+    }
 
-      // Reviews Subcollection
-      match /reviews/{reviewId} {
-        allow read: if true;
-        allow create: if isAuth();
-        // Users can delete their own reviews, Admins can delete any
-        allow delete: if isAuth() && (request.auth.uid == resource.data.userId || isAdmin());
-      }
+    // Reports Subcollection (Match anywhere for collectionGroup queries)
+    match /{path=**}/reports/{reportId} {
+      allow read: if true;
+      allow create: if true; 
+    }
 
-      // Reports Subcollection
-      match /reports/{reportId} {
-        allow read: if true;
-        allow create: if true; // Allow everyone to report for consensus
-        allow delete: if isAdmin();
-      }
+    // Reviews Subcollection (Match anywhere for collectionGroup queries)
+    match /{path=**}/reviews/{reviewId} {
+      allow read: if true;
+      allow create: if isAuth();
+      allow delete: if isAuth() && (request.auth.uid == resource.data.userId || isAdmin());
     }
 
     // Users Collection (Profile)
     match /users/{userId} {
       // Users can read their own profile, Admins can read all
       allow read: if isAuth() && (request.auth.uid == userId || isAdmin());
-      // Users can't create/update arbitrary user docs manually via client (handled by backend or safe writes)
-      // But we need to allow the initial creation on signup if we do it from client.
-      // Let's allow users to write to their OWN doc, but role must be 'user' (cannot promote themselves)
-      // Users can write to their own doc (create/update), but cannot change 'role' unless they are admin
       allow write: if isAdmin() || (isAuth() && request.auth.uid == userId);
     }
 

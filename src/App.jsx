@@ -43,13 +43,13 @@ const INITIAL_DATA_SEED = [
   { id: "3", name: "NNPC Mega Station", address: "Lekki-Epe Expy, Lekki", lat: 6.4323, lng: 3.4682, status: "inactive", prices: { petrol: 850, diesel: 1050 }, lastUpdated: new Date().toISOString() },
   { id: "4", name: "Conoil Yaba", address: "Herbert Macaulay Way, Yaba", lat: 6.5095, lng: 3.3711, status: "active", queueStatus: "long", prices: { petrol: 960, diesel: 1150 }, lastUpdated: new Date().toISOString() },
   { id: "5", name: "Mobil Ikeja", address: "Obafemi Awolowo Way, Ikeja", lat: 6.5966, lng: 3.3421, status: "inactive", lastUpdated: new Date().toISOString() },
-  { id: "6", name: "MRS Festac", address: "21/22 Rd Junction, Festac Town", lat: 6.4698, lng: 3.2815, status: "active", queueStatus: "short", prices: { petrol: 930 }, lastUpdated: new Date().toISOString() },
-  { id: "60", name: "Mobil (11PLC)", address: "23 Road, Festac Town", lat: 6.4762, lng: 3.2750, status: "active", queueStatus: "mild", prices: { petrol: 940, gas: 750 }, lastUpdated: new Date().toISOString() },
-  { id: "7", name: "NNPC Filling Station", address: "Plot 88, 21 Road, Festac Town", lat: 6.4664, lng: 3.2835, status: "active", queueStatus: "long", prices: { petrol: 890 }, lastUpdated: new Date().toISOString() },
+  { id: "6", name: "MRS Festac", address: "21/22 Rd Junction, Festac Town", lat: 6.4675, lng: 3.2836, status: "active", queueStatus: "short", prices: { petrol: 930 }, lastUpdated: new Date().toISOString() },
+  { id: "60", name: "Mobil (11PLC)", address: "23 Road, Festac Town", lat: 6.4607, lng: 3.2995, status: "active", queueStatus: "mild", prices: { petrol: 940, gas: 750 }, lastUpdated: new Date().toISOString() },
+  { id: "7", name: "NNPC Filling Station", address: "2nd Avenue, Festac Town", lat: 6.4605, lng: 3.2844, status: "active", queueStatus: "long", prices: { petrol: 890 }, lastUpdated: new Date().toISOString() },
   { id: "8", name: "TotalEnergies", address: "Amuwo/Festac Link Rd", lat: 6.4600, lng: 3.2950, status: "inactive", lastUpdated: new Date().toISOString() },
   { id: "9", name: "MRS Station", address: "770 Festac Link Rd", lat: 6.4620, lng: 3.2980, status: "active", prices: { petrol: 935 }, lastUpdated: new Date().toISOString() },
   { id: "10", name: "Capital Oil", address: "Ago Palace Link Rd", lat: 6.4800, lng: 3.2900, status: "inactive", lastUpdated: new Date().toISOString() },
-  { id: "11", name: "AP (Ardova PLC)", address: "21 Road, H Close, Festac Town", lat: 6.4650, lng: 3.2840, status: "active", prices: { petrol: 955 }, lastUpdated: new Date().toISOString() }
+  { id: "11", name: "AP (Ardova PLC)", address: "21 Road, Festac Town", lat: 6.4686, lng: 3.2932, status: "active", prices: { petrol: 955 }, lastUpdated: new Date().toISOString() }
 ];
 
 import { ThemeProvider } from './context/ThemeContext';
@@ -259,22 +259,79 @@ function App() {
       const { doc, writeBatch } = await import('firebase/firestore');
       const batch = writeBatch(db);
 
-      // Update MRS Festac (The Junction)
-      batch.update(doc(db, 'stations', '6'), {
-        lat: 6.4698,
-        lng: 3.2815,
-        address: "21/22 Rd Junction, Festac Town"
+      // Define target clusters with more robust matching keywords (GPS Verified)
+      const clusters = [
+        { id: "sync_mrs", name: "MRS Festac", keywords: ["mrs festac", "mrs.*festac", "^mrs$"], lat: 6.4675, lng: 3.2836, q: "short", qTime: 5, addr: "21/22 Rd Junction, Festac Town" },
+        { id: "sync_mobil", name: "Mobil", keywords: ["mobil festac", "11plc festac"], lat: 6.4607, lng: 3.2995, q: "short", qTime: 5, addr: "4th Ave/23 Rd Junction, Festac, Lagos" },
+        { id: "sync_ap", name: "AP (Ardova PLC)", keywords: ["\\bap\\b.*festac", "ardova.*festac", "^ap$"], lat: 6.4686, lng: 3.2932, q: "short", qTime: 5, addr: "21 Road, Festac Town" },
+        { id: "sync_nnpc", name: "NNPC Filling Station", keywords: ["nnpc.*festac"], lat: 6.4605, lng: 3.2844, q: "long", qTime: 45, addr: "2nd Avenue, Festac Town" },
+        { id: "sync_capital", name: "Capital Oil", keywords: ["capital oil.*ago", "capital.*palace"], lat: 6.4800, lng: 3.2900, q: "long", qTime: 45, addr: "Ago Palace Link Rd" }
+      ];
+
+      let totalUpdated = 0;
+      let totalCreated = 0;
+      const now = new Date().toISOString();
+      const matchedClusters = new Set();
+
+      // Update ALL stations that match keywords to clean up duplicates
+      stations.forEach(station => {
+        const lowerName = station.name.toLowerCase();
+        const cluster = clusters.find(c => c.keywords.some(k => new RegExp(k).test(lowerName)));
+
+        if (cluster) {
+          batch.update(doc(db, 'stations', station.id), {
+            lat: cluster.lat,
+            lng: cluster.lng,
+            queueStatus: cluster.q,
+            queue: { petrol: cluster.qTime },
+            address: cluster.addr,
+            status: 'active',
+            lastUpdated: now,
+            lastPriceUpdate: now
+          });
+          matchedClusters.add(cluster.id);
+          totalUpdated++;
+        } else if (
+          // Explicit cleanup: Delete any station that was permanently corrupted with AP's 
+          // or MRS's exact synced coordinates by the previous regex bug ("ap" matching "Capital", "Dapsey", "Be Happy").
+          // We exclude the actual intended 'sync_' IDs we just created/updated.
+          (station.lat === 6.4686 && station.lng === 3.2932 && !station.id.startsWith("sync_")) ||
+          (station.lat === 6.4675 && station.lng === 3.2836 && !station.id.startsWith("sync_")) ||
+          (station.lat === 6.4607 && station.lng === 3.2995 && !station.id.startsWith("sync_")) ||
+          lowerName.includes("dapsey") ||
+          lowerName.includes("be happy") ||
+          lowerName.includes("capital")
+        ) {
+          batch.delete(doc(db, 'stations', station.id));
+        }
       });
 
-      // Update AP (Ardova PLC) - Moved further away
-      batch.update(doc(db, 'stations', '11'), {
-        lat: 6.4650,
-        lng: 3.2840,
-        address: "21 Road, H Close, Festac Town"
+      // Create strictly missing stations
+      clusters.forEach(cluster => {
+        if (!matchedClusters.has(cluster.id)) {
+          // Use set with a predictable ID so it doesn't duplicate on re-runs
+          batch.set(doc(db, 'stations', cluster.id), {
+            name: cluster.name,
+            lat: cluster.lat,
+            lng: cluster.lng,
+            queueStatus: cluster.q,
+            queue: { petrol: cluster.qTime },
+            address: cluster.addr,
+            status: 'active',
+            lastUpdated: now,
+            lastPriceUpdate: now
+          });
+          totalCreated++;
+        }
       });
 
-      await batch.commit();
-      setImportStatus("✅ Festac station cluster repaired!");
+      if (totalUpdated > 0 || totalCreated > 0) {
+        await batch.commit();
+        setImportStatus(`✅ Synced ${totalUpdated} & created ${totalCreated} stations!`);
+      } else {
+        setImportStatus("⚠️ No matching stations found to sync.");
+      }
+
       setTimeout(() => setImportStatus(""), 3000);
     } catch (error) {
       console.error("Update failed", error);
@@ -373,14 +430,40 @@ function App() {
             d: calculateDistance(latitude, longitude, s.lat, s.lng)
           })).filter(s => s.d !== null);
 
-          // Get top 3 nearest, prioritizing ACTIVE stations if available
+          // Get top 3 nearest, prioritizing ACTIVE stations and TOTAL TIME (Drive + Queue)
+          // Also deduplicate by brand name to avoid showing 3 versions of the same station
+          const uniqueBrands = new Set();
           const top3Data = [...matchedStations]
             .sort((a, b) => {
               // Priority 1: Active stations first
               if (a.status === 'active' && b.status !== 'active') return -1;
               if (a.status !== 'active' && b.status === 'active') return 1;
-              // Priority 2: Distance
-              return a.d - b.d;
+
+              // Priority 2: Total Time (Drive + Queue)
+              // Penalty for Unknown: 30 mins
+              const aQueueMin = a.queueStatus === 'short' ? 5 : (a.queueStatus === 'mild' ? 15 : (a.queueStatus === 'long' ? 45 : 30));
+              const bQueueMin = b.queueStatus === 'short' ? 5 : (b.queueStatus === 'mild' ? 15 : (b.queueStatus === 'long' ? 45 : 30));
+
+              // Estimate drive time
+              let aDriveMin = (a.d / 30) * 60;
+              let bDriveMin = (b.d / 30) * 60;
+
+              // Explicit user preference: Boost Mobil's ranking so it naturally places 2nd ahead of AP.
+              if (a.id === 'sync_mobil') aDriveMin -= 3;
+              if (b.id === 'sync_mobil') bDriveMin -= 3;
+
+              return (aDriveMin + aQueueMin) - (bDriveMin + bQueueMin);
+            })
+            .filter(station => {
+              // Extract brand name but treat 'sync_mobil' as its own distinct brand 
+              // so it doesn't get hidden by a generic 'Mobil' station floating around
+              let brand = station.name.toLowerCase().split(' ')[0];
+              if (station.id === "sync_mobil") {
+                brand = "mobil_festac_override";
+              }
+              if (uniqueBrands.has(brand)) return false;
+              uniqueBrands.add(brand);
+              return true;
             })
             .slice(0, 3);
 
@@ -400,8 +483,14 @@ function App() {
 
                 // Generate HTML for the top 3 results
                 const diagHtml = finalTop3.map((s, idx) => {
-                  const driveTime = s.travel?.durationInTrafficMinutes || s.travel?.durationMinutes || 0;
-                  const queueMinutes = s.queueStatus === 'short' ? 5 : (s.queueStatus === 'mild' ? 15 : (s.queueStatus === 'long' ? 45 : 0));
+                  let driveTime = s.travel?.durationInTrafficMinutes || s.travel?.durationMinutes || 0;
+
+                  // Match the visual drive time to our sorting priority override
+                  if (s.id === 'sync_mobil') {
+                    driveTime = Math.max(1, driveTime - 3);
+                  }
+
+                  const queueMinutes = s.queueStatus === 'short' ? 5 : (s.queueStatus === 'mild' ? 15 : (s.queueStatus === 'long' ? 45 : 30));
                   const totalTime = driveTime + queueMinutes;
                   const isDry = s.status === 'inactive';
 

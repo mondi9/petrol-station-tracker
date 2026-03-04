@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Database, MapPin, AlertTriangle, User, ShieldCheck, BarChart2, Users, Activity, CheckCircle, Trash2, Clock, ThumbsUp, ThumbsDown, Info } from 'lucide-react';
+import { X, Database, MapPin, AlertTriangle, User, ShieldCheck, BarChart2, Users, Activity, CheckCircle, Trash2, Clock, ThumbsUp, ThumbsDown, Info, Edit3 } from 'lucide-react';
 import { getAllUsers } from '../services/userService';
 import { getRecentActivity } from '../services/activityService';
 import { approveCorrection, rejectCorrection, subscribeToAllPendingCorrections } from '../services/correctionService';
@@ -263,6 +263,9 @@ const AdminDashboard = ({ isOpen, onClose, onImport, onFixAddresses, onRestore, 
                                 </button>
                                 <button onClick={onFixAddresses} className="btn" style={{ background: '#f59e0b', color: 'black', justifyContent: 'center' }}>
                                     Fix Missing Addresses
+                                </button>
+                                <button onClick={onUpdateMRS} className="btn" style={{ background: 'var(--color-active)', color: 'black', justifyContent: 'center' }}>
+                                    Sync Festac Stations
                                 </button>
                             </div>
                         </div>
