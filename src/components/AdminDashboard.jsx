@@ -5,7 +5,20 @@ import { getRecentActivity } from '../services/activityService';
 import { approveCorrection, rejectCorrection, subscribeToAllPendingCorrections } from '../services/correctionService';
 import AnalyticsPanel from './AnalyticsPanel';
 
-const AdminDashboard = ({ isOpen, onClose, onImport, onFixAddresses, onRestore, onAddStation, onGrantAdmin, onUpdateMRS, importStatus, stations, user }) => {
+const AdminDashboard = ({ 
+    isOpen, 
+    onClose, 
+    onImport, 
+    onFixAddresses, 
+    onRestore, 
+    onAddStation, 
+    onGrantAdmin, 
+    onUpdateMRS, 
+    onGlobalPriceUpdate, 
+    importStatus, 
+    stations, 
+    user 
+}) => {
     if (!isOpen) return null;
     const [adminEmail, setAdminEmail] = React.useState('');
     const [activeTab, setActiveTab] = React.useState('management'); // 'management' | 'analytics' | 'users' | 'activity' | 'corrections'
@@ -265,7 +278,10 @@ const AdminDashboard = ({ isOpen, onClose, onImport, onFixAddresses, onRestore, 
                                     Fix Missing Addresses
                                 </button>
                                 <button onClick={onUpdateMRS} className="btn" style={{ background: 'var(--color-active)', color: 'black', justifyContent: 'center' }}>
-                                    Sync Festac Stations
+                                    Sync Festac (Coords, Queue, Prices)
+                                </button>
+                                <button onClick={onGlobalPriceUpdate} className="btn" style={{ background: '#ec4899', color: 'white', justifyContent: 'center' }}>
+                                    Bulk Price Update (All Stations)
                                 </button>
                             </div>
                         </div>

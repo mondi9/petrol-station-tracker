@@ -38,18 +38,18 @@ const LAGOS_BOUNDS = {
 
 // Temporary Initial Data for Seeding
 const INITIAL_DATA_SEED = [
-  { id: "1", name: "TotalEnergies VI", address: "Adeola Odeku St, Victoria Island", lat: 6.4281, lng: 3.4219, status: "active", queueStatus: "short", prices: { petrol: 950, diesel: 1100, gas: 800 }, lastUpdated: new Date().toISOString() },
-  { id: "2", name: "Oando Station", address: "Awolowo Rd, Ikoyi", lat: 6.4468, lng: 3.4172, status: "active", queueStatus: "mild", prices: { petrol: 945, diesel: 1120 }, lastUpdated: new Date().toISOString() },
-  { id: "3", name: "NNPC Mega Station", address: "Lekki-Epe Expy, Lekki", lat: 6.4323, lng: 3.4682, status: "inactive", prices: { petrol: 850, diesel: 1050 }, lastUpdated: new Date().toISOString() },
-  { id: "4", name: "Conoil Yaba", address: "Herbert Macaulay Way, Yaba", lat: 6.5095, lng: 3.3711, status: "active", queueStatus: "long", prices: { petrol: 960, diesel: 1150 }, lastUpdated: new Date().toISOString() },
+  { id: "1", name: "TotalEnergies VI", address: "Adeola Odeku St, Victoria Island", lat: 6.4281, lng: 3.4219, status: "active", queueStatus: "short", prices: { petrol: 1150, diesel: 1300, gas: 900 }, lastUpdated: new Date().toISOString() },
+  { id: "2", name: "Oando Station", address: "Awolowo Rd, Ikoyi", lat: 6.4468, lng: 3.4172, status: "active", queueStatus: "mild", prices: { petrol: 1045, diesel: 1320 }, lastUpdated: new Date().toISOString() },
+  { id: "3", name: "NNPC Mega Station (Lekki)", address: "Lekki-Epe Expy, Lekki", lat: 6.4323, lng: 3.4682, status: "inactive", prices: { petrol: 1050, diesel: 1250 }, lastUpdated: new Date().toISOString() },
+  { id: "4", name: "Conoil Yaba", address: "Herbert Macaulay Way, Yaba", lat: 6.5095, lng: 3.3711, status: "active", queueStatus: "long", prices: { petrol: 1060, diesel: 1350 }, lastUpdated: new Date().toISOString() },
   { id: "5", name: "Mobil Ikeja", address: "Obafemi Awolowo Way, Ikeja", lat: 6.5966, lng: 3.3421, status: "inactive", lastUpdated: new Date().toISOString() },
-  { id: "6", name: "MRS Festac", address: "21/22 Rd Junction, Festac Town", lat: 6.4675, lng: 3.2836, status: "active", queueStatus: "short", prices: { petrol: 930 }, lastUpdated: new Date().toISOString() },
-  { id: "60", name: "Mobil (11PLC)", address: "23 Road, Festac Town", lat: 6.4607, lng: 3.2995, status: "active", queueStatus: "mild", prices: { petrol: 940, gas: 750 }, lastUpdated: new Date().toISOString() },
-  { id: "7", name: "NNPC Filling Station", address: "2nd Avenue, Festac Town", lat: 6.4605, lng: 3.2844, status: "active", queueStatus: "long", prices: { petrol: 890 }, lastUpdated: new Date().toISOString() },
+  { id: "6", name: "MRS Festac", address: "21/22 Rd Junction, Festac Town", lat: 6.4675, lng: 3.2836, status: "active", queueStatus: "short", prices: { petrol: 1030 }, lastUpdated: new Date().toISOString() },
+  { id: "60", name: "Mobil (11PLC)", address: "23 Road, Festac Town", lat: 6.4607, lng: 3.2995, status: "active", queueStatus: "mild", prices: { petrol: 1040, gas: 850 }, lastUpdated: new Date().toISOString() },
+  { id: "7", name: "NNPC Filling Station", address: "2nd Avenue, Festac Town", lat: 6.4605, lng: 3.2844, status: "active", queueStatus: "long", prices: { petrol: 1025 }, lastUpdated: new Date().toISOString() },
   { id: "8", name: "TotalEnergies", address: "Amuwo/Festac Link Rd", lat: 6.4600, lng: 3.2950, status: "inactive", lastUpdated: new Date().toISOString() },
-  { id: "9", name: "MRS Station", address: "770 Festac Link Rd", lat: 6.4620, lng: 3.2980, status: "active", prices: { petrol: 935 }, lastUpdated: new Date().toISOString() },
+  { id: "9", name: "MRS Station", address: "770 Festac Link Rd", lat: 6.4620, lng: 3.2980, status: "active", prices: { petrol: 1035 }, lastUpdated: new Date().toISOString() },
   { id: "10", name: "Capital Oil", address: "Ago Palace Link Rd", lat: 6.4800, lng: 3.2900, status: "inactive", lastUpdated: new Date().toISOString() },
-  { id: "11", name: "AP (Ardova PLC)", address: "21 Road, Festac Town", lat: 6.4686, lng: 3.2932, status: "active", prices: { petrol: 955 }, lastUpdated: new Date().toISOString() }
+  { id: "11", name: "AP (Ardova PLC)", address: "21 Road, Festac Town", lat: 6.4686, lng: 3.2932, status: "active", prices: { petrol: 1055 }, lastUpdated: new Date().toISOString() }
 ];
 
 import { ThemeProvider } from './context/ThemeContext';
@@ -261,11 +261,11 @@ function App() {
 
       // Define target clusters with more robust matching keywords (GPS Verified)
       const clusters = [
-        { id: "sync_mrs", name: "MRS Festac", keywords: ["mrs festac", "mrs.*festac", "^mrs$"], lat: 6.4675, lng: 3.2836, q: "short", qTime: 5, addr: "21/22 Rd Junction, Festac Town" },
-        { id: "sync_mobil", name: "Mobil", keywords: ["mobil festac", "11plc festac"], lat: 6.4607, lng: 3.2995, q: "short", qTime: 5, addr: "4th Ave/23 Rd Junction, Festac, Lagos" },
-        { id: "sync_ap", name: "AP (Ardova PLC)", keywords: ["\\bap\\b.*festac", "ardova.*festac", "^ap$"], lat: 6.4686, lng: 3.2932, q: "short", qTime: 5, addr: "21 Road, Festac Town" },
-        { id: "sync_nnpc", name: "NNPC Filling Station", keywords: ["nnpc.*festac"], lat: 6.4605, lng: 3.2844, q: "long", qTime: 45, addr: "2nd Avenue, Festac Town" },
-        { id: "sync_capital", name: "Capital Oil", keywords: ["capital oil.*ago", "capital.*palace"], lat: 6.4800, lng: 3.2900, q: "long", qTime: 45, addr: "Ago Palace Link Rd" }
+        { id: "sync_mrs", name: "MRS Festac", keywords: ["mrs festac", "mrs.*festac", "^mrs$"], lat: 6.4675, lng: 3.2836, q: "short", qTime: 5, addr: "21/22 Rd Junction, Festac Town", p: 1030 },
+        { id: "sync_mobil", name: "Mobil", keywords: ["mobil festac", "11plc festac"], lat: 6.4607, lng: 3.2995, q: "short", qTime: 5, addr: "4th Ave/23 Rd Junction, Festac, Lagos", p: 1040 },
+        { id: "sync_ap", name: "AP (Ardova PLC)", keywords: ["\\bap\\b.*festac", "ardova.*festac", "^ap$"], lat: 6.4686, lng: 3.2932, q: "short", qTime: 5, addr: "21 Road, Festac Town", p: 1055 },
+        { id: "sync_nnpc", name: "NNPC Filling Station", keywords: ["nnpc.*festac", "nnpc mega.*festac"], lat: 6.4605, lng: 3.2844, q: "long", qTime: 45, addr: "2nd Avenue, Festac Town", p: 1025 },
+        { id: "sync_capital", name: "Capital Oil", keywords: ["capital oil.*ago", "capital.*palace"], lat: 6.4800, lng: 3.2900, q: "long", qTime: 45, addr: "Ago Palace Link Rd", p: 1060 }
       ];
 
       let totalUpdated = 0;
@@ -286,6 +286,7 @@ function App() {
             queue: { petrol: cluster.qTime },
             address: cluster.addr,
             status: 'active',
+            prices: { ...station.prices, petrol: cluster.p },
             lastUpdated: now,
             lastPriceUpdate: now
           });
@@ -318,6 +319,7 @@ function App() {
             queue: { petrol: cluster.qTime },
             address: cluster.addr,
             status: 'active',
+            prices: { petrol: cluster.p },
             lastUpdated: now,
             lastPriceUpdate: now
           });
@@ -336,6 +338,39 @@ function App() {
     } catch (error) {
       console.error("Update failed", error);
       setImportStatus("❌ Update failed: " + error.message);
+    }
+  };
+
+  const handleGlobalPriceUpdate = async () => {
+    try {
+      const amount = parseInt(prompt("Enter price increase amount (e.g. 150):", "150"));
+      if (isNaN(amount)) return;
+
+      setImportStatus(`Applying +₦${amount} to all petrol prices...`);
+      const { doc, writeBatch } = await import('firebase/firestore');
+      const batch = writeBatch(db);
+
+      let count = 0;
+      stations.forEach(station => {
+        if (station.prices?.petrol) {
+          batch.update(doc(db, 'stations', station.id), {
+            'prices.petrol': station.prices.petrol + amount,
+            lastPriceUpdate: new Date().toISOString()
+          });
+          count++;
+        }
+      });
+
+      if (count > 0) {
+        await batch.commit();
+        setImportStatus(`✅ Updated prices for ${count} stations!`);
+      } else {
+        setImportStatus("⚠️ No stations with petrol prices found.");
+      }
+      setTimeout(() => setImportStatus(""), 3000);
+    } catch (error) {
+      console.error("Global update failed", error);
+      setImportStatus("❌ Global update failed: " + error.message);
     }
   };
 
@@ -877,6 +912,7 @@ function App() {
             onAddStation={() => setIsAddStationModalOpen(true)}
             onGrantAdmin={handleGrantAdmin}
             onUpdateMRS={handleUpdateMRSCoords}
+            onGlobalPriceUpdate={handleGlobalPriceUpdate}
             importStatus={importStatus}
             stations={stations}
             user={user}
