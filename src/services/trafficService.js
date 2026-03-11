@@ -197,8 +197,11 @@ export const getBatchTravelTimes = async (origin, destinations) => {
         return [];
     }
 
-    // If no API key or too many destinations, use fallback
+    // Google Maps Distance Matrix supports up to 25 destinations per request
     if (!GOOGLE_MAPS_API_KEY || destinations.length > 25) {
+        if (destinations.length > 25) {
+            console.warn(`Too many destinations (${destinations.length}). Distance Matrix limit is 25. Using fallback.`);
+        }
         return destinations.map(dest => getFallbackTravelTime(origin, dest));
     }
 

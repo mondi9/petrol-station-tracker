@@ -456,181 +456,136 @@ function App() {
         setIsLocating(false);
 
         // Find nearest station using proper distance calculation
-        // We now use filteredStations to respect user search/filters, but also ensure 
-        // we prioritize active stations in the top 3 results.
+        // We now use filteredStations to respect user search/filters.
         if (filteredStations.length > 0) {
-          // Calculate distance for ALL currently filtered stations
-          const matchedStations = filteredStations.map(s => ({
-            ...s,
-            d: calculateDistance(latitude, longitude, s.lat, s.lng)
-          })).filter(s => s.d !== null);
+          // 1. Get Top 10 geographic candidates (to account for road detour reality)
+          const candidates = filteredStations
+            .map(s => ({
+              ...s,
+              d: calculateDistance(latitude, longitude, s.lat, s.lng)
+            }))
+            .filter(s => s.d !== null)
+            .sort((a, b) => a.d - b.d)
+            .slice(0, 10);
 
-          // Get top 3 nearest, prioritizing ACTIVE stations and TOTAL TIME (Drive + Queue)
-          // Also deduplicate by brand name to avoid showing 3 versions of the same station
-          const uniqueBrands = new Set();
-          const top3Data = [...matchedStations]
-            .sort((a, b) => {
-              // Priority 1: Active stations first
-              if (a.status === 'active' && b.status !== 'active') return -1;
-              if (a.status !== 'active' && b.status === 'active') return 1;
-
-              // Priority 2: Total Time (Drive + Queue)
-              // Penalty for Unknown: 30 mins
-              const aQueueMin = a.queueStatus === 'short' ? 5 : (a.queueStatus === 'mild' ? 15 : (a.queueStatus === 'long' ? 45 : 30));
-              const bQueueMin = b.queueStatus === 'short' ? 5 : (b.queueStatus === 'mild' ? 15 : (b.queueStatus === 'long' ? 45 : 30));
-
-              // Estimate drive time
-              let aDriveMin = (a.d / 30) * 60;
-              let bDriveMin = (b.d / 30) * 60;
-
-              // Explicit user preference: Boost Mobil's ranking so it naturally places 2nd ahead of AP.
-              if (a.id === 'sync_mobil') aDriveMin -= 3;
-              if (b.id === 'sync_mobil') bDriveMin -= 3;
-
-              return (aDriveMin + aQueueMin) - (bDriveMin + bQueueMin);
-            })
-            .filter(station => {
-              // Extract brand name but treat 'sync_mobil' as its own distinct brand 
-              // so it doesn't get hidden by a generic 'Mobil' station floating around
-              let brand = station.name.toLowerCase().split(' ')[0];
-              if (station.id === "sync_mobil") {
-                brand = "mobil_festac_override";
-              }
-              if (uniqueBrands.has(brand)) return false;
-              uniqueBrands.add(brand);
-              return true;
-            })
-            .slice(0, 3);
-
-          if (top3Data.length > 0) {
-            // Select the closest one
-            setSelectedStation(top3Data[0]);
-            setNearbyStations(top3Data.map(s => s.id));
-
-            // Fetch real-time (or traffic-fallback) travel times for the top 3
-            getBatchTravelTimes({ lat: latitude, lng: longitude }, top3Data)
+          if (candidates.length > 0) {
+            // 2. Fetch real-time (or traffic-fallback) travel times for the Top 10
+            getBatchTravelTimes({ lat: latitude, lng: longitude }, candidates)
               .then(travelResults => {
-                // Combine travel results with top3Data
-                const finalTop3 = top3Data.map((s, idx) => ({
+                // 3. Combine travel results with candidate data
+                const augmentedCandidates = candidates.map((s, idx) => ({
                   ...s,
-                  travel: travelResults[idx]
+                  travel: travelResults[idx],
+                  // Calculate sorting score: Drive Time + Queue Penalty
+                  queueMin: s.queueStatus === 'short' ? 5 : (s.queueStatus === 'mild' ? 15 : (s.queueStatus === 'long' ? 45 : 30)),
+                  driveMin: travelResults[idx]?.durationInTrafficMinutes || travelResults[idx]?.durationMinutes || (s.d / 30 * 60)
                 }));
 
-                // Generate HTML for the top 3 results
-                const diagHtml = finalTop3.map((s, idx) => {
-                  let driveTime = s.travel?.durationInTrafficMinutes || s.travel?.durationMinutes || 0;
+                // 4. Re-sort by Total Time (Drive + Queue), prioritizing ACTIVE stations
+                const uniqueBrands = new Set();
+                const top3Data = augmentedCandidates
+                  .sort((a, b) => {
+                    // Priority 1: Active stations first
+                    if (a.status === 'active' && b.status !== 'active') return -1;
+                    if (a.status !== 'active' && b.status === 'active') return 1;
 
-                  // Match the visual drive time to our sorting priority override
-                  if (s.id === 'sync_mobil') {
-                    driveTime = Math.max(1, driveTime - 3);
-                  }
+                    // Priority 2: Total Time
+                    let aTotal = a.driveMin + a.queueMin;
+                    let bTotal = b.driveMin + b.queueMin;
 
-                  const queueMinutes = s.queueStatus === 'short' ? 5 : (s.queueStatus === 'mild' ? 15 : (s.queueStatus === 'long' ? 45 : 30));
-                  const totalTime = driveTime + queueMinutes;
-                  const isDry = s.status === 'inactive';
+                    // User preference boost for Mobil Festac
+                    if (a.id === 'sync_mobil') aTotal -= 3;
+                    if (b.id === 'sync_mobil') bTotal -= 3;
 
-                  // Queue Status determination
-                  let qBadge = '';
-                  if (isDry) {
-                    qBadge = '<span style="color: #f87171; font-weight: bold;">⚪ Pumps Dry</span>';
-                  } else if (!s.queueStatus) {
-                    qBadge = '<span style="color: #94a3b8;">⚪ Queue: Unknown</span>';
-                  } else if (s.queueStatus === 'short') {
-                    qBadge = '<span style="color: #10b981; font-weight: bold;">⚡ Short Queue</span>';
-                  } else if (s.queueStatus === 'mild') {
-                    qBadge = '<span style="color: #fbbf24; font-weight: bold;">⏳ Mild Queue</span>';
-                  } else if (s.queueStatus === 'long') {
-                    qBadge = '<span style="color: #ef4444; font-weight: bold;">🚨 Long Queue</span>';
-                  }
+                    return aTotal - bTotal;
+                  })
+                  .filter(station => {
+                    let brand = station.name.toLowerCase().split(' ')[0];
+                    if (station.id === "sync_mobil") brand = "mobil_festac_override";
+                    if (uniqueBrands.has(brand)) return false;
+                    uniqueBrands.add(brand);
+                    return true;
+                  })
+                  .slice(0, 3);
 
-                  return `
-                <div style="font-size: 0.8rem; margin-top: 6px; display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(0,0,0,0.2); borderRadius: 12px; border: 1px solid ${isDry ? 'rgba(239, 68, 68, 0.2)' : 'rgba(255,255,255,0.05)'};">
-                  <div style="display: flex; flex-direction: column; overflow: hidden; gap: 2px;">
-                    <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 175px; font-weight: 600;">${idx + 1}. ${s.name}</span>
-                    <div style="font-size: 0.7rem; opacity: 0.9;">${qBadge}</div>
-                  </div>
-                  <div style="text-align: right; line-height: 1.2;">
-                    <strong style="color: ${idx === 0 && !isDry ? '#10b981' : 'white'}; display: block;">${formatDuration(totalTime)} total</strong>
-                    <span style="font-size: 0.7rem; opacity: 0.6; display: block;">${formatDuration(driveTime)} drive</span>
-                  </div>
-                </div>
-              `;
-                }).join('');
+                if (top3Data.length > 0) {
+                  setSelectedStation(top3Data[0]);
+                  setNearbyStations(top3Data.map(s => s.id));
 
-                // Create toast notification
-                const toast = document.createElement('div');
-                toast.style.cssText = `
-                            position: fixed;
-                            top: 80px;
-                            left: 50%;
-                            transform: translateX(-50%);
-                            background: linear-gradient(135deg, #1f2937, #111827);
-                            color: white;
-                            padding: 24px;
-                            border-radius: 24px;
-                            box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7);
-                            z-index: 10000;
-                            max-width: 90%;
-                            width: 360px;
-                            border: 1px solid rgba(255,255,255,0.1);
-                            animation: slideInDown 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-                        `;
-                toast.innerHTML = `
-                            <div style="text-align: center; margin-bottom: 20px;">
-                                <div style="font-size: 1.4rem; font-weight: 900; color: #10b981; letter-spacing: -0.5px; display: flex; align-items: center; justify-content: center; gap: 8px;">
-                                  <span>📍</span> Nearby Results
-                                </div>
-                                <div style="font-size: 0.8rem; opacity: 0.6; margin-top: 4px;">
-                                    ${top3Data[0].d > 50
-                    ? '<span style="color: #fbbf24;">⚠️ GPS may be set to another region!</span>'
-                    : 'Top 3 including traffic & queue times'}
-                                </div>
-                            </div>
-                            
-                            <div style="margin-bottom: 20px;">
-                                ${diagHtml}
-                            </div>
+                  // Generate Toast HTML for the refined top 3
+                  const diagHtml = top3Data.map((s, idx) => {
+                    const totalTime = s.driveMin + s.queueMin;
+                    const isDry = s.status === 'inactive';
 
-                            <div style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 16px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.05);">
-                                <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 4px;">
-                                    <span style="opacity: 0.6;">GPS Accuracy</span>
-                                    <span style="font-weight: bold; color: ${position.coords.accuracy < 30 ? '#10b981' : '#fbbf24'}">±${Math.round(position.coords.accuracy)}m</span>
-                                </div>
-                                <div style="font-size: 0.7rem; opacity: 0.4; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.5px;">
-                                    ${latitude.toFixed(6)}, ${longitude.toFixed(6)}
-                                </div>
-                            </div>
-                            
-                            <div style="display: flex; gap: 10px;">
-                                <button id="retry-gps" style="flex: 1; padding: 14px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: white; cursor: pointer; font-weight: 700; font-size: 0.9rem; transition: all 0.2s;">Retry</button>
-                                <button id="close-toast" style="flex: 1; padding: 14px; border-radius: 14px; border: none; background: #10b981; color: #064e3b; cursor: pointer; font-weight: 800; font-size: 0.9rem; transition: all 0.2s;">Got it!</button>
-                            </div>
+                    let qBadge = '';
+                    if (isDry) qBadge = '<span style="color: #f87171; font-weight: bold;">⚪ Pumps Dry</span>';
+                    else if (!s.queueStatus) qBadge = '<span style="color: #94a3b8;">⚪ Queue: Unknown</span>';
+                    else if (s.queueStatus === 'short') qBadge = '<span style="color: #10b981; font-weight: bold;">⚡ Short Queue</span>';
+                    else if (s.queueStatus === 'mild') qBadge = '<span style="color: #fbbf24; font-weight: bold;">⏳ Mild Queue</span>';
+                    else if (s.queueStatus === 'long') qBadge = '<span style="color: #ef4444; font-weight: bold;">🚨 Long Queue</span>';
 
-                            <style>
-                                @keyframes slideInDown {
-                                    from { transform: translate(-50%, -30px); opacity: 0; }
-                                    to { transform: translate(-50%, 0); opacity: 1; }
-                                }
-                                #retry-gps:hover { background: rgba(255,255,255,0.1); }
-                                #close-toast:hover { background: #34d399; transform: translateY(-1px); }
-                            </style>
-                        `;
-                document.body.appendChild(toast);
+                    return `
+                      <div style="font-size: 0.8rem; margin-top: 6px; display: flex; justify-content: space-between; align-items: center; padding: 10px; background: rgba(0,0,0,0.2); borderRadius: 12px; border: 1px solid ${isDry ? 'rgba(239, 68, 68, 0.2)' : 'rgba(255,255,255,0.05)'};">
+                        <div style="display: flex; flex-direction: column; overflow: hidden; gap: 2px;">
+                          <span style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 175px; font-weight: 600;">${idx + 1}. ${s.name}</span>
+                          <div style="font-size: 0.7rem; opacity: 0.9;">${qBadge}</div>
+                        </div>
+                        <div style="text-align: right; line-height: 1.2;">
+                          <strong style="color: ${idx === 0 && !isDry ? '#10b981' : 'white'}; display: block;">${formatDuration(totalTime)} total</strong>
+                          <span style="font-size: 0.7rem; opacity: 0.6; display: block;">${formatDuration(s.driveMin)} drive</span>
+                        </div>
+                      </div>
+                    `;
+                  }).join('');
 
-                toast.querySelector('#retry-gps').onclick = () => {
-                  toast.remove();
-                  handleFindNearest();
-                };
+                  // Create toast notification
+                  const toast = document.createElement('div');
+                  toast.style.cssText = `
+                    position: fixed; top: 80px; left: 50%; transform: translateX(-50%);
+                    background: linear-gradient(135deg, #1f2937, #111827); color: white;
+                    padding: 24px; border-radius: 24px; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.7);
+                    z-index: 10000; max-width: 90%; width: 360px; border: 1px solid rgba(255,255,255,0.1);
+                    animation: slideInDown 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+                  `;
+                  toast.innerHTML = `
+                    <div style="text-align: center; margin-bottom: 20px;">
+                        <div style="font-size: 1.4rem; font-weight: 900; color: #10b981; letter-spacing: -0.5px; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                          <span>📍</span> Smart Nearby Results
+                        </div>
+                        <div style="font-size: 0.8rem; opacity: 0.6; margin-top: 4px;">
+                            ${top3Data[0].d > 50
+                        ? '<span style="color: #fbbf24;">⚠️ GPS may be set to another region!</span>'
+                        : (top3Data[0].travel?.hasTrafficData ? '⚡ Traffic-aware road routing' : 'Top results by drive & queue time')}
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 20px;">${diagHtml}</div>
+                    <div style="background: rgba(255,255,255,0.03); padding: 12px; border-radius: 16px; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.05);">
+                        <div style="display: flex; justify-content: space-between; font-size: 0.8rem; margin-bottom: 4px;">
+                            <span style="opacity: 0.6;">GPS Accuracy</span>
+                            <span style="font-weight: bold; color: ${position.coords.accuracy < 30 ? '#10b981' : '#fbbf24'}">±${Math.round(position.coords.accuracy)}m</span>
+                        </div>
+                        <div style="font-size: 0.7rem; opacity: 0.4; font-family: 'JetBrains Mono', monospace; letter-spacing: 0.5px;">
+                            ${latitude.toFixed(6)}, ${longitude.toFixed(6)}
+                        </div>
+                    </div>
+                    <div style="display: flex; gap: 10px;">
+                        <button id="retry-gps" style="flex: 1; padding: 14px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.1); background: rgba(255,255,255,0.05); color: white; cursor: pointer; font-weight: 700; font-size: 0.9rem; transition: all 0.2s;">Retry</button>
+                        <button id="close-toast" style="flex: 1; padding: 14px; border-radius: 14px; border: none; background: #10b981; color: #064e3b; cursor: pointer; font-weight: 800; font-size: 0.9rem; transition: all 0.2s;">Got it!</button>
+                    </div>
+                    <style>
+                        @keyframes slideInDown { from { transform: translate(-50%, -30px); opacity: 0; } to { transform: translate(-50%, 0); opacity: 1; } }
+                        #retry-gps:hover { background: rgba(255,255,255,0.1); }
+                        #close-toast:hover { background: #34d399; transform: translateY(-1px); }
+                    </style>
+                  `;
+                  document.body.appendChild(toast);
+                  toast.querySelector('#retry-gps').onclick = () => { toast.remove(); handleFindNearest(); };
+                  toast.querySelector('#close-toast').onclick = () => { toast.remove(); };
+                  setTimeout(() => { if (toast.parentNode) toast.remove(); }, 20000);
+                }
 
-                toast.querySelector('#close-toast').onclick = () => {
-                  toast.remove();
-                };
-
-                // Remove toast after 20 seconds
-                setTimeout(() => { if (toast.parentNode) toast.remove(); }, 20000);
+                if (isMobile) setViewMode('map');
               });
-
-            if (isMobile) setViewMode('map');
           }
         }
       },
