@@ -4,7 +4,11 @@ import { formatTimeAgo, formatPrice, calculateTravelTime, formatDistance, getQue
 import FilterBar from './FilterBar';
 import PriceDisplay from './PriceDisplay';
 
-const StationList = ({ stations, onSelect, onViewDetails, selectedStationId, onAddStation, onOpenFleetDashboard, onOpenProfile, user, onLogin, onLogout, filters, onFilterChange, userLocation }) => {
+const StationList = ({ 
+    stations, onSelect, onViewDetails, selectedStationId, onAddStation, 
+    onOpenFleetDashboard, onOpenProfile, user, onLogin, onLogout, 
+    filters, onFilterChange, userLocation, travelStats = {} 
+}) => {
     // ... matching existing code ...
     // Local State for sorting only
     const [sortBy, setSortBy] = React.useState('price'); // 'price', 'queue'
@@ -232,8 +236,16 @@ const StationList = ({ stations, onSelect, onViewDetails, selectedStationId, onA
                                         <span style={{ color: 'var(--color-active)', fontWeight: '600' }}>
                                             • {station.distance.toFixed(1)}km
                                             <span style={{ fontSize: '0.75rem', opacity: 0.8, marginLeft: '4px', fontWeight: 'normal' }}>
-                                                (~{formatTravelTime(calculateTravelTime(station.distance))})
+                                                (~{travelStats[station.id] ? travelStats[station.id].text : formatTravelTime(calculateTravelTime(station.distance))})
                                             </span>
+                                            {travelStats[station.id]?.hasTrafficData && (
+                                                <span style={{ 
+                                                    fontSize: '0.65rem', color: '#10b981', marginLeft: '6px', 
+                                                    background: 'rgba(16, 185, 129, 0.1)', padding: '2px 4px', borderRadius: '4px' 
+                                                }}>
+                                                    Live Traffic
+                                                </span>
+                                            )}
                                         </span>
                                     )}
                                 </div>

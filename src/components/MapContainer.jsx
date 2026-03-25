@@ -393,7 +393,7 @@ const RoutingController = ({ selectedStation, userLocation }) => {
     ) : null;
 };
 
-const MapComponent = ({ stations, onStationSelect, onViewDetails, selectedStation, onReportClick, onFindNearest, userLocation, isLocating, onMapClick, nearbyStations = [] }) => {
+const MapComponent = ({ stations, onStationSelect, onViewDetails, selectedStation, onReportClick, onFindNearest, userLocation, isLocating, onMapClick, nearbyStations = [], travelStats = {} }) => {
     const position = [6.5244, 3.3792]; // Default Lagos center
     const [lastStationsCount, setLastStationsCount] = React.useState(0);
     const [showLiveUpdate, setShowLiveUpdate] = React.useState(false);
@@ -600,6 +600,14 @@ const MapComponent = ({ stations, onStationSelect, onViewDetails, selectedStatio
                                                 ? (station.trustLevel === 'uncertain' ? 'Mixing Reports ⚠️' : 'Active')
                                                 : 'Inactive'}
                                         </span>
+                                        {travelStats[station.id] && (
+                                            <span style={{ fontSize: '0.75rem', color: '#34d399', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '4px' }}>
+                                                ⏱️ {travelStats[station.id].text}
+                                                {travelStats[station.id].hasTrafficData && (
+                                                    <span style={{ fontSize: '0.6rem', padding: '2px 4px', background: 'rgba(52, 211, 153, 0.1)', borderRadius: '4px' }}>LIVE</span>
+                                                )}
+                                            </span>
+                                        )}
                                         <span style={{ fontSize: '0.75rem', opacity: 0.5, display: 'flex', alignItems: 'center', gap: '4px' }}>
                                             <Clock size={12} /> {formatTimeAgo(station.lastUpdated)}
                                         </span>

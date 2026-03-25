@@ -63,6 +63,7 @@ function App() {
   const [isLocating, setIsLocating] = useState(false);
   const [userLocation, setUserLocation] = useState(null);
   const [nearbyStations, setNearbyStations] = useState([]);
+  const [travelStats, setTravelStats] = useState({}); // { stationId: { durationMinutes, hasTrafficData, etc } }
 
   const [user, setUser] = useState(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -251,7 +252,11 @@ function App() {
   }, [stations, filters, userLocation]);
 
   // derived state for selected station to ensure it's always fresh
-  const activeSelectedStation = stations.find(s => s.id === selectedStation?.id) || selectedStation;
+  const activeSelectedStation = React.useMemo(() => {
+    const base = stations.find(s => s.id === selectedStation?.id) || selectedStation;
+    if (!base) return null;
+    return { ...base, travel: travelStats[base.id] };
+  }, [stations, selectedStation, travelStats]);
 
   const handleUpdateMRSCoords = async () => {
     try {
@@ -579,18 +584,18 @@ function App() {
                     if (a.id === 'sync_mobil') aTotal -= 3;
                     if (b.id === 'sync_mobil') bTotal -= 3;
 
-                    return aTotal - bTotal;
-                  })
-                  .filter(station => {
-                    let brand = station.name.toLowerCase().split(' ')[0];
-                    if (station.id === "sync_mobil") brand = "mobil_festac_override";
-                    if (uniqueBrands.has(brand)) return false;
-                    uniqueBrands.add(brand);
                     return true;
                   })
                   .slice(0, 3);
 
                 if (top3Data.length > 0) {
+                  // NEW: Update global travel stats so sidebar/markers can show 'Live Traffic'
+                  const newStats = { ...travelStats };
+                  augmentedCandidates.forEach(s => {
+                    if (s.travel) newStats[s.id] = s.travel;
+                  });
+                  setTravelStats(newStats);
+
                   setSelectedStation(top3Data[0]);
                   setNearbyStations(top3Data.map(s => s.id));
 
@@ -791,6 +796,7 @@ function App() {
                 onOpenFleetDashboard={() => setIsFleetDashboardOpen(true)}
                 onAddStation={() => setIsAddStationModalOpen(true)}
                 userLocation={userLocation}
+                travelStats={travelStats}
               />
             </div>
 
@@ -810,6 +816,7 @@ function App() {
                 onFindNearest={handleFindNearest}
                 userLocation={userLocation}
                 isLocating={isLocating}
+                travelStats={travelStats}
                 onMapClick={(latlng) => {
                   console.log("Map: Manual location set to", latlng);
                   setUserLocation({ lat: latlng.lat, lng: latlng.lng });
