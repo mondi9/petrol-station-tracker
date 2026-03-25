@@ -14,7 +14,7 @@ import { grantAdminRole } from './services/userService';
 import { seedInitialData } from './services/stationService';
 import { getUserStats } from './services/statsService';
 import { logAppVisit } from './services/activityService';
-import { getBatchTravelTimes, formatDuration } from './services/trafficService';
+import mapsService from './services/mapsService';
 import AuthModal from './components/AuthModal';
 import UserProfileModal from './components/UserProfileModal';
 import MobileBottomNav from './components/MobileBottomNav';
@@ -402,6 +402,88 @@ function App() {
       setImportStatus("❌ Restore failed: " + error.message);
     }
   };
+  
+  const handleCleanupDuplicates = async () => {
+    try {
+      setImportStatus("Identifying and merging duplicates...");
+      const { doc, deleteDoc, updateDoc } = await import('firebase/firestore');
+      
+      const calculateDistance = (lat1, lon1, lat2, lon2) => {
+          if (!lat1 || !lon1 || !lat2 || !lon2) return Infinity;
+          const R = 6371;
+          const dLat = (lat2 - lat1) * (Math.PI / 180);
+          const dLon = (lon2 - lon1) * (Math.PI / 180);
+          const a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+                    Math.cos(lat1 * (Math.PI / 180)) * Math.cos(lat2 * (Math.PI / 180)) *
+                    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+          const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+          return R * c;
+      };
+
+      const normalizeName = (name) => {
+          if (!name) return "";
+          return name.toLowerCase()
+              .replace(/station/g, "").replace(/petrol/g, "").replace(/fuel/g, "")
+              .replace(/oil/g, "").replace(/limited/g, "").replace(/ltd/g, "")
+              .replace(/[^a-z0-9]/g, "").trim();
+      };
+
+      const dupProcessed = new Set();
+      let delCount = 0;
+      let mergCount = 0;
+
+      for (let i = 0; i < stations.length; i++) {
+          const s1 = stations[i];
+          if (dupProcessed.has(s1.id)) continue;
+          const group = [s1];
+          for (let j = i + 1; j < stations.length; j++) {
+              const s2 = stations[j];
+              if (dupProcessed.has(s2.id)) continue;
+              const dist = calculateDistance(s1.lat, s1.lng, s2.lat, s2.lng);
+              const namesSimilar = normalizeName(s1.name) && normalizeName(s1.name).includes(normalizeName(s2.name)) || normalizeName(s2.name).includes(normalizeName(s1.name));
+              if ((dist < 0.1 && namesSimilar) || dist < 0.05) {
+                  group.push(s2);
+                  dupProcessed.add(s2.id);
+              }
+          }
+
+          if (group.length > 1) {
+              group.sort((a, b) => {
+                  const aHasPrice = a.prices && Object.keys(a.prices).length > 0;
+                  const bHasPrice = b.prices && Object.keys(b.prices).length > 0;
+                  if (aHasPrice && !bHasPrice) return -1;
+                  if (!aHasPrice && bHasPrice) return 1;
+                  if (a.source === 'user_manual' && b.source !== 'user_manual') return -1;
+                  const aIsSync = a.id.startsWith('sync_') || a.id.startsWith('osm_');
+                  const bIsSync = b.id.startsWith('sync_') || b.id.startsWith('osm_');
+                  if (!aIsSync && bIsSync) return -1;
+                  return (b.confirmations?.length || 0) - (a.confirmations?.length || 0);
+              });
+
+              const master = group[0];
+              for (let k = 1; k < group.length; k++) {
+                  const dup = group[k];
+                  if (dup.prices && (!master.prices || Object.keys(dup.prices).some(pk => !master.prices[pk]))) {
+                      await updateDoc(doc(db, 'stations', master.id), {
+                          prices: { ...master.prices, ...dup.prices },
+                          lastPriceUpdate: dup.lastPriceUpdate || master.lastPriceUpdate || new Date().toISOString(),
+                          lastUpdated: new Date().toISOString()
+                      });
+                      mergCount++;
+                  }
+                  await deleteDoc(doc(db, 'stations', dup.id));
+                  delCount++;
+              }
+          }
+      }
+
+      setImportStatus(`✅ Cleanup Done! Merged: ${mergCount}, Deleted: ${delCount}`);
+      setTimeout(() => setImportStatus(""), 5000);
+    } catch (e) {
+      console.error(e);
+      setImportStatus("❌ Cleanup failed: " + e.message);
+    }
+  };
 
   const handleGrantAdmin = async (email) => {
     try {
@@ -470,7 +552,7 @@ function App() {
 
           if (candidates.length > 0) {
             // 2. Fetch real-time (or traffic-fallback) travel times for the Top 10
-            getBatchTravelTimes({ lat: latitude, lng: longitude }, candidates)
+            mapsService.getBatchTravelTimes({ lat: latitude, lng: longitude }, candidates)
               .then(travelResults => {
                 // 3. Combine travel results with candidate data
                 const augmentedCandidates = candidates.map((s, idx) => ({
@@ -531,8 +613,8 @@ function App() {
                           <div style="font-size: 0.7rem; opacity: 0.9;">${qBadge}</div>
                         </div>
                         <div style="text-align: right; line-height: 1.2;">
-                          <strong style="color: ${idx === 0 && !isDry ? '#10b981' : 'white'}; display: block;">${formatDuration(totalTime)} total</strong>
-                          <span style="font-size: 0.7rem; opacity: 0.6; display: block;">${formatDuration(s.driveMin)} drive</span>
+                          <strong style="color: ${idx === 0 && !isDry ? '#10b981' : 'white'}; display: block;">${mapsService.formatDuration(s.driveMin + s.queueMin)} total</strong>
+                          <span style="font-size: 0.7rem; opacity: 0.6; display: block;">${mapsService.formatDuration(s.driveMin)} drive</span>
                         </div>
                       </div>
                     `;
@@ -866,11 +948,12 @@ function App() {
             onRestore={handleRestoreManual}
             onAddStation={() => setIsAddStationModalOpen(true)}
             onGrantAdmin={handleGrantAdmin}
-            onUpdateMRS={handleUpdateMRSCoords}
-            onGlobalPriceUpdate={handleGlobalPriceUpdate}
-            importStatus={importStatus}
-            stations={stations}
-            user={user}
+                onUpdateMRS={handleUpdateMRSCoords}
+                onGlobalPriceUpdate={handleGlobalPriceUpdate}
+                onCleanupDuplicates={handleCleanupDuplicates}
+                importStatus={importStatus}
+                stations={stations}
+                user={user}
           />
 
           {isFleetDashboardOpen && (

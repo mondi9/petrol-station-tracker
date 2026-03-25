@@ -69,16 +69,18 @@ const AddStationModal = ({ isOpen, onClose, onSubmit }) => {
                     </div>
                     <div>
                         <label style={{ display: 'block', marginBottom: '5px', fontSize: '0.9rem', color: 'var(--text-secondary)' }}>Address</label>
-                        <input
-                            type="text" required
-                            value={address} onChange={(e) => setAddress(e.target.value)}
-                            placeholder="e.g. Admiralty Way, Lekki"
-                            style={{
-                                width: '100%', padding: '12px', borderRadius: '8px',
-                                border: '1px solid var(--glass-border)', background: 'rgba(0,0,0,0.2)',
-                                color: 'white', outline: 'none'
-                            }}
-                        />
+                        <div style={{ position: 'relative' }}>
+                            <input
+                                type="text" required
+                                value={address} onChange={(e) => setAddress(e.target.value)}
+                                placeholder="e.g. Admiralty Way, Lekki"
+                                style={{
+                                    width: '100%', padding: '12px', borderRadius: '8px',
+                                    border: '1px solid var(--glass-border)', background: 'rgba(0,0,0,0.2)',
+                                    color: 'white', outline: 'none'
+                                }}
+                            />
+                        </div>
                     </div>
 
                     <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '15px' }}>

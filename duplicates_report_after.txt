@@ -1,0 +1,32 @@
+﻿Fetching stations...
+Found 316 stations.
+Found 7 potential duplicate pairs:
+
+Pair 1 (Extreme proximity, distance: 28m):
+  - 1: Total Filling Station (Lekki-Epe Expressway, Sangotedo, Lagos State) [ID: osm_11121944341] Source: openstreetmap
+  - 2: Unknown Station (Lekki-Epe Expressway, Sangotedo, Lagos State) [ID: osm_785230460] Source: openstreetmap
+
+Pair 2 (Extreme proximity, distance: 2m):
+  - 1: Petrocam (Kudirat Adenekan Street, Lagos State) [ID: osm_5665683278] Source: openstreetmap
+  - 2: Unknown Station (Kudirat Adenekan Street, Lagos State) [ID: osm_829100025] Source: openstreetmap
+
+Pair 3 (Extreme proximity, distance: 10m):
+  - 1: Petrocam Fuel Station (Access Road, Lekki Phase I, Lagos State) [ID: osm_598412469] Source: openstreetmap
+  - 2: Unknown Station (Access Road, Lekki Phase I, Lagos State) [ID: osm_643481441] Source: openstreetmap
+
+Pair 4 (Extreme proximity, distance: 2m):
+  - 1: Total Oshodi (Apapa-Oworonshoki Expressway, Lagos) [ID: osm_6940430231] Source: openstreetmap
+  - 2: Unknown Station (Apapa-Oworonshoki Expressway, Ikeja) [ID: osm_850028339] Source: openstreetmap
+
+Pair 5 (Extreme proximity, distance: 13m):
+  - 1: Conoil (Okota Road, Lagos State) [ID: osm_6966811840] Source: openstreetmap
+  - 2: Unknown Station (Okota Road, Lagos State) [ID: osm_848885954] Source: openstreetmap
+
+Pair 6 (Close proximity and similar name, distance: 94m):
+  - 1: Unknown Station (Lekki-Epe Expressway, Ibeju, Lagos State) [ID: osm_785230406] Source: openstreetmap
+  - 2: Unknown Station (Lekki-Epe Expressway, Ibeju, Lagos State) [ID: osm_785230407] Source: openstreetmap
+
+Pair 7 (Close proximity and similar name, distance: 73m):
+  - 1: Unknown Station (Lekki-Epe Expressway, Ibeju, Lagos State) [ID: osm_793075228] Source: openstreetmap
+  - 2: Unknown Station (Lekki-Epe Expressway, Ibeju, Lagos State) [ID: osm_793075229] Source: openstreetmap
+

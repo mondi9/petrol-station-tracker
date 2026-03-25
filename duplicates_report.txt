@@ -1,0 +1,284 @@
+﻿Fetching stations...
+Found 331 stations.
+Found 70 potential duplicate pairs:
+
+Pair 1 (Extreme proximity, distance: 0m):
+  - 1: NNPC Mega Station (2nd Avenue, Festac Town) [ID: 3] Source: unknown
+  - 2: NNPC Filling Station (2nd Avenue, Festac Town) [ID: 7] Source: unknown
+
+Pair 2 (Close proximity and similar name, distance: 0m):
+  - 1: NNPC Mega Station (2nd Avenue, Festac Town) [ID: 3] Source: unknown
+  - 2: NNPC (2nd Avenue, Festac Town) [ID: osm_3011774528] Source: openstreetmap
+
+Pair 3 (Close proximity and similar name, distance: 0m):
+  - 1: NNPC Mega Station (2nd Avenue, Festac Town) [ID: 3] Source: unknown
+  - 2: NNPC Fuel Station (2nd Avenue, Festac Town) [ID: osm_593494119] Source: openstreetmap
+
+Pair 4 (Close proximity and similar name, distance: 0m):
+  - 1: NNPC Mega Station (2nd Avenue, Festac Town) [ID: 3] Source: unknown
+  - 2: NNPC (2nd Avenue, Festac Town) [ID: osm_7281004014] Source: openstreetmap
+
+Pair 5 (Close proximity and similar name, distance: 0m):
+  - 1: NNPC Mega Station (2nd Avenue, Festac Town) [ID: 3] Source: unknown
+  - 2: NNPC (2nd Avenue, Festac Town) [ID: osm_738682063] Source: openstreetmap
+
+Pair 6 (Close proximity and similar name, distance: 0m):
+  - 1: NNPC Mega Station (2nd Avenue, Festac Town) [ID: 3] Source: unknown
+  - 2: NNPC (2nd Avenue, Festac Town) [ID: osm_745994739] Source: openstreetmap
+
+Pair 7 (Close proximity and similar name, distance: 0m):
+  - 1: NNPC Mega Station (2nd Avenue, Festac Town) [ID: 3] Source: unknown
+  - 2: NNPC (2nd Avenue, Festac Town) [ID: osm_747161021] Source: openstreetmap
+
+Pair 8 (Extreme proximity, distance: 0m):
+  - 1: NNPC Mega Station (2nd Avenue, Festac Town) [ID: 3] Source: unknown
+  - 2: NNPC filing station (2nd Avenue, Festac Town) [ID: osm_789085219] Source: openstreetmap
+
+Pair 9 (Close proximity and similar name, distance: 0m):
+  - 1: NNPC Mega Station (2nd Avenue, Festac Town) [ID: 3] Source: unknown
+  - 2: NNPC (2nd Avenue, Festac Town) [ID: osm_793644710] Source: openstreetmap
+
+Pair 10 (Extreme proximity, distance: 0m):
+  - 1: NNPC Mega Station (2nd Avenue, Festac Town) [ID: 3] Source: unknown
+  - 2: NNPC Filling Station (2nd Avenue, Festac Town) [ID: sync_nnpc] Source: unknown
+
+Pair 11 (Close proximity and similar name, distance: 0m):
+  - 1: MRS Festac (21/22 Rd Junction, Festac Town) [ID: 6] Source: unknown
+  - 2: MRS (21/22 Rd Junction, Festac Town) [ID: osm_2325129711] Source: openstreetmap
+
+Pair 12 (Close proximity and similar name, distance: 0m):
+  - 1: MRS Festac (21/22 Rd Junction, Festac Town) [ID: 6] Source: unknown
+  - 2: MRS (21/22 Rd Junction, Festac Town) [ID: osm_2334172588] Source: openstreetmap
+
+Pair 13 (Close proximity and similar name, distance: 0m):
+  - 1: MRS Festac (21/22 Rd Junction, Festac Town) [ID: 6] Source: unknown
+  - 2: MRS (21/22 Rd Junction, Festac Town) [ID: osm_6966811962] Source: openstreetmap
+
+Pair 14 (Close proximity and similar name, distance: 0m):
+  - 1: NNPC Filling Station (2nd Avenue, Festac Town) [ID: 7] Source: unknown
+  - 2: NNPC (2nd Avenue, Festac Town) [ID: osm_3011774528] Source: openstreetmap
+
+Pair 15 (Close proximity and similar name, distance: 0m):
+  - 1: NNPC Filling Station (2nd Avenue, Festac Town) [ID: 7] Source: unknown
+  - 2: NNPC Fuel Station (2nd Avenue, Festac Town) [ID: osm_593494119] Source: openstreetmap
+
+Pair 16 (Close proximity and similar name, distance: 0m):
+  - 1: NNPC Filling Station (2nd Avenue, Festac Town) [ID: 7] Source: unknown
+  - 2: NNPC (2nd Avenue, Festac Town) [ID: osm_7281004014] Source: openstreetmap
+
+Pair 17 (Close proximity and similar name, distance: 0m):
+  - 1: NNPC Filling Station (2nd Avenue, Festac Town) [ID: 7] Source: unknown
+  - 2: NNPC (2nd Avenue, Festac Town) [ID: osm_738682063] Source: openstreetmap
+
+Pair 18 (Close proximity and similar name, distance: 0m):
+  - 1: NNPC Filling Station (2nd Avenue, Festac Town) [ID: 7] Source: unknown
+  - 2: NNPC (2nd Avenue, Festac Town) [ID: osm_745994739] Source: openstreetmap
+
+Pair 19 (Close proximity and similar name, distance: 0m):
+  - 1: NNPC Filling Station (2nd Avenue, Festac Town) [ID: 7] Source: unknown
+  - 2: NNPC (2nd Avenue, Festac Town) [ID: osm_747161021] Source: openstreetmap
+
+Pair 20 (Extreme proximity, distance: 0m):
+  - 1: NNPC Filling Station (2nd Avenue, Festac Town) [ID: 7] Source: unknown
+  - 2: NNPC filing station (2nd Avenue, Festac Town) [ID: osm_789085219] Source: openstreetmap
+
+Pair 21 (Close proximity and similar name, distance: 0m):
+  - 1: NNPC Filling Station (2nd Avenue, Festac Town) [ID: 7] Source: unknown
+  - 2: NNPC (2nd Avenue, Festac Town) [ID: osm_793644710] Source: openstreetmap
+
+Pair 22 (Close proximity and similar name, distance: 0m):
+  - 1: NNPC Filling Station (2nd Avenue, Festac Town) [ID: 7] Source: unknown
+  - 2: NNPC Filling Station (2nd Avenue, Festac Town) [ID: sync_nnpc] Source: unknown
+
+Pair 23 (Extreme proximity, distance: 28m):
+  - 1: Total Filling Station (Lekki-Epe Expressway, Sangotedo, Lagos State) [ID: osm_11121944341] Source: openstreetmap
+  - 2: Unknown Station (Lekki-Epe Expressway, Sangotedo, Lagos State) [ID: osm_785230460] Source: openstreetmap
+
+Pair 24 (Close proximity and similar name, distance: 0m):
+  - 1: MRS (21/22 Rd Junction, Festac Town) [ID: osm_2325129711] Source: openstreetmap
+  - 2: MRS (21/22 Rd Junction, Festac Town) [ID: osm_2334172588] Source: openstreetmap
+
+Pair 25 (Close proximity and similar name, distance: 0m):
+  - 1: MRS (21/22 Rd Junction, Festac Town) [ID: osm_2325129711] Source: openstreetmap
+  - 2: MRS (21/22 Rd Junction, Festac Town) [ID: osm_6966811962] Source: openstreetmap
+
+Pair 26 (Close proximity and similar name, distance: 0m):
+  - 1: MRS (21/22 Rd Junction, Festac Town) [ID: osm_2334172588] Source: openstreetmap
+  - 2: MRS (21/22 Rd Junction, Festac Town) [ID: osm_6966811962] Source: openstreetmap
+
+Pair 27 (Close proximity and similar name, distance: 0m):
+  - 1: NNPC (2nd Avenue, Festac Town) [ID: osm_3011774528] Source: openstreetmap
+  - 2: NNPC Fuel Station (2nd Avenue, Festac Town) [ID: osm_593494119] Source: openstreetmap
+
+Pair 28 (Close proximity and similar name, distance: 0m):
+  - 1: NNPC (2nd Avenue, Festac Town) [ID: osm_3011774528] Source: openstreetmap
+  - 2: NNPC (2nd Avenue, Festac Town) [ID: osm_7281004014] Source: openstreetmap
+
+Pair 29 (Close proximity and similar name, distance: 0m):
+  - 1: NNPC (2nd Avenue, Festac Town) [ID: osm_3011774528] Source: openstreetmap
+  - 2: NNPC (2nd Avenue, Festac Town) [ID: osm_738682063] Source: openstreetmap
+
+Pair 30 (Close proximity and similar name, distance: 0m):
+  - 1: NNPC (2nd Avenue, Festac Town) [ID: osm_3011774528] Source: openstreetmap
+  - 2: NNPC (2nd Avenue, Festac Town) [ID: osm_745994739] Source: openstreetmap
+
+Pair 31 (Close proximity and similar name, distance: 0m):
+  - 1: NNPC (2nd Avenue, Festac Town) [ID: osm_3011774528] Source: openstreetmap
+  - 2: NNPC (2nd Avenue, Festac Town) [ID: osm_747161021] Source: openstreetmap
+
+Pair 32 (Close proximity and similar name, distance: 0m):
+  - 1: NNPC (2nd Avenue, Festac Town) [ID: osm_3011774528] Source: openstreetmap
+  - 2: NNPC filing station (2nd Avenue, Festac Town) [ID: osm_789085219] Source: openstreetmap
+
+Pair 33 (Close proximity and similar name, distance: 0m):
+  - 1: NNPC (2nd Avenue, Festac Town) [ID: osm_3011774528] Source: openstreetmap
+  - 2: NNPC (2nd Avenue, Festac Town) [ID: osm_793644710] Source: openstreetmap
+
+Pair 34 (Close proximity and similar name, distance: 0m):
+  - 1: NNPC (2nd Avenue, Festac Town) [ID: osm_3011774528] Source: openstreetmap
+  - 2: NNPC Filling Station (2nd Avenue, Festac Town) [ID: sync_nnpc] Source: unknown
+
+Pair 35 (Close proximity and similar name, distance: 14m):
+  - 1: Forte oil (Admiralty Way, Lekki Phase I, Lagos State) [ID: osm_4193738457] Source: openstreetmap
+  - 2: Forte Oil Fuel Station (Admiralty Way, Lekki Phase I, Lagos State) [ID: osm_643481409] Source: openstreetmap
+
+Pair 36 (Close proximity and similar name, distance: 20m):
+  - 1: Forte Oil (Land Bridge Avenue, Maroko, Lagos State) [ID: osm_4722585932] Source: openstreetmap
+  - 2: Forte Oil Fuel Station (Land Bridge Avenue, Maroko, Lagos State) [ID: osm_598412462] Source: openstreetmap
+
+Pair 37 (Extreme proximity, distance: 2m):
+  - 1: Petrocam (Kudirat Adenekan Street, Lagos State) [ID: osm_5665683278] Source: openstreetmap
+  - 2: Unknown Station (Kudirat Adenekan Street, Lagos State) [ID: osm_829100025] Source: openstreetmap
+
+Pair 38 (Close proximity and similar name, distance: 0m):
+  - 1: NNPC Fuel Station (2nd Avenue, Festac Town) [ID: osm_593494119] Source: openstreetmap
+  - 2: NNPC (2nd Avenue, Festac Town) [ID: osm_7281004014] Source: openstreetmap
+
+Pair 39 (Close proximity and similar name, distance: 0m):
+  - 1: NNPC Fuel Station (2nd Avenue, Festac Town) [ID: osm_593494119] Source: openstreetmap
+  - 2: NNPC (2nd Avenue, Festac Town) [ID: osm_738682063] Source: openstreetmap
+
+Pair 40 (Close proximity and similar name, distance: 0m):
+  - 1: NNPC Fuel Station (2nd Avenue, Festac Town) [ID: osm_593494119] Source: openstreetmap
+  - 2: NNPC (2nd Avenue, Festac Town) [ID: osm_745994739] Source: openstreetmap
+
+Pair 41 (Close proximity and similar name, distance: 0m):
+  - 1: NNPC Fuel Station (2nd Avenue, Festac Town) [ID: osm_593494119] Source: openstreetmap
+  - 2: NNPC (2nd Avenue, Festac Town) [ID: osm_747161021] Source: openstreetmap
+
+Pair 42 (Close proximity and similar name, distance: 0m):
+  - 1: NNPC Fuel Station (2nd Avenue, Festac Town) [ID: osm_593494119] Source: openstreetmap
+  - 2: NNPC filing station (2nd Avenue, Festac Town) [ID: osm_789085219] Source: openstreetmap
+
+Pair 43 (Close proximity and similar name, distance: 0m):
+  - 1: NNPC Fuel Station (2nd Avenue, Festac Town) [ID: osm_593494119] Source: openstreetmap
+  - 2: NNPC (2nd Avenue, Festac Town) [ID: osm_793644710] Source: openstreetmap
+
+Pair 44 (Close proximity and similar name, distance: 0m):
+  - 1: NNPC Fuel Station (2nd Avenue, Festac Town) [ID: osm_593494119] Source: openstreetmap
+  - 2: NNPC Filling Station (2nd Avenue, Festac Town) [ID: sync_nnpc] Source: unknown
+
+Pair 45 (Extreme proximity, distance: 10m):
+  - 1: Petrocam Fuel Station (Access Road, Lekki Phase I, Lagos State) [ID: osm_598412469] Source: openstreetmap
+  - 2: Unknown Station (Access Road, Lekki Phase I, Lagos State) [ID: osm_643481441] Source: openstreetmap
+
+Pair 46 (Extreme proximity, distance: 2m):
+  - 1: Total Oshodi (Apapa-Oworonshoki Expressway, Lagos) [ID: osm_6940430231] Source: openstreetmap
+  - 2: Unknown Station (Apapa-Oworonshoki Expressway, Ikeja) [ID: osm_850028339] Source: openstreetmap
+
+Pair 47 (Extreme proximity, distance: 13m):
+  - 1: Conoil (Okota Road, Lagos State) [ID: osm_6966811840] Source: openstreetmap
+  - 2: Unknown Station (Okota Road, Lagos State) [ID: osm_848885954] Source: openstreetmap
+
+Pair 48 (Close proximity and similar name, distance: 0m):
+  - 1: NNPC (2nd Avenue, Festac Town) [ID: osm_7281004014] Source: openstreetmap
+  - 2: NNPC (2nd Avenue, Festac Town) [ID: osm_738682063] Source: openstreetmap
+
+Pair 49 (Close proximity and similar name, distance: 0m):
+  - 1: NNPC (2nd Avenue, Festac Town) [ID: osm_7281004014] Source: openstreetmap
+  - 2: NNPC (2nd Avenue, Festac Town) [ID: osm_745994739] Source: openstreetmap
+
+Pair 50 (Close proximity and similar name, distance: 0m):
+  - 1: NNPC (2nd Avenue, Festac Town) [ID: osm_7281004014] Source: openstreetmap
+  - 2: NNPC (2nd Avenue, Festac Town) [ID: osm_747161021] Source: openstreetmap
+
+Pair 51 (Close proximity and similar name, distance: 0m):
+  - 1: NNPC (2nd Avenue, Festac Town) [ID: osm_7281004014] Source: openstreetmap
+  - 2: NNPC filing station (2nd Avenue, Festac Town) [ID: osm_789085219] Source: openstreetmap
+
+Pair 52 (Close proximity and similar name, distance: 0m):
+  - 1: NNPC (2nd Avenue, Festac Town) [ID: osm_7281004014] Source: openstreetmap
+  - 2: NNPC (2nd Avenue, Festac Town) [ID: osm_793644710] Source: openstreetmap
+
+Pair 53 (Close proximity and similar name, distance: 0m):
+  - 1: NNPC (2nd Avenue, Festac Town) [ID: osm_7281004014] Source: openstreetmap
+  - 2: NNPC Filling Station (2nd Avenue, Festac Town) [ID: sync_nnpc] Source: unknown
+
+Pair 54 (Close proximity and similar name, distance: 0m):
+  - 1: NNPC (2nd Avenue, Festac Town) [ID: osm_738682063] Source: openstreetmap
+  - 2: NNPC (2nd Avenue, Festac Town) [ID: osm_745994739] Source: openstreetmap
+
+Pair 55 (Close proximity and similar name, distance: 0m):
+  - 1: NNPC (2nd Avenue, Festac Town) [ID: osm_738682063] Source: openstreetmap
+  - 2: NNPC (2nd Avenue, Festac Town) [ID: osm_747161021] Source: openstreetmap
+
+Pair 56 (Close proximity and similar name, distance: 0m):
+  - 1: NNPC (2nd Avenue, Festac Town) [ID: osm_738682063] Source: openstreetmap
+  - 2: NNPC filing station (2nd Avenue, Festac Town) [ID: osm_789085219] Source: openstreetmap
+
+Pair 57 (Close proximity and similar name, distance: 0m):
+  - 1: NNPC (2nd Avenue, Festac Town) [ID: osm_738682063] Source: openstreetmap
+  - 2: NNPC (2nd Avenue, Festac Town) [ID: osm_793644710] Source: openstreetmap
+
+Pair 58 (Close proximity and similar name, distance: 0m):
+  - 1: NNPC (2nd Avenue, Festac Town) [ID: osm_738682063] Source: openstreetmap
+  - 2: NNPC Filling Station (2nd Avenue, Festac Town) [ID: sync_nnpc] Source: unknown
+
+Pair 59 (Close proximity and similar name, distance: 0m):
+  - 1: NNPC (2nd Avenue, Festac Town) [ID: osm_745994739] Source: openstreetmap
+  - 2: NNPC (2nd Avenue, Festac Town) [ID: osm_747161021] Source: openstreetmap
+
+Pair 60 (Close proximity and similar name, distance: 0m):
+  - 1: NNPC (2nd Avenue, Festac Town) [ID: osm_745994739] Source: openstreetmap
+  - 2: NNPC filing station (2nd Avenue, Festac Town) [ID: osm_789085219] Source: openstreetmap
+
+Pair 61 (Close proximity and similar name, distance: 0m):
+  - 1: NNPC (2nd Avenue, Festac Town) [ID: osm_745994739] Source: openstreetmap
+  - 2: NNPC (2nd Avenue, Festac Town) [ID: osm_793644710] Source: openstreetmap
+
+Pair 62 (Close proximity and similar name, distance: 0m):
+  - 1: NNPC (2nd Avenue, Festac Town) [ID: osm_745994739] Source: openstreetmap
+  - 2: NNPC Filling Station (2nd Avenue, Festac Town) [ID: sync_nnpc] Source: unknown
+
+Pair 63 (Close proximity and similar name, distance: 0m):
+  - 1: NNPC (2nd Avenue, Festac Town) [ID: osm_747161021] Source: openstreetmap
+  - 2: NNPC filing station (2nd Avenue, Festac Town) [ID: osm_789085219] Source: openstreetmap
+
+Pair 64 (Close proximity and similar name, distance: 0m):
+  - 1: NNPC (2nd Avenue, Festac Town) [ID: osm_747161021] Source: openstreetmap
+  - 2: NNPC (2nd Avenue, Festac Town) [ID: osm_793644710] Source: openstreetmap
+
+Pair 65 (Close proximity and similar name, distance: 0m):
+  - 1: NNPC (2nd Avenue, Festac Town) [ID: osm_747161021] Source: openstreetmap
+  - 2: NNPC Filling Station (2nd Avenue, Festac Town) [ID: sync_nnpc] Source: unknown
+
+Pair 66 (Close proximity and similar name, distance: 94m):
+  - 1: Unknown Station (Lekki-Epe Expressway, Ibeju, Lagos State) [ID: osm_785230406] Source: openstreetmap
+  - 2: Unknown Station (Lekki-Epe Expressway, Ibeju, Lagos State) [ID: osm_785230407] Source: openstreetmap
+
+Pair 67 (Close proximity and similar name, distance: 0m):
+  - 1: NNPC filing station (2nd Avenue, Festac Town) [ID: osm_789085219] Source: openstreetmap
+  - 2: NNPC (2nd Avenue, Festac Town) [ID: osm_793644710] Source: openstreetmap
+
+Pair 68 (Extreme proximity, distance: 0m):
+  - 1: NNPC filing station (2nd Avenue, Festac Town) [ID: osm_789085219] Source: openstreetmap
+  - 2: NNPC Filling Station (2nd Avenue, Festac Town) [ID: sync_nnpc] Source: unknown
+
+Pair 69 (Close proximity and similar name, distance: 73m):
+  - 1: Unknown Station (Lekki-Epe Expressway, Ibeju, Lagos State) [ID: osm_793075228] Source: openstreetmap
+  - 2: Unknown Station (Lekki-Epe Expressway, Ibeju, Lagos State) [ID: osm_793075229] Source: openstreetmap
+
+Pair 70 (Close proximity and similar name, distance: 0m):
+  - 1: NNPC (2nd Avenue, Festac Town) [ID: osm_793644710] Source: openstreetmap
+  - 2: NNPC Filling Station (2nd Avenue, Festac Town) [ID: sync_nnpc] Source: unknown
+

@@ -15,6 +15,7 @@ const AdminDashboard = ({
     onGrantAdmin, 
     onUpdateMRS, 
     onGlobalPriceUpdate, 
+    onCleanupDuplicates, 
     importStatus, 
     stations, 
     user 
@@ -280,9 +281,10 @@ const AdminDashboard = ({
                                 <button onClick={onUpdateMRS} className="btn" style={{ background: 'var(--color-active)', color: 'black', justifyContent: 'center' }}>
                                     Sync Festac (Coords, Queue, Prices)
                                 </button>
-                                <button onClick={onGlobalPriceUpdate} className="btn" style={{ background: '#ec4899', color: 'white', justifyContent: 'center' }}>
-                                    Bulk Price Update (All Stations)
+                                <button onClick={onCleanupDuplicates} className="btn" style={{ background: '#f43f5e', color: 'white', justifyContent: 'center' }}>
+                                    Deep Cleanup (De-duplicate)
                                 </button>
+                                <button onClick={onGrantAdmin} style={{ display: 'none' }}></button> {/* for prop alignment if needed */}
                             </div>
                         </div>
 

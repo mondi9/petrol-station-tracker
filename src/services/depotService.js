@@ -26,15 +26,27 @@ export const addDepot = async (depotData) => {
     // Geocode if coordinates are missing
     if ((!lat || !lng) && address) {
         try {
-            const encodedAddr = encodeURIComponent(`${address}, Lagos, Nigeria`);
-            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodedAddr}&limit=1`;
-            const response = await fetch(url, {
-                headers: { 'User-Agent': 'PetrolPulse/1.0' }
-            });
+            // Use our new Google Geocoding Proxy
+            const proxyUrl = `/.netlify/functions/traffic-proxy?type=geocode&address=${encodeURIComponent(address + ', Lagos, Nigeria')}`;
+            const response = await fetch(proxyUrl);
             const data = await response.json();
-            if (data && data.length > 0) {
-                lat = parseFloat(data[0].lat);
-                lng = parseFloat(data[0].lon);
+
+            if (data.status === 'OK' && data.results && data.results.length > 0) {
+                const location = data.results[0].geometry.location;
+                lat = location.lat;
+                lng = location.lng;
+            } else {
+                // Fallback to OSM if Google fails
+                const encodedAddr = encodeURIComponent(`${address}, Lagos, Nigeria`);
+                const osmUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodedAddr}&limit=1`;
+                const osmResponse = await fetch(osmUrl, {
+                    headers: { 'User-Agent': 'PetrolPulse/1.0' }
+                });
+                const osmData = await osmResponse.json();
+                if (osmData && osmData.length > 0) {
+                    lat = parseFloat(osmData[0].lat);
+                    lng = parseFloat(osmData[0].lon);
+                }
             }
         } catch (e) {
             console.warn("Geocoding failed for new depot", e);

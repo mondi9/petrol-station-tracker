@@ -2,6 +2,7 @@ import { db } from './firebase';
 import { collection, doc, updateDoc, addDoc, getDocs, query, where, serverTimestamp, getDoc, onSnapshot, setDoc, arrayUnion, arrayRemove, orderBy, limit } from 'firebase/firestore';
 import { checkPriceAlerts } from './alertService';
 import { calculateConsensusValue, CONSENSUS_THRESHOLD, getReportWeight } from './verificationService';
+import mapsService from './mapsService';
 
 const COLLECTION_NAME = 'stations';
 
@@ -277,23 +278,30 @@ export const formatDistance = (km) => {
 // Add a new station (Manual)
 export const addStation = async (stationData) => {
     // 1. Geocode if coordinates are missing but address is present
+    // 1. Geocode if coordinates are missing but address is present
     if ((!stationData.lat || !stationData.lng) && stationData.address) {
         try {
-            const encodedAddr = encodeURIComponent(`${stationData.address}, Lagos, Nigeria`); // bias towards Lagos
-            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodedAddr}&limit=1`;
-            const response = await fetch(url, {
-                headers: { 'User-Agent': 'PetrolPulse/1.0' }
-            });
-            const data = await response.json();
-            if (data && data.length > 0) {
-                stationData.lat = parseFloat(data[0].lat);
-                stationData.lng = parseFloat(data[0].lon);
+            // Use our new mapsService (via Google Proxy)
+            const result = await mapsService.geocodeAddress(stationData.address + ', Lagos, Nigeria');
+
+            if (result) {
+                stationData.lat = result.lat;
+                stationData.lng = result.lng;
+            } else {
+                // Fallback to OSM if Google fails
+                const encodedAddr = encodeURIComponent(`${stationData.address}, Lagos, Nigeria`);
+                const osmUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodedAddr}&limit=1`;
+                const osmResponse = await fetch(osmUrl, {
+                    headers: { 'User-Agent': 'PetrolPulse/1.0' }
+                });
+                const osmData = await osmResponse.json();
+                if (osmData && osmData.length > 0) {
+                    stationData.lat = parseFloat(osmData[0].lat);
+                    stationData.lng = parseFloat(osmData[0].lon);
+                }
             }
         } catch (e) {
             console.warn("Geocoding failed for new station", e);
-            // proceed anyway? Or throw?
-            // If we don't have coords, it won't show on map properly unless we handle that.
-            // But let's save it.
         }
     }
 
@@ -367,6 +375,37 @@ export const calculateTravelTime = (distanceKm, speedKmH = 30) => {
     if (!distanceKm) return null;
     const hours = distanceKm / speedKmH;
     return Math.ceil(hours * 60);
+};
+
+/**
+ * Gets traffic-aware distance and duration using Google Maps
+ * Falls back to Haversine and static speed if API fails or key is missing
+ */
+export const getTrafficAwareDistance = async (origin, destination) => {
+    // 1. Try Google Maps via proxy
+    const trafficData = await mapsService.getTrafficDistance(origin, destination);
+    
+    if (trafficData) {
+        return trafficData;
+    }
+
+    // 2. Fallback to Haversine
+    const lat1 = typeof origin === 'object' ? origin.lat : null;
+    const lon1 = typeof origin === 'object' ? origin.lng : null;
+    const lat2 = typeof destination === 'object' ? destination.lat : null;
+    const lon2 = typeof destination === 'object' ? destination.lng : null;
+
+    if (lat1 && lon1 && lat2 && lon2) {
+        const distKm = calculateDistance(lat1, lon1, lat2, lon2);
+        return {
+            distanceKm: distKm,
+            durationMins: calculateTravelTime(distKm),
+            text: `${calculateTravelTime(distKm)} mins (approx)`,
+            trafficModel: false
+        };
+    }
+
+    return null;
 };
 
 /**

@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google Maps API Setup - Petrol Tracker Lagos</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #2563eb;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --bg: #f8fafc;
+            --border: #e2e8f0;
+            --white: #ffffff;
+            --success: #10b981;
+            --warning: #f59e0b;
+        }
+
+        @media print {
+            .no-print { display: none; }
+            body { background: white !important; padding: 0 !important; }
+            .content { border: none !important; box-shadow: none !important; width: 100% !important; margin: 0 !important; }
+        }
+
+        * { box-sizing: border-box; }
+        body { 
+            font-family: 'Inter', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text-main);
+            line-height: 1.6;
+            margin: 0;
+            padding: 40px 20px;
+        }
+
+        .content {
+            max-width: 800px;
+            margin: 0 auto;
+            background: var(--white);
+            padding: 60px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+        }
+
+        header {
+            border-bottom: 2px solid var(--border);
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+        }
+
+        h1 { font-size: 2.25rem; margin: 0; color: var(--text-main); font-weight: 700; letter-spacing: -0.025em; }
+        h2 { font-size: 1.5rem; margin: 2rem 0 1rem; color: var(--primary); font-weight: 700; }
+        h3 { font-size: 1.1rem; margin: 1.5rem 0 0.75rem; color: var(--text-main); font-weight: 600; }
+
+        .tag {
+            display: inline-block;
+            background: #dcfce7;
+            color: #166534;
+            padding: 4px 12px;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        p { margin-bottom: 1.25rem; font-size: 1.05rem; }
+        
+        ol, ul { padding-left: 1.5rem; margin-bottom: 1.5rem; }
+        li { margin-bottom: 0.75rem; font-size: 1.05rem; }
+
+        code {
+            background: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+            font-size: 0.9em;
+            color: #ef4444;
+        }
+
+        .step-block {
+            background: #f8fafc;
+            padding: 24px;
+            border-radius: 8px;
+            border-left: 4px solid var(--primary);
+            margin: 20px 0;
+        }
+
+        .alert {
+            padding: 16px;
+            border-radius: 8px;
+            margin: 20px 0;
+            font-size: 0.95rem;
+        }
+
+        .alert-warning {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            color: #92400e;
+        }
+
+        .alert-info {
+            background: #eff6ff;
+            border: 1px solid #bfdbfe;
+            color: #1e40af;
+        }
+
+        .btn-print {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            background: var(--primary);
+            color: white;
+            padding: 12px 24px;
+            border-radius: 6px;
+            font-weight: 600;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1);
+            transition: transform 0.1s;
+        }
+
+        .btn-print:hover { transform: scale(1.02); }
+    </style>
+</head>
+<body>
+
+    <button class="btn-print no-print" onclick="window.print()">Download as PDF</button>
+
+    <div class="content">
+        <header>
+            <span class="tag">Security &amp; Setup Guide</span>
+            <h1>Google Maps API Integration</h1>
+            <p style="color: var(--text-muted); margin-top: 8px;">Petrol Station Tracker - Lagos Project</p>
+        </header>
+
+        <section>
+            <h2>1. Create a Google Cloud Project</h2>
+            <div class="step-block">
+                <ol>
+                    <li>Visit the <a href="https://console.cloud.google.com/">Google Cloud Console</a>.</li>
+                    <li>Click the <strong>Project Picker</strong> (top-left) and select <strong>New Project</strong>.</li>
+                    <li>Name it <code>Fuel Tracker Lagos</code> and click <strong>Create</strong>.</li>
+                </ol>
+            </div>
+        </section>
+
+        <section>
+            <h2>2. Enable Core Services</h2>
+            <p>You must enable these three specific APIs for the app to function properly:</p>
+            <ul>
+                <li><strong>Distance Matrix API</strong> (Traffic-aware fuel station routing)</li>
+                <li><strong>Geocoding API</strong> (Converting addresses to map coordinates)</li>
+                <li><strong>Places API</strong> (High-quality location search)</li>
+            </ul>
+        </section>
+
+        <section>
+            <h2>3. Secure Your API Key</h2>
+            <div class="alert alert-info">
+                <strong>Important:</strong> Never share your API key. These restrictions ensure that even if someone sees your key, they cannot use it.
+            </div>
+            <ol>
+                <li>Go to <strong>APIs &amp; Services &gt; Credentials</strong>.</li>
+                <li>Click <strong>+ CREATE CREDENTIALS</strong> and choose <strong>API Key</strong>.</li>
+                <li>Click <strong>Edit Key</strong> to add restrictions:
+                    <ul>
+                        <li>Set Application restrictions to <strong>Websites</strong>.</li>
+                        <li>Add <code>http://localhost:*</code> (for development).</li>
+                        <li>Add <code>https://petrol-station-tracker.netlify.app/*</code> (for your live site).</li>
+                    </ul>
+                </li>
+                <li>Set API restrictions to <strong>Restrict key</strong> and check the three APIs mentioned above.</li>
+            </ol>
+        </section>
+
+        <section>
+            <h2>4. Billing &amp; Free Tier Verification</h2>
+            <p>Google provides <strong>$200 of free monthly credit</strong>, which covers approx. 5,000–25,000 requests depending on the service.</p>
+            <div class="alert alert-warning">
+                <strong>Billing Setup:</strong> A linked card is required for identity verification. Google may request a temporary $10 authorization (it sits as a credit on your account).
+            </div>
+        </section>
+
+        <section>
+            <h2>5. Set "Never-Pay" Quotas</h2>
+            <p>To ensure you <strong>never</strong> exceed the free monthly credit, set these daily limits:</p>
+            <div class="step-block">
+                <ul>
+                    <li><strong>Distance Matrix API:</strong> 150 requests per day.</li>
+                    <li><strong>Places/Geocoding API:</strong> 500 requests per day.</li>
+                </ul>
+                <p style="font-size: 0.9rem; margin:0;"><em>Settings found under: APIs &amp; Services &gt; Enabled APIs &gt; [API Name] &gt; Quotas &amp; System limits.</em></p>
+            </div>
+        </section>
+
+        <section>
+            <h2>6. Implementation</h2>
+            <p>Once active, add the key to your <code>.env.local</code> file in the app root:</p>
+            <code>VITE_GOOGLE_MAPS_API_KEY=your_copied_key_here</code>
+        </section>
+
+        <footer style="margin-top: 60px; padding-top: 20px; border-top: 1px solid var(--border); font-size: 0.8rem; color: var(--text-muted); text-align: center;">
+            Document generated for Petrol Tracker Lagos Project. &copy; 2026.
+        </footer>
+    </div>
+
+</body>
+</html>

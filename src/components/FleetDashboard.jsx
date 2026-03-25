@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect } from 'react';
 import { X, Download, Filter, MapPin, Fuel, Warehouse, BarChart2, Layout, Plus, Trash2, TrendingUp, Settings, Send, BookOpen, ArrowLeft } from 'lucide-react';
 import { MapContainer, TileLayer, Marker, Popup } from 'react-leaflet';
-import { exportStationsToCSV, formatPrice, calculateDistance, calculateSavings } from '../services/stationService';
+import { exportStationsToCSV, formatPrice, calculateDistance, calculateSavings, getTrafficAwareDistance, formatTravelTime } from '../services/stationService';
 import { subscribeToDepots, addDepot, deleteDepot } from '../services/depotService';
 import FleetAnalytics from './FleetAnalytics';
 import AddDepotModal from './AddDepotModal';
@@ -22,6 +22,8 @@ const FleetDashboard = ({ stations, onClose }) => {
     const [showOptimizer, setShowOptimizer] = useState(false);
     const [tankSize, setTankSize] = useState(50); // Liters
     const [fuelConsumption, setFuelConsumption] = useState(15); // Liters per 100km (e.g. 15L/100km for a truck)
+    const [trafficData, setTrafficData] = useState({}); // { stationId: { durationMins, distanceKm, text, trafficModel } }
+    const [loadingTraffic, setLoadingTraffic] = useState(false);
 
     // Fetch Depots
     useEffect(() => {
@@ -88,6 +90,35 @@ const FleetDashboard = ({ stations, onClose }) => {
             return (a.distanceFromDepot || Infinity) - (b.distanceFromDepot || Infinity);
         });
     }, [stations, searchQuery, filterType, selectedDepot, showOptimizer, tankSize, fuelConsumption, referencePrice]);
+
+    // Fetch Traffic Data for Top 5 Stations
+    useEffect(() => {
+        if (!selectedDepot || filteredStations.length === 0) return;
+
+        const fetchTraffic = async () => {
+            setLoadingTraffic(true);
+            const top5 = filteredStations.slice(0, 5);
+            const newTrafficData = { ...trafficData };
+
+            for (const station of top5) {
+                // Only fetch if not already fetched for this depot move
+                if (station.lat && station.lng && !newTrafficData[station.id]) {
+                    const data = await getTrafficAwareDistance(
+                        { lat: selectedDepot.lat, lng: selectedDepot.lng },
+                        { lat: station.lat, lng: station.lng }
+                    );
+                    if (data) {
+                        newTrafficData[station.id] = data;
+                    }
+                }
+            }
+            setTrafficData(newTrafficData);
+            setLoadingTraffic(false);
+        };
+
+        const timer = setTimeout(fetchTraffic, 1000); // Debounce to allow sorting to settle
+        return () => clearTimeout(timer);
+    }, [selectedDepot?.id, filteredStations.slice(0, 5).map(s => s.id).join(',')]);
 
     const handleExport = () => {
         exportStationsToCSV(filteredStations);
@@ -352,6 +383,7 @@ const FleetDashboard = ({ stations, onClose }) => {
                                 <tr>
                                     <th style={{ padding: '12px' }}>Station</th>
                                     <th className="hide-on-mobile" style={{ padding: '12px' }}>Dist.</th>
+                                    <th style={{ padding: '12px' }}>Duration</th>
                                     {showOptimizer && <th style={{ padding: '12px', color: '#4ade80' }}>Net Savings</th>}
                                     <th style={{ padding: '12px' }}>Prices</th>
                                     <th style={{ padding: '12px' }}></th>
@@ -373,7 +405,25 @@ const FleetDashboard = ({ stations, onClose }) => {
                                             </div>
                                         </td>
                                         <td className="hide-on-mobile" style={{ padding: '12px' }}>
-                                            {station.distanceFromDepot ? `${station.distanceFromDepot.toFixed(1)} km` : '-'}
+                                            {trafficData[station.id]?.distanceKm 
+                                                ? `${trafficData[station.id].distanceKm.toFixed(1)} km` 
+                                                : station.distanceFromDepot 
+                                                    ? `${station.distanceFromDepot.toFixed(1)} km` 
+                                                    : '-'}
+                                        </td>
+                                        <td style={{ padding: '12px' }}>
+                                            {trafficData[station.id] ? (
+                                                <div style={{ display: 'flex', flexDirection: 'column' }}>
+                                                    <span style={{ fontWeight: 'bold', color: trafficData[station.id].trafficModel ? '#60a5fa' : 'white' }}>
+                                                        {trafficData[station.id].text}
+                                                    </span>
+                                                    {trafficData[station.id].trafficModel && (
+                                                        <span style={{ fontSize: '0.7rem', color: '#60a5fa' }}>Live Traffic</span>
+                                                    )}
+                                                </div>
+                                            ) : (
+                                                <span style={{ opacity: 0.5 }}>-</span>
+                                            )}
                                         </td>
 
                                         {/* Savings Column (Only when Optimizer ON) */}
