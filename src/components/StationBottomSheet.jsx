@@ -1,7 +1,7 @@
 import React from 'react';
 import { X, Navigation, Fuel, Clock, MapPin } from 'lucide-react';
 import { formatTimeAgo, formatPrice, calculateTravelTime } from '../services/stationService';
-import { formatDuration } from '../services/trafficService';
+import mapsService from '../services/mapsService';
 
 const StationBottomSheet = ({ station, onClose, onNavigate }) => {
     if (!station) return null;
@@ -169,12 +169,12 @@ const StationBottomSheet = ({ station, onClose, onNavigate }) => {
                             {(() => {
                                 const driveTime = calculateTravelTime(station.distance);
                                 const queueMins = station.queueStatus === 'short' ? 5 : (station.queueStatus === 'mild' ? 15 : (station.queueStatus === 'long' ? 45 : 0));
-                                return formatDuration(driveTime + queueMins);
+                                return mapsService.formatDuration(driveTime + queueMins);
                             })()}
                         </div>
                     </div>
                     <div style={{ display: 'flex', gap: '10px', marginTop: '6px', fontSize: '0.7rem', opacity: 0.6 }}>
-                        <span>🚗 Drive: {formatDuration(calculateTravelTime(station.distance))}</span>
+                        <span>🚗 Drive: {mapsService.formatDuration(calculateTravelTime(station.distance))}</span>
                         <span>•</span>
                         <span>⏳ Queue: {station.queueStatus === 'short' ? '5' : (station.queueStatus === 'mild' ? '15' : (station.queueStatus === 'long' ? '45' : '0'))}m</span>
                     </div>
