@@ -267,8 +267,8 @@ function App() {
       // Define target clusters with more robust matching keywords (GPS Verified)
       const clusters = [
         { id: "sync_mrs", name: "MRS Festac", keywords: ["mrs festac", "mrs.*festac", "^mrs$"], lat: 6.4675, lng: 3.2836, q: "short", qTime: 5, addr: "21/22 Rd Junction, Festac Town", p: 1030 },
-        { id: "sync_mobil", name: "Mobil", keywords: ["mobil festac", "11plc festac"], lat: 6.4607, lng: 3.2995, q: "short", qTime: 5, addr: "4th Ave/23 Rd Junction, Festac, Lagos", p: 1040 },
-        { id: "sync_ap", name: "AP (Ardova PLC)", keywords: ["\\bap\\b.*festac", "ardova.*festac", "^ap$"], lat: 6.4686, lng: 3.2932, q: "short", qTime: 5, addr: "21 Road, Festac Town", p: 1055 },
+        { id: "sync_mobil", name: "Mobil", keywords: ["mobil festac", "11plc festac"], lat: 6.4670, lng: 3.2840, q: "short", qTime: 5, addr: "4th Ave/23 Rd Junction, Festac, Lagos", p: 1040 },
+        { id: "sync_ap", name: "AP (Ardova PLC)", keywords: ["\\bap\\b.*festac", "ardova.*festac", "^ap$"], lat: 6.4665, lng: 3.2845, q: "short", qTime: 5, addr: "21 Road, Festac Town", p: 1055 },
         { id: "sync_nnpc", name: "NNPC Filling Station", keywords: ["nnpc.*festac", "nnpc mega.*festac"], lat: 6.4605, lng: 3.2844, q: "long", qTime: 45, addr: "2nd Avenue, Festac Town", p: 1025 },
         { id: "sync_capital", name: "Capital Oil", keywords: ["capital oil.*ago", "capital.*palace"], lat: 6.4800, lng: 3.2900, q: "long", qTime: 45, addr: "Ago Palace Link Rd", p: 1060 }
       ];
@@ -580,11 +580,7 @@ function App() {
                     let aTotal = a.driveMin + a.queueMin;
                     let bTotal = b.driveMin + b.queueMin;
 
-                    // User preference boost for Mobil Festac
-                    if (a.id === 'sync_mobil') aTotal -= 3;
-                    if (b.id === 'sync_mobil') bTotal -= 3;
-
-                    return true;
+                    return aTotal - bTotal;
                   })
                   .slice(0, 3);
 
@@ -669,6 +665,14 @@ function App() {
                   toast.querySelector('#retry-gps').onclick = () => { toast.remove(); handleFindNearest(); };
                   toast.querySelector('#close-toast').onclick = () => { toast.remove(); };
                   setTimeout(() => { if (toast.parentNode) toast.remove(); }, 20000);
+
+                  // Announce the closest station using Web Speech API
+                  if ('speechSynthesis' in window) {
+                    window.speechSynthesis.cancel(); // Cancel any ongoing speech
+                    const text = `Found ${top3Data.length} nearby stations. The closest is ${top3Data[0].name}, ${mapsService.formatDuration(top3Data[0].driveMin + top3Data[0].queueMin)} away.`;
+                    const utterance = new SpeechSynthesisUtterance(text);
+                    window.speechSynthesis.speak(utterance);
+                  }
                 }
 
                 if (isMobile) setViewMode('map');

@@ -8,6 +8,8 @@ import { getActiveAlertCount } from '../services/alertService';
 import { useTheme } from '../context/ThemeContext';
 import { getUserReports, getUserReviews, getUserPhotos } from '../services/statsService';
 import { formatTimeAgo, formatPrice, getStatusColor } from '../services/stationService';
+import { Capacitor } from '@capacitor/core';
+import { CapacitorUpdater } from '@capgo/capacitor-updater';
 
 const UserProfileModal = ({ isOpen, onClose, user, stats = { contributions: 0, reviews: 0 }, stations = [] }) => {
     const { theme, toggleTheme } = useTheme();
@@ -19,6 +21,7 @@ const UserProfileModal = ({ isOpen, onClose, user, stats = { contributions: 0, r
     const [userPhotos, setUserPhotos] = useState([]);
     const [loadingPhotos, setLoadingPhotos] = useState(false);
     const [claimingAdmin, setClaimingAdmin] = useState(false);
+    const [capgoVersion, setCapgoVersion] = useState('');
 
     // History State
     const [historyType, setHistoryType] = useState('none'); // 'none' | 'reports' | 'reviews'

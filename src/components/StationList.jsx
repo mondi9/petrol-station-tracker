@@ -11,7 +11,7 @@ const StationList = ({
 }) => {
     // ... matching existing code ...
     // Local State for sorting only
-    const [sortBy, setSortBy] = React.useState('price'); // 'price', 'queue'
+    const [sortBy, setSortBy] = React.useState('queue'); // 'distance', 'queue'
 
     // Sort the incoming filtered stations
     const sortedStations = [...stations].sort((a, b) => {
@@ -92,7 +92,6 @@ const StationList = ({
                 <div style={{ display: 'flex', gap: '8px', marginTop: '-4px', overflowX: 'auto', paddingBottom: '4px' }}>
                     {/* Sort Controls */}
                     {[
-                        { id: 'price', label: '💰 Cheapest' },
                         { id: 'distance', label: '📍 Nearest' },
                         { id: 'queue', label: '⏱️ Fastest' }
                     ].map(opt => (

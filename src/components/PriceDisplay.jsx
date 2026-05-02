@@ -48,17 +48,24 @@ const PriceDisplay = ({
         ? { [fuelType]: prices[fuelType] }
         : prices;
 
-    // Compact mode - show lowest price only
+    // Compact mode - prioritize petrol, then diesel, then lowest price
     if (compact) {
-        const lowestFuel = Object.entries(displayPrices).reduce((min, [fuel, price]) =>
-            !min || price < min.price ? { fuel, price } : min
-            , null);
+        let primaryFuel = null;
+        if (displayPrices.petrol) {
+            primaryFuel = { fuel: 'petrol', price: displayPrices.petrol };
+        } else if (displayPrices.diesel) {
+            primaryFuel = { fuel: 'diesel', price: displayPrices.diesel };
+        } else {
+            primaryFuel = Object.entries(displayPrices).reduce((min, [fuel, price]) =>
+                !min || price < min.price ? { fuel, price } : min
+                , null);
+        }
 
-        if (!lowestFuel) return null;
+        if (!primaryFuel) return null;
 
         const priceData = formatPriceWithTrend(
-            lowestFuel.price,
-            previousPrices?.[lowestFuel.fuel]
+            primaryFuel.price,
+            previousPrices?.[primaryFuel.fuel]
         );
 
         const TrendIcon = priceData.trend === 'rising' ? TrendingUp :
