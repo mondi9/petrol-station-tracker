@@ -517,6 +517,16 @@ function App() {
       return;
     }
 
+    // Pre-unlock Web Speech API with a silent utterance during the synchronous
+    // user-gesture context. Browsers block speechSynthesis.speak() in async
+    // callbacks (Promise.then / geolocation) unless it was "touched" first here.
+    if ('speechSynthesis' in window) {
+      const unlock = new SpeechSynthesisUtterance('');
+      unlock.volume = 0;
+      window.speechSynthesis.cancel();
+      window.speechSynthesis.speak(unlock);
+    }
+
     setIsLocating(true);
     navigator.geolocation.getCurrentPosition(
       (position) => {
