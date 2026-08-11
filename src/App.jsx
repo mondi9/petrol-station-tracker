@@ -65,6 +65,11 @@ function App() {
   const [nearbyStations, setNearbyStations] = useState([]);
   const [travelStats, setTravelStats] = useState({}); // { stationId: { durationMinutes, hasTrafficData, etc } }
 
+  // Mirrors selectedStation for the Firestore subscription effect so it can
+  // read the latest value without re-subscribing on every selection.
+  const selectedStationRef = React.useRef(null);
+  selectedStationRef.current = selectedStation;
+
   const [user, setUser] = useState(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [isAddStationModalOpen, setIsAddStationModalOpen] = useState(false);
@@ -140,15 +145,15 @@ function App() {
 
 
   useEffect(() => {
-    // Subscribe to Firestore updates
+    // Subscribe to Firestore updates (subscribe ONCE - not on every selection)
     const unsubscribe = subscribeToStations(
       (updatedStations) => {
         setStations(updatedStations);
         setIsLoading(false);
 
         // Update selected station if it exists in the new list
-        if (selectedStation) {
-          const updatedSelected = updatedStations.find(s => s.id === selectedStation.id);
+        if (selectedStationRef.current) {
+          const updatedSelected = updatedStations.find(s => s.id === selectedStationRef.current.id);
           if (updatedSelected) {
             setSelectedStation(updatedSelected);
           }
@@ -162,7 +167,7 @@ function App() {
     );
 
     return () => unsubscribe();
-  }, [selectedStation]);
+  }, []);
 
   const handleStationSelect = (station) => {
     setSelectedStation(station);

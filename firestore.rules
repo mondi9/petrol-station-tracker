@@ -1,7 +1,12 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    
+
+    // Helper function to check if user is authenticated
+    function isAuth() {
+      return request.auth != null;
+    }
+
     // Helper function to check if user is admin
     function isAdmin() {
       return request.auth != null && 
@@ -9,44 +14,86 @@ service cloud.firestore {
              get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
 
-    // Helper function to check if user is authenticated
-    function isAuth() {
-      return request.auth != null;
-    }
-
-    // Helper function to check if user is a manager
+    // Helper function to check if user is admin or manager
     function isManager() {
       return request.auth != null && 
              exists(/databases/$(database)/documents/users/$(request.auth.uid)) &&
-             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'manager';
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role in ['admin', 'manager'];
+    }
+
+    // Validates the shape of a report document submitted by a user or guest
+    function isValidFuel(f) { return f in ['petrol', 'diesel', 'premium', 'gas']; }
+    function isValidAvailability(a) { return a in ['available', 'low', 'empty']; }
+
+    function isValidReport(data) {
+      return data.timestamp is timestamp
+        && (!('fuelType' in data) || isValidFuel(data.fuelType))
+        && (!('availability' in data) || isValidAvailability(data.availability))
+        && (!('queueLength' in data) || (data.queueLength is number && data.queueLength >= 0 && data.queueLength <= 300))
+        && (!('price' in data) || (data.price is number && data.price >= 100 && data.price <= 5000))
+        && (!('rating' in data) || (data.rating is number && data.rating >= 1 && data.rating <= 5));
     }
 
     // Stations Collection
     match /stations/{stationId} {
       allow read: if true;
-      allow create: if isAuth(); 
+      allow create: if isAdmin() || (
+        isAuth() &&
+        request.resource.data.name is string && request.resource.data.name.size() > 0 &&
+        request.resource.data.keys().hasOnly(['name', 'address', 'lat', 'lng', 'status', 'lastUpdated', 'prices', 'source', 'openingHours', 'queue', 'queueStatus', 'availability'])
+      );
       allow delete: if isAdmin();
+      // Non-admin users may only touch status-reporting fields (and prices, once
+      // the consensus layer on the client has decided to apply them). Admins can edit everything.
       allow update: if isAdmin() || (
         isAuth() && 
         request.resource.data.diff(resource.data).affectedKeys()
-        .hasOnly(['status', 'lastUpdated', 'waitTime', 'reports', 'availability', 'queue', 'confirmations', 'flags', 'lastReporter'])
-      ) || (
-        isManager() && 
-        request.resource.data.diff(resource.data).affectedKeys()
-        .hasOnly(['status', 'lastUpdated', 'waitTime', 'reports', 'availability', 'queue', 'confirmations', 'flags', 'lastReporter', 'prices', 'lastPriceUpdate'])
+        .hasOnly(['status', 'lastUpdated', 'waitTime', 'reports', 'availability', 'queue', 'confirmations', 'flags', 'lastReporter', 'lastComment', 'lastPhotoUrl', 'lastPhotoThumbUrl', 'hasPhoto', 'reportQuality', 'prices', 'lastPriceUpdate', 'lastQueueUpdate', 'verifications', 'lastVerified'])
       );
     }
 
     // Reports Subcollection (Match anywhere for collectionGroup queries)
     match /{path=**}/reports/{reportId} {
       allow read: if true;
-      allow create: if true; 
+      // Guests may report (validated shape only); authenticated users must own their report.
+      allow create: if isValidReport(request.resource.data) && (
+        !isAuth()
+          ? (request.resource.data.userId == 'anonymous' || request.resource.data.userId == null)
+          : request.resource.data.userId == request.auth.uid
+      );
+      allow update: if false;
+      allow delete: if isAdmin();
+    }
+
+    // Price History Subcollection
+    match /stations/{stationId}/priceHistory/{entryId} {
+      allow read: if true;
+      allow create: if isValidReport(request.resource.data) || request.resource.data.price is number;
+      allow update: if false;
+      allow delete: if isAdmin();
+    }
+
+    // Presence Pings Subcollection
+    match /stations/{stationId}/pings/{userId} {
+      allow read: if isAuth();
+      allow create: if isAuth() && request.auth.uid == userId;
+      allow update: if isAuth() && request.auth.uid == userId;
+      allow delete: if isAdmin();
+    }
+
+    // Price Verifications Subcollection
+    match /stations/{stationId}/price_verifications/{verificationId} {
+      allow read: if true;
+      allow create: if isAuth() && request.resource.data.userId == request.auth.uid;
+      allow update: if false;
+      allow delete: if isAdmin();
     }
 
     // Reviews Subcollection (Match anywhere for collectionGroup queries)
     match /{path=**}/reviews/{reviewId} {
       allow read: if true;
-      allow create: if isAuth();
+      allow create: if isAuth() && request.resource.data.userId == request.auth.uid;
+      allow update: if false;
       allow delete: if isAuth() && (request.auth.uid == resource.data.userId || isAdmin());
     }
 
@@ -54,20 +101,62 @@ service cloud.firestore {
     match /users/{userId} {
       // Users can read their own profile, Admins can read all
       allow read: if isAuth() && (request.auth.uid == userId || isAdmin());
-      allow write: if isAdmin() || (isAuth() && request.auth.uid == userId);
+      allow create: if isAuth() && request.auth.uid == userId && request.resource.data.role == 'user';
+      // A user may update their own profile but can NEVER change their own role.
+      allow update: if isAdmin() || (
+        isAuth() && request.auth.uid == userId &&
+        request.resource.data.role == resource.data.role
+      );
+      allow delete: if isAdmin();
+    }
+
+    // User Favorites Subcollection
+    match /users/{userId}/favorites/{stationId} {
+      allow read: if isAuth() && request.auth.uid == userId;
+      allow create: if isAuth() && request.auth.uid == userId;
+      allow update: if isAuth() && request.auth.uid == userId;
+      allow delete: if isAuth() && request.auth.uid == userId;
+    }
+
+    // Depots Collection (Fleet)
+    match /depots/{depotId} {
+      allow read: if true;
+      allow create: if isManager();
+      allow update: if isManager();
+      allow delete: if isManager();
+    }
+
+    // Fuel Ledger Collection (Fleet)
+    match /fuelLedger/{entryId} {
+      allow read: if isAuth();
+      allow create: if isAuth();
+      allow update: if isManager();
+      allow delete: if isManager();
+    }
+
+    // Corrections Collection (Community peer review)
+    match /corrections/{correctionId} {
+      allow read: if true;
+      allow create: if isAuth() && request.resource.data.userId == request.auth.uid && request.resource.data.status == 'pending';
+      // Voters may only change upvotes/downvotes. Approval/rejection is admin-only.
+      allow update: if isAdmin() || (
+        isAuth() && request.auth.uid == resource.data.userId &&
+        request.resource.data.diff(resource.data).affectedKeys().hasOnly(['upvotes', 'downvotes'])
+      );
+      allow delete: if isAdmin();
     }
 
     // Price Alerts Collection
     match /priceAlerts/{alertId} {
       // Users can read their own alerts
       allow read: if isAuth() && request.auth.uid == resource.data.userId;
-      
+
       // Users can create alerts for themselves
       allow create: if isAuth() && request.auth.uid == request.resource.data.userId;
-      
+
       // Users can delete their own alerts
       allow delete: if isAuth() && request.auth.uid == resource.data.userId;
-      
+
       // Users can update their own alerts (mark as triggered, etc.)
       allow update: if isAuth() && request.auth.uid == resource.data.userId;
     }
@@ -76,9 +165,9 @@ service cloud.firestore {
     match /activity/{activityId} {
       // Allow everyone to CREATE logs (used by logAppVisit)
       allow create: if true;
-      
-      // For verification phase: allow authenticated users to read (will tighten to isAdmin later)
-      allow read: if isAuth() || isAdmin();
+      allow read: if isAdmin();
+      allow update: if false;
+      allow delete: if isAdmin();
     }
   }
 }

@@ -144,10 +144,26 @@ export const updateStationStatus = async (stationId, reportData, userId = null, 
     // We check if this report + recent ones cross the threshold to change the main UI
     const fuelType = reportData.fuelType;
 
+    // The incoming report is folded into the consensus calculation so that a
+    // single fresh report can establish the value when no prior data exists.
+    const incomingReport = {
+        ...reportData,
+        userId: userId || 'anonymous',
+        isVerifiedEvidence: !!reportData.isVerifiedEvidence,
+        hasPhoto: !!reportData.hasPhoto
+    };
+
     // Fields we want to validate via consensus
-    const priceConsensus = await calculateConsensusValue(stationId, 'price', fuelType);
-    const availabilityConsensus = await calculateConsensusValue(stationId, 'availability', fuelType);
-    const queueConsensus = await calculateConsensusValue(stationId, 'queueLength', fuelType);
+    const priceConsensus = await calculateConsensusValue(stationId, 'price', fuelType, 240, incomingReport);
+    const availabilityConsensus = await calculateConsensusValue(stationId, 'availability', fuelType, 240, incomingReport);
+    const queueConsensus = await calculateConsensusValue(stationId, 'queueLength', fuelType, 240, incomingReport);
+
+    // A field is applied when: verified evidence (weight 1.0), OR community
+    // consensus above threshold, OR this is the only recent report (no prior data).
+    const shouldApply = (consensus) =>
+        incomingWeight >= 1.0 ||
+        (consensus.value !== null && consensus.totalWeight >= CONSENSUS_THRESHOLD) ||
+        !consensus.hasPriorData;
 
     // Prepare update payload
     const updatePayload = {
@@ -156,7 +172,7 @@ export const updateStationStatus = async (stationId, reportData, userId = null, 
 
     // PRICE CONSENSUS
     // Update main price ONLY if new consensus is reached or if this report is "verified" (Weight 1.0)
-    if (incomingWeight >= 1.0 || (priceConsensus.value && priceConsensus.totalWeight >= CONSENSUS_THRESHOLD)) {
+    if (shouldApply(priceConsensus)) {
         const targetPrice = incomingWeight >= 1.0 ? reportData.price : priceConsensus.value;
         if (targetPrice) {
             updatePayload[`prices.${fuelType}`] = targetPrice;
@@ -165,22 +181,23 @@ export const updateStationStatus = async (stationId, reportData, userId = null, 
     }
 
     // AVAILABILITY & STATUS CONSENSUS
-    if (incomingWeight >= 1.0 || (availabilityConsensus.value && availabilityConsensus.totalWeight >= CONSENSUS_THRESHOLD)) {
+    if (shouldApply(availabilityConsensus)) {
         const targetAvailability = incomingWeight >= 1.0 ? reportData.availability : availabilityConsensus.value;
-        updatePayload[`availability.${fuelType}`] = targetAvailability;
+        if (targetAvailability) {
+            updatePayload[`availability.${fuelType}`] = targetAvailability;
 
-        // Update overall station status
-        if (targetAvailability !== 'empty') {
-            updatePayload.status = 'active';
-        } else {
-            // Check if others are empty (Simplified: stay active if any was available, but here we just follow the consensus of the current fuel)
-            // A more complex check would look at diesel/premium too.
-            // For now, if petrol is dry, and it's the main thing people check, we might mark inactive or let decay handle it.
+            // Update overall station status. Petrol is the primary fuel people check,
+            // so an 'empty' consensus on petrol marks the station inactive.
+            if (targetAvailability === 'empty') {
+                if (fuelType === 'petrol') updatePayload.status = 'inactive';
+            } else {
+                updatePayload.status = 'active';
+            }
         }
     }
 
     // QUEUE CONSENSUS
-    if (incomingWeight >= 1.0 || (queueConsensus.value !== null && queueConsensus.totalWeight >= CONSENSUS_THRESHOLD)) {
+    if (shouldApply(queueConsensus)) {
         const targetQueue = incomingWeight >= 1.0 ? reportData.queueLength : queueConsensus.value;
         updatePayload[`queue.${fuelType}`] = targetQueue;
     }

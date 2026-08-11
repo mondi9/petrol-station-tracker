@@ -1,5 +1,5 @@
-import { collection, query, where, getDocs, orderBy, limit, serverTimestamp } from 'firebase/firestore';
-import { calculateDistance } from './stationService';
+import { db } from './firebase';
+import { collection, query, where, getDocs, orderBy, limit } from 'firebase/firestore';
 
 // Weight Constants for consensus
 export const WEIGHT_VERIFIED_PHOTO = 1.0;  // Photo taken near station
@@ -268,13 +268,16 @@ export const getReportWeight = (report) => {
 
 /**
  * Aggregates recent reports to find a weighted consensus value for a field.
+ * Optionally folds the incoming (about-to-be-written) report into the
+ * aggregation so a single fresh report can establish the value.
  * @param {string} stationId - ID of the station
  * @param {string} field - The field to check (e.g., 'price', 'availability', 'queueLength')
  * @param {string} fuelType - Fuel type for scoping
  * @param {number} windowMinutes - Time window for "recent" reports
- * @returns {Promise<{value: any, totalWeight: number, confidence: number}>}
+ * @param {object|null} extraReport - The incoming report to include (default null)
+ * @returns {Promise<{value: any, totalWeight: number, confidence: number, hasPriorData: boolean}>}
  */
-export const calculateConsensusValue = async (stationId, field, fuelType, windowMinutes = 240) => {
+export const calculateConsensusValue = async (stationId, field, fuelType, windowMinutes = 240, extraReport = null) => {
     try {
         const timeThreshold = new Date(Date.now() - windowMinutes * 60 * 1000);
         const reportsRef = collection(db, 'stations', stationId, 'reports');
@@ -289,9 +292,15 @@ export const calculateConsensusValue = async (stationId, field, fuelType, window
         );
 
         const snapshot = await getDocs(q);
-        if (snapshot.empty) return { value: null, totalWeight: 0, confidence: 0 };
-
         const reports = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        const hasPriorData = reports.length > 0;
+
+        // Fold the incoming report into the consensus (it hasn't been written yet)
+        if (extraReport && extraReport[field] !== undefined && extraReport[field] !== null) {
+            reports.push(extraReport);
+        }
+
+        if (reports.length === 0) return { value: null, totalWeight: 0, confidence: 0, hasPriorData };
 
         // Group values and sum weights
         const aggregations = {};
@@ -325,11 +334,12 @@ export const calculateConsensusValue = async (stationId, field, fuelType, window
         return {
             value: bestValue,
             totalWeight: maxWeight,
-            confidence: maxWeight / totalWeightInWindow
+            confidence: maxWeight / totalWeightInWindow,
+            hasPriorData
         };
     } catch (error) {
         console.error('Error calculating consensus:', error);
-        return { value: null, totalWeight: 0, confidence: 0 };
+        return { value: null, totalWeight: 0, confidence: 0, hasPriorData: false };
     }
 };
 

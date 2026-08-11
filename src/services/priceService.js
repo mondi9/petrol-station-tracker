@@ -56,7 +56,14 @@ export const getPriceFreshness = (timestamp) => {
         return { status: 'unknown', color: '#64748b', label: 'No data' };
     }
 
-    return { status: 'recorded', color: '#22c55e', label: 'Recorded' };
+    const hoursOld = (new Date() - new Date(timestamp)) / (1000 * 60 * 60);
+    if (hoursOld <= 24) {
+        return { status: 'fresh', color: '#22c55e', label: 'Today' };
+    }
+    if (hoursOld <= 168) { // 7 days
+        return { status: 'moderate', color: '#eab308', label: `${Math.floor(hoursOld / 24)}d old` };
+    }
+    return { status: 'stale', color: '#ef4444', label: 'Stale' };
 };
 
 /**

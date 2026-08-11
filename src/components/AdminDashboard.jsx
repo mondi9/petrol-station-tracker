@@ -20,7 +20,6 @@ const AdminDashboard = ({
     stations, 
     user 
 }) => {
-    if (!isOpen) return null;
     const [adminEmail, setAdminEmail] = React.useState('');
     const [activeTab, setActiveTab] = React.useState('management'); // 'management' | 'analytics' | 'users' | 'activity' | 'corrections'
     const [allUsers, setAllUsers] = React.useState([]);
@@ -49,6 +48,8 @@ const AdminDashboard = ({
             unsubscribeCorrections();
         };
     }, [activeTab, isOpen]);
+
+    if (!isOpen) return null;
 
     const fetchUsers = async () => {
         setIsLoadingData(true);
