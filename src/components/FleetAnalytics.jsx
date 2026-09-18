@@ -33,23 +33,27 @@ const FleetAnalytics = ({ stations }) => {
     const [historyData, setHistoryData] = useState([]);
     const [historyStationNames, setHistoryStationNames] = useState([]);
     const [historyLoading, setHistoryLoading] = useState(true);
+    const hasMounted = React.useRef(false);
 
     // Load price history on mount and when fuel filter changes
     useEffect(() => {
-        const activeStations = stations.filter(s => s.status === 'active' && s.prices?.[fuelFilter]);
-        if (activeStations.length === 0) {
-            setHistoryLoading(false);
-            return;
+        if (!hasMounted.current) {
+            hasMounted.current = true;
+            setHistoryLoading(stations.length > 0);
         }
 
-        setHistoryLoading(true);
+        const activeStations = stations.filter(s => s.status === 'active' && s.prices?.[fuelFilter]);
+        if (activeStations.length === 0) return;
+
         fetchMultiStationPriceHistory(activeStations, fuelFilter, 30)
             .then(({ chartData, stationNames }) => {
                 setHistoryData(chartData);
                 setHistoryStationNames(stationNames);
             })
-            .finally(() => setHistoryLoading(false));
-    }, [stations, fuelFilter]);
+            .catch(error => console.error("Failed to fetch price history", error));
+    }, [stations]);
+
+    // 1. Status Distribution
 
     // 1. Status Distribution
     const statusData = useMemo(() => {

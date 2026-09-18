@@ -407,7 +407,9 @@ const MapComponent = ({ stations, onStationSelect, onViewDetails, selectedStatio
     const [pulseMarkers, setPulseMarkers] = React.useState(false);
 
     // Detect live updates
-    const lastStationsCount = React.useRef(stations.length);
+const lastStationsCount = React.useRef(stations.length);
+    const [showLiveUpdate, setShowLiveUpdate] = React.useState(false);
+    const [pulseMarkers, setPulseMarkers] = React.useState(false);
 
     // Detect live updates using refs to avoid setState in effect
     useEffect(() => {

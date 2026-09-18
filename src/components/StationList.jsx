@@ -1,5 +1,5 @@
 import React from 'react';
-import { MapPin, Fuel, Clock, Info } from 'lucide-react';
+import { MapPin, Fuel, Clock, Info, HelpCircle } from 'lucide-react';
 import { formatTimeAgo, formatPrice, calculateTravelTime, formatDistance, getQueueFreshness, formatTravelTime } from '../services/stationService';
 import FilterBar from './FilterBar';
 import PriceDisplay from './PriceDisplay';
@@ -7,7 +7,7 @@ import PriceDisplay from './PriceDisplay';
 const StationList = ({ 
     stations, onSelect, onViewDetails, selectedStationId, onAddStation, 
     onOpenFleetDashboard, onOpenProfile, user, onLogin, onLogout, 
-    filters, onFilterChange, userLocation, travelStats = {} 
+    filters, onFilterChange, userLocation, travelStats = {}, onOpenOnboarding = () => {} 
 }) => {
     // ... matching existing code ...
     // Local State for sorting only
@@ -15,11 +15,12 @@ const StationList = ({
 
     // Sort the incoming filtered stations
     const sortedStations = [...stations].sort((a, b) => {
-        // Priority 1: Freshness (Active & Fresh first)
+        // Priority 1: Freshness (Active & Fresh first) - only for non-distance sorts,
+        // so "Nearest" truly sorts by actual distance.
         const aFresh = a.freshnessStatus === 'fresh' && a.status === 'active';
         const bFresh = b.freshnessStatus === 'fresh' && b.status === 'active';
-        if (aFresh && !bFresh) return -1;
-        if (!aFresh && bFresh) return 1;
+        if (sortBy !== 'distance' && aFresh && !bFresh) return -1;
+        if (sortBy !== 'distance' && !aFresh && bFresh) return 1;
 
         if (sortBy === 'distance') {
             // If distance is missing (Infinity), push to bottom.
@@ -54,19 +55,38 @@ const StationList = ({
 
             {/* Header */}
             <div style={{ padding: '16px', borderBottom: '1px solid var(--glass-border)' }}>
-                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px' }}>
-                    <div style={{
-                        background: 'var(--color-active)',
-                        width: '32px', height: '32px',
-                        borderRadius: '8px',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center'
-                    }}>
-                        <Fuel size={20} color="#000" />
+                <div style={{ display: 'flex', alignItems: 'center', gap: '12px', marginBottom: '8px', justifyContent: 'space-between' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                        <div style={{
+                            background: 'var(--color-active)',
+                            width: '32px', height: '32px',
+                            borderRadius: '8px',
+                            display: 'flex', alignItems: 'center', justifyContent: 'center'
+                        }}>
+                            <Fuel size={20} color="#000" />
+                        </div>
+                        <h1 style={{ fontSize: '1.25rem', fontWeight: '800', letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: '8px' }}>
+                            Lagos Petrol Pulse
+                            <span style={{ fontSize: '0.6rem', padding: '2px 6px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', opacity: 0.5 }}>v2.1</span>
+                        </h1>
                     </div>
-                    <h1 style={{ fontSize: '1.25rem', fontWeight: '800', letterSpacing: '-0.02em', display: 'flex', alignItems: 'center', gap: '8px' }}>
-                        Lagos Petrol Pulse
-                        <span style={{ fontSize: '0.6rem', padding: '2px 6px', background: 'rgba(255,255,255,0.1)', borderRadius: '4px', opacity: 0.5 }}>v2.1</span>
-                    </h1>
+                    <button
+                        onClick={onOpenOnboarding}
+                        title="Help / Onboarding guide"
+                        style={{
+                            background: 'transparent',
+                            border: 'none',
+                            color: 'rgba(255,255,255,0.6)',
+                            cursor: 'pointer',
+                            display: 'flex',
+                            alignItems: 'center',
+                            justifyContent: 'center',
+                            padding: '6px',
+                            borderRadius: '8px'
+                        }}
+                    >
+                        <HelpCircle size={20} />
+                    </button>
                 </div>
                 <p style={{ opacity: 0.6, fontSize: '0.8rem' }}>
                     Real-time crowd-sourced fuel availability.

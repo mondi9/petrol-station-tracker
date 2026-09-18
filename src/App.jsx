@@ -5,7 +5,7 @@ import MapComponent from './components/MapContainer';
 import StationList from './components/StationList';
 import ReportModal from './components/ReportModal';
 import ReloadPrompt from './components/ReloadPrompt';
-import { subscribeToStations, updateStationStatus, addStation, recordUserPresence, calculateDistance, formatDistance, calculateTravelTime, formatTravelTime } from './services/stationService';
+import { subscribeToStations, updateStationStatus, addStation, calculateDistance, calculateTravelTime } from './services/stationService';
 
 import { subscribeToAuth, logout } from './services/authService';
 import { db } from './services/firebase';
@@ -27,7 +27,7 @@ import FilterBar from './components/FilterBar.jsx';
 import ErrorBoundary from './components/ErrorBoundary.jsx';
 import LocationDisclosure from './components/LocationDisclosure';
 import LagosOnlyModal from './components/LagosOnlyModal';
-import OnboardingFlow from './components/OnboardingFlow';
+import OnboardingModal from './components/OnboardingModal';
 
 const LAGOS_BOUNDS = {
   latMin: 6.30,
@@ -123,7 +123,7 @@ function App() {
   // Log Visit on initial load
   useEffect(() => {
     logAppVisit(user?.uid, user?.email);
-  }, [user?.uid]); // Log when user state changes (e.g. login) to associate the session
+  }, [user?.uid, user?.email]); // Log when user state changes (e.g. login) to associate the session
 
   const handleLogout = async () => {
     try {
@@ -560,7 +560,7 @@ function App() {
         // Find nearest station using proper distance calculation
         // We now use filteredStations to respect user search/filters.
         if (filteredStations.length > 0) {
-          // 1. Get Top 10 geographic candidates (to account for road detour reality)
+          // 1. Get Top 20 geographic candidates (to account for road detour reality)
           const candidates = filteredStations
             .map(s => ({
               ...s,
@@ -568,36 +568,36 @@ function App() {
             }))
             .filter(s => s.d !== null)
             .sort((a, b) => a.d - b.d)
-            .slice(0, 10);
+            .slice(0, 20);
 
           if (candidates.length > 0) {
-            // 2. Fetch real-time (or traffic-fallback) travel times for the Top 10
+            // 2. Fetch real-time (or traffic-fallback) travel times for the Top 20
             mapsService.getBatchTravelTimes({ lat: latitude, lng: longitude }, candidates)
               .then(travelResults => {
                 // 3. Combine travel results with candidate data
-                const augmentedCandidates = candidates.map((s, idx) => ({
-                  ...s,
-                  travel: travelResults[idx],
-                  // Calculate sorting score: Drive Time + Queue Penalty
-                  queueMin: s.queueStatus === 'short' ? 5 : (s.queueStatus === 'mild' ? 15 : (s.queueStatus === 'long' ? 45 : 30)),
-                  driveMin: travelResults[idx]?.durationInTrafficMinutes || travelResults[idx]?.durationMinutes || (s.d / 30 * 60)
-                }));
+                const augmentedCandidates = candidates.map((s, idx) => {
+                  const travel = travelResults[idx];
+                  return {
+                    ...s,
+                    travel: travel,
+                    // Re-sort: use travel time as primary ranking metric
+                    // If no traffic data, travel.durationMinutes is still calculated via fallback
+                    sortTime: travel?.durationInTrafficMinutes || travel?.durationMinutes || calculateTravelTime(s.d)
+                  };
+                });
 
-                // 4. Re-sort by Total Time (Drive + Queue), prioritizing ACTIVE stations
-                const uniqueBrands = new Set();
-                const top3Data = augmentedCandidates
-                  .sort((a, b) => {
-                    // Priority 1: Active stations first
-                    if (a.status === 'active' && b.status !== 'active') return -1;
-                    if (a.status !== 'active' && b.status === 'active') return 1;
+                // 4. Re-sort candidates based on travel time
+                const sortedCandidates = augmentedCandidates.sort((a, b) => {
+                  // Priority 1: Active stations first
+                  if (a.status === 'active' && b.status !== 'active') return -1;
+                  if (a.status !== 'active' && b.status === 'active') return 1;
 
-                    // Priority 2: Total Time
-                    let aTotal = a.driveMin + a.queueMin;
-                    let bTotal = b.driveMin + b.queueMin;
+                  // Priority 2: Travel time ascending
+                  return a.sortTime - b.sortTime;
+                });
 
-                    return aTotal - bTotal;
-                  })
-                  .slice(0, 3);
+                // Take top 3
+                const top3Data = sortedCandidates.slice(0, 3);
 
                 if (top3Data.length > 0) {
                   // NEW: Update global travel stats so sidebar/markers can show 'Live Traffic'
@@ -612,7 +612,7 @@ function App() {
 
                   // Generate Toast HTML for the refined top 3
                   const diagHtml = top3Data.map((s, idx) => {
-                    const totalTime = s.driveMin + s.queueMin;
+                    const totalTime = s.sortTime;
                     const isDry = s.status === 'inactive';
 
                     let qBadge = '';
@@ -629,8 +629,7 @@ function App() {
                           <div style="font-size: 0.7rem; opacity: 0.9;">${qBadge}</div>
                         </div>
                         <div style="text-align: right; line-height: 1.2;">
-                          <strong style="color: ${idx === 0 && !isDry ? '#10b981' : 'white'}; display: block;">${mapsService.formatDuration(s.driveMin + s.queueMin)} total</strong>
-                          <span style="font-size: 0.7rem; opacity: 0.6; display: block;">${mapsService.formatDuration(s.driveMin)} drive</span>
+                          <strong style="color: ${idx === 0 && !isDry ? '#10b981' : 'white'}; display: block;">${mapsService.formatDuration(totalTime)} total</strong>
                         </div>
                       </div>
                     `;
@@ -653,7 +652,7 @@ function App() {
                         <div style="font-size: 0.8rem; opacity: 0.6; margin-top: 4px;">
                             ${top3Data[0].d > 50
                         ? '<span style="color: #fbbf24;">⚠️ GPS may be set to another region!</span>'
-                        : (top3Data[0].travel?.hasTrafficData ? '⚡ Traffic-aware road routing' : 'Top results by drive & queue time')}
+                        : (top3Data[0].travel?.hasTrafficData ? '⚡ Traffic-aware road routing' : 'Top results by estimated travel time')}
                         </div>
                     </div>
                     <div style="margin-bottom: 20px;">${diagHtml}</div>
@@ -684,7 +683,7 @@ function App() {
                   // Announce the closest station using Web Speech API
                   if ('speechSynthesis' in window) {
                     window.speechSynthesis.cancel(); // Cancel any ongoing speech
-                    const text = `Found ${top3Data.length} nearby stations. The closest is ${top3Data[0].name}, ${mapsService.formatDuration(top3Data[0].driveMin + top3Data[0].queueMin)} away.`;
+                    const text = `Found ${top3Data.length} nearby stations. The closest is ${top3Data[0].name}, ${mapsService.formatDuration(top3Data[0].sortTime)} away.`;
                     const utterance = new SpeechSynthesisUtterance(text);
                     window.speechSynthesis.speak(utterance);
                   }
@@ -717,6 +716,10 @@ function App() {
     setShowOnboarding(false);
   };
 
+  const handleOpenOnboarding = () => {
+    setShowOnboarding(true);
+  };
+
 
   if (isLoading) {
     return (
@@ -742,10 +745,6 @@ function App() {
         </div>
       </div>
     );
-  }
-
-  if (showOnboarding) {
-    return <OnboardingFlow onComplete={handleOnboardingComplete} />;
   }
 
   return (
@@ -811,11 +810,12 @@ function App() {
                 user={user}
                 onLogin={() => setIsAuthModalOpen(true)}
                 onLogout={handleLogout}
-                onOpenProfile={() => setIsProfileModalOpen(true)}
+            onOpenProfile={() => user ? setIsProfileModalOpen(true) : setIsAuthModalOpen(true)}
                 onOpenFleetDashboard={() => setIsFleetDashboardOpen(true)}
                 onAddStation={() => setIsAddStationModalOpen(true)}
                 userLocation={userLocation}
                 travelStats={travelStats}
+                onOpenOnboarding={handleOpenOnboarding}
               />
             </div>
 
@@ -891,7 +891,8 @@ function App() {
             viewMode={viewMode}
             setViewMode={setViewMode}
             onOpenFleet={() => setIsFleetDashboardOpen(true)}
-            onOpenProfile={() => setIsProfileModalOpen(true)}
+            onOpenProfile={() => user ? setIsProfileModalOpen(true) : setIsAuthModalOpen(true)}
+            onOpenOnboarding={handleOpenOnboarding}
           />
 
           {/* Floating Action Buttons - Hidden when Fleet/Admin dashboards are open */}
@@ -1002,6 +1003,12 @@ function App() {
             isOpen={showLagosOnlyModal}
             onClose={() => setShowLagosOnlyModal(false)}
             userLocation={userLocation}
+          />
+
+          {/* First-time onboarding modal */}
+          <OnboardingModal
+            isOpen={showOnboarding}
+            onComplete={handleOnboardingComplete}
           />
         </div>
       </ErrorBoundary>

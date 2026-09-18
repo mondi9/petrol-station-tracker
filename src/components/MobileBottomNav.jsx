@@ -1,7 +1,7 @@
 import React from 'react';
-import { Map, List, Fuel, User } from 'lucide-react';
+import { Map, List, Fuel, User, HelpCircle } from 'lucide-react';
 
-const MobileBottomNav = ({ viewMode, setViewMode, onOpenFleet, onOpenProfile, unreadCount = 0 }) => {
+const MobileBottomNav = ({ viewMode, setViewMode, onOpenFleet, onOpenProfile, onOpenOnboarding = () => {}, unreadCount = 0 }) => {
     return (
         <div style={{
             position: 'fixed', bottom: 0, left: 0, right: 0,
@@ -74,6 +74,20 @@ const MobileBottomNav = ({ viewMode, setViewMode, onOpenFleet, onOpenProfile, un
                         width: '8px', height: '8px', borderRadius: '50%', background: 'red'
                     }}></div>
                 )}
+            </button>
+
+            <button
+                onClick={onOpenOnboarding}
+                style={{
+                    background: 'transparent', border: 'none',
+                    display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '2px',
+                    color: 'rgba(255,255,255,0.5)',
+                    cursor: 'pointer', flex: 1,
+                    padding: '6px 0'
+                }}
+            >
+                <HelpCircle size={20} />
+                <span style={{ fontSize: '0.7rem' }}>Help</span>
             </button>
 
         </div>

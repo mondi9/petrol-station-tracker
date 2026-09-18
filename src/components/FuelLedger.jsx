@@ -171,15 +171,14 @@ const AddEntryModal = ({ isOpen, onClose, onSubmit, stations, depot }) => {
 const FuelLedger = ({ stations, depot }) => {
     const [entries, setEntries] = useState([]);
     const [isAddOpen, setIsAddOpen] = useState(false);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(!!depot?.id);
     const [deleteConfirm, setDeleteConfirm] = useState(null);
 
     useEffect(() => {
-        setLoading(true);
         const unsub = subscribeToLedger(
             depot?.id || null,
-            (data) => { setEntries(data); setLoading(false); },
-            (err) => { console.error(err); setLoading(false); }
+            (data) => { setEntries(data); },
+            (err) => { console.error(err); }
         );
         return unsub;
     }, [depot?.id]);

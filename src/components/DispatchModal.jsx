@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X, MessageCircle, MapPin, Copy, CheckCheck, Truck, Fuel, Navigation } from 'lucide-react';
 
-const DispatchModal = ({ isOpen, onClose, station, depot }) => {
+const DispatchModal = ({ isOpen, onClose, station }) => {
     const [copied, setCopied] = useState(false);
     const [driverName, setDriverName] = useState('');
 

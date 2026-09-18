@@ -8,26 +8,24 @@ const AlertsList = ({ user }) => {
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (!user) {
-            setAlerts([]);
-            setLoading(false);
-            return;
-        }
-
         // Subscribe to real-time alerts
-        const unsubscribe = subscribeToUserAlerts(user.uid, (userAlerts) => {
+        const unsubscribe = subscribeToUserAlerts(user?.uid, (userAlerts) => {
             setAlerts(userAlerts);
-            setLoading(false);
         });
 
         return () => unsubscribe();
-    }, [user]);
+    }, [user?.uid]);
+
+    // Initialize loading state based on user presence
+    if (!user) {
+        setLoading(false);
+    }
 
     const handleDelete = async (alertId) => {
         if (confirm('Are you sure you want to delete this alert?')) {
             try {
                 await deleteAlert(alertId);
-            } catch (error) {
+            } catch (_error) {
                 alert('Failed to delete alert. Please try again.');
             }
         }
