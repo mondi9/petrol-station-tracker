@@ -1,7 +1,7 @@
 // Netlify Functions (Node 18+) have global fetch available
 
 exports.handler = async (event, context) => {
-    const { type, ...params } = event.queryStringParameters;
+    const { type, ...params } = event.queryStringParameters || {};
     const apiKey = process.env.VITE_GOOGLE_MAPS_API_KEY;
 
     if (!apiKey) {
