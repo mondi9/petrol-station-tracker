@@ -14,10 +14,10 @@ export default defineConfig({
         cleanupOutdatedCaches: true,
         runtimeCaching: [
           {
-            urlPattern: /^https:\/\/\{s\}\.basemaps\.cartocdn\.com\/.*/i,
+            urlPattern: /^https:\/\/tile\.openstreetmap\.org\/.*/i,
             handler: 'CacheFirst',
             options: {
-              cacheName: 'mapbox-tiles',
+              cacheName: 'osm-tiles',
               expiration: {
                 maxEntries: 500,
                 maxAgeSeconds: 60 * 60 * 24 * 30 // 30 days

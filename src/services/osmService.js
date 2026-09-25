@@ -1,4 +1,4 @@
-import { collection, writeBatch, doc, getDoc, setDoc, getDocs, deleteDoc } from 'firebase/firestore';
+import { writeBatch, doc, setDoc } from 'firebase/firestore';
 import { db } from './firebase';
 
 import rawStations from '../data/raw_stations.json';
@@ -12,23 +12,6 @@ const LNG_MAX = 4.5;
 export const importLagosStationsV3 = async (onProgress) => {
     try {
         if (onProgress) onProgress("Initializing v3 import...");
-
-        // Step 0: Cleanup existing "bad" stations (e.g. Lagos, Portugal)
-        const snapshot = await getDocs(collection(db, 'stations'));
-        const deletePromises = [];
-        snapshot.docs.forEach(d => {
-            const data = d.data();
-            // If it has a lat/lng AND it's outside Nigeria bounds, delete it.
-            // (Keep ones without lat/lng if they are manually entered, unless we want to be strict)
-            if (data.lat && (data.lat < LAT_MIN || data.lat > LAT_MAX || data.lng < LNG_MIN || data.lng > LNG_MAX)) {
-                deletePromises.push(deleteDoc(doc(db, 'stations', d.id)));
-            }
-        });
-
-        if (deletePromises.length > 0) {
-            if (onProgress) onProgress(`Removing ${deletePromises.length} invalid stations...`);
-            await Promise.all(deletePromises);
-        }
 
         if (onProgress) onProgress("Loading data from local backup...");
 

@@ -307,41 +307,37 @@ const RoutingController = ({ selectedStation, userLocation }) => {
         lastRouteKey.current = routeKey;
 
         const fetchRoute = async () => {
-
-                    // Only fit bounds ONCE when route is first loaded
-                    if (!hasFitBounds.current) {
-                        const bounds = L.latLngBounds(coords);
-                        map.fitBounds(bounds, {
-                            padding: [50, 50],
-                            maxZoom: 15,
-                            animate: true,
-                            duration: 0.5 // Smooth animation
-                        });
-                        hasFitBounds.current = true;
-                    } else {
-                        console.warn("Routing: bounds already fitted");
-                    }
+                    setIsLoading(true);
+                    setError(null);
 
                     // Add timeout to prevent hanging
                     const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 5000); // 5 second timeout
+                    const timeoutId = setTimeout(() => controller.abort(), 8000); // 8 second timeout
+
+                    // Straight-line fallback so the map always shows a path,
+                    // even when the routing backend is unreachable.
+                    const straightLine = [
+                        [userLocation.lat, userLocation.lng],
+                        [selectedStation.lat, selectedStation.lng]
+                    ];
 
                     try {
+                        // OSRM public demo server. Format is Lon,Lat;Lon,Lat.
+                        const url = `https://router.project-osrm.org/route/v1/driving/${userLocation.lng},${userLocation.lat};${selectedStation.lng},${selectedStation.lat}?overview=full&geometries=geojson`;
                         const response = await fetch(url, { signal: controller.signal });
                         clearTimeout(timeoutId);
 
+                        if (!response.ok) throw new Error(`Routing HTTP ${response.status}`);
                         const data = await response.json();
 
                         if (data.routes && data.routes.length > 0) {
                             // OSRM is Lon,Lat. Leaflet is Lat,Lon. Swap 'em.
                             const coords = data.routes[0].geometry.coordinates.map(c => [c[1], c[0]]);
                             setRoute(coords);
-                            setIsLoading(false);
 
                             // Only fit bounds ONCE when route is first loaded
                             if (!hasFitBounds.current) {
-                                const bounds = L.latLngBounds(coords);
-                                map.fitBounds(bounds, {
+                                map.fitBounds(L.latLngBounds(coords), {
                                     padding: [50, 50],
                                     maxZoom: 15,
                                     animate: true,
@@ -350,9 +346,8 @@ const RoutingController = ({ selectedStation, userLocation }) => {
                                 hasFitBounds.current = true;
                             }
                         } else {
-                            console.warn("Routing: No routes found in response");
-                            setError("No route found");
-                            setIsLoading(false);
+                            console.warn("Routing: No routes found in response, using straight line");
+                            setRoute(straightLine);
                             // Fallback: just center on station
                             if (!hasFitBounds.current) {
                                 map.flyTo([selectedStation.lat, selectedStation.lng], 14, { duration: 0.5 });
@@ -360,18 +355,19 @@ const RoutingController = ({ selectedStation, userLocation }) => {
                             }
                         }
                     } catch (e) {
-                        console.error("Routing failed:", e);
-                        setError(e.name === 'AbortError' ? 'Route request timeout' : 'Route unavailable');
-                        setIsLoading(false);
+                        if (e.name !== 'AbortError') console.warn("Routing failed, using straight line:", e.message);
+                        setRoute(straightLine);
                         // Fallback: fly to station
                         if (!hasFitBounds.current) {
                             map.flyTo([selectedStation.lat, selectedStation.lng], 14, { duration: 0.5 });
                             hasFitBounds.current = true;
                         }
+                    } finally {
+                        setIsLoading(false);
                     }
                 };
 
-        fetchRoute();
+        fetchRoute().catch((e) => console.error("Routing failed:", e));
 
     }, [selectedStation?.id, userLocation?.lat, userLocation?.lng, map]);
 
@@ -500,8 +496,9 @@ const MapComponent = ({ stations, onStationSelect, onViewDetails, selectedStatio
                 zoomControl={false}
             >
                 <TileLayer
-                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors &copy; <a href="https://carto.com/attributions">CARTO</a>'
-                    url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
+                    attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                    url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+                    maxZoom={19}
                 />
                 <MapEvents onMapClick={onMapClick} />
                 <MapViewUpdater selectedStation={selectedStation} userLocation={userLocation} />

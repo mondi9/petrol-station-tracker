@@ -13,7 +13,11 @@ const AdminDashboard = ({
     onAddStation, 
     onGrantAdmin, 
     onUpdateMRS, 
-    onCleanupDuplicates, 
+    onCleanupDuplicates,
+    onFuelyPreview,
+    onFuelyApply,
+    fuelyPreview,
+    fuelyMeta,
     importStatus, 
     stations, 
     user 
@@ -283,6 +287,36 @@ const AdminDashboard = ({
                                 <button onClick={onCleanupDuplicates} className="btn" style={{ background: '#f43f5e', color: 'white', justifyContent: 'center' }}>
                                     Deep Cleanup (De-duplicate)
                                 </button>
+                                <button onClick={onFuelyPreview} className="btn" style={{ background: '#8b5cf6', color: 'white', justifyContent: 'center' }}>
+                                    Preview Fuely Prices (Sandbox)
+                                </button>
+                                <button onClick={onFuelyApply} className="btn" disabled={!fuelyPreview || fuelyPreview.length === 0} style={{ background: '#22c55e', color: 'black', justifyContent: 'center', opacity: (!fuelyPreview || fuelyPreview.length === 0) ? 0.5 : 1 }}>
+                                    Apply Fuely Prices ({(fuelyPreview || []).filter(r => r.action === 'update').length})
+                                </button>
+                                {fuelyMeta && (
+                                    <div style={{ fontSize: '0.75rem', opacity: 0.7 }}>
+                                        Fuely mode: {fuelyMeta.mode || '?'} • Charged: ₦{fuelyMeta.charged_amount ?? '?'} • Wallet: ₦{fuelyMeta.wallet_balance ?? '?'}
+                                    </div>
+                                )}
+                                {fuelyPreview && fuelyPreview.length > 0 && (
+                                    <div style={{ maxHeight: '220px', overflowY: 'auto', background: 'rgba(0,0,0,0.2)', borderRadius: '6px', padding: '8px' }}>
+                                        <div style={{ fontSize: '0.75rem', fontWeight: 'bold', marginBottom: '6px' }}>Fuely mapping preview (nothing written until Apply)</div>
+                                        {fuelyPreview.map((row, idx) => (
+                                            <div key={idx} style={{ fontSize: '0.72rem', padding: '6px 4px', borderBottom: '1px solid rgba(255,255,255,0.06)' }}>
+                                                <div style={{ fontWeight: 'bold', color: 'white' }}>
+                                                    {row.fuelyStation} {row.fuelyBrand && <span style={{ opacity: 0.6 }}>({row.fuelyBrand}{row.fuelyCity ? ` • ${row.fuelyCity}` : ''})</span>} — ₦{row.price}
+                                                </div>
+                                                <div style={{ opacity: 0.7 }}>
+                                                    → {row.stationName || '(no match)'} [{row.confidence}]
+                                                    {row.submittedAt && <span> • Fuely dated {new Date(row.submittedAt).toLocaleDateString()}</span>}
+                                                </div>
+                                                <div style={{ color: row.action === 'update' ? '#4ade80' : '#fbbf24', fontWeight: 'bold' }}>
+                                                    {row.action === 'update' ? '✓ WILL UPDATE' : `SKIPPED: ${row.reason}`}
+                                                </div>
+                                            </div>
+                                        ))}
+                                    </div>
+                                )}
                                 <button onClick={onGrantAdmin} style={{ display: 'none' }}></button> {/* for prop alignment if needed */}
                             </div>
                         </div>

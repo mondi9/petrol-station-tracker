@@ -10,6 +10,7 @@ import { subscribeToStations, updateStationStatus, addStation, calculateDistance
 import { subscribeToAuth, logout } from './services/authService';
 import { db } from './services/firebase';
 import { importLagosStationsV3, enrichStationData } from './services/osmService';
+import { fetchFuelyRealtime, previewFuelySync, applyFuelySync } from './services/fuelyService';
 import { grantAdminRole } from './services/userService';
 import { seedInitialData } from './services/stationService';
 import { getUserStats } from './services/statsService';
@@ -37,19 +38,24 @@ const LAGOS_BOUNDS = {
 };
 
 // Temporary Initial Data for Seeding
+// NOTE: prices below are legacy estimates of unknown vintage (NOT current pump
+// prices). They carry priceSource 'seed-estimate' and deliberately NO
+// lastUpdated/lastPriceUpdate stamps, so the UI renders them as
+// unknown/stale instead of presenting them as fresh. Do not invent newer
+// values here - real prices arrive via community reports or the Fuely sync.
 const INITIAL_DATA_SEED = [
-  { id: "1", name: "TotalEnergies VI", address: "Adeola Odeku St, Victoria Island", lat: 6.4281, lng: 3.4219, status: "active", queueStatus: "short", prices: { petrol: 1150, diesel: 1300, gas: 900 }, lastUpdated: new Date().toISOString() },
-  { id: "2", name: "Oando Station", address: "Awolowo Rd, Ikoyi", lat: 6.4468, lng: 3.4172, status: "active", queueStatus: "mild", prices: { petrol: 1045, diesel: 1320 }, lastUpdated: new Date().toISOString() },
-  { id: "3", name: "NNPC Mega Station (Lekki)", address: "Lekki-Epe Expy, Lekki", lat: 6.4323, lng: 3.4682, status: "inactive", prices: { petrol: 1050, diesel: 1250 }, lastUpdated: new Date().toISOString() },
-  { id: "4", name: "Conoil Yaba", address: "Herbert Macaulay Way, Yaba", lat: 6.5095, lng: 3.3711, status: "active", queueStatus: "long", prices: { petrol: 1060, diesel: 1350 }, lastUpdated: new Date().toISOString() },
-  { id: "5", name: "Mobil Ikeja", address: "Obafemi Awolowo Way, Ikeja", lat: 6.5966, lng: 3.3421, status: "inactive", lastUpdated: new Date().toISOString() },
-  { id: "6", name: "MRS Festac", address: "21/22 Rd Junction, Festac Town", lat: 6.4675, lng: 3.2836, status: "active", queueStatus: "short", prices: { petrol: 1030 }, lastUpdated: new Date().toISOString() },
-  { id: "60", name: "Mobil (11PLC)", address: "23 Road, Festac Town", lat: 6.4607, lng: 3.2995, status: "active", queueStatus: "mild", prices: { petrol: 1040, gas: 850 }, lastUpdated: new Date().toISOString() },
-  { id: "7", name: "NNPC Filling Station", address: "2nd Avenue, Festac Town", lat: 6.4605, lng: 3.2844, status: "active", queueStatus: "long", prices: { petrol: 1025 }, lastUpdated: new Date().toISOString() },
-  { id: "8", name: "TotalEnergies", address: "Amuwo/Festac Link Rd", lat: 6.4600, lng: 3.2950, status: "inactive", lastUpdated: new Date().toISOString() },
-  { id: "9", name: "MRS Station", address: "770 Festac Link Rd", lat: 6.4620, lng: 3.2980, status: "active", prices: { petrol: 1035 }, lastUpdated: new Date().toISOString() },
-  { id: "10", name: "Capital Oil", address: "Ago Palace Link Rd", lat: 6.4800, lng: 3.2900, status: "inactive", lastUpdated: new Date().toISOString() },
-  { id: "11", name: "AP (Ardova PLC)", address: "21 Road, Festac Town", lat: 6.4686, lng: 3.2932, status: "active", prices: { petrol: 1055 }, lastUpdated: new Date().toISOString() }
+  { id: "1", name: "TotalEnergies VI", address: "Adeola Odeku St, Victoria Island", lat: 6.4281, lng: 3.4219, status: "active", queueStatus: "short", prices: { petrol: 1150, diesel: 1300, gas: 900 }, priceSource: "seed-estimate" },
+  { id: "2", name: "Oando Station", address: "Awolowo Rd, Ikoyi", lat: 6.4468, lng: 3.4172, status: "active", queueStatus: "mild", prices: { petrol: 1045, diesel: 1320 }, priceSource: "seed-estimate" },
+  { id: "3", name: "NNPC Mega Station (Lekki)", address: "Lekki-Epe Expy, Lekki", lat: 6.4323, lng: 3.4682, status: "inactive", prices: { petrol: 1050, diesel: 1250 }, priceSource: "seed-estimate" },
+  { id: "4", name: "Conoil Yaba", address: "Herbert Macaulay Way, Yaba", lat: 6.5095, lng: 3.3711, status: "active", queueStatus: "long", prices: { petrol: 1060, diesel: 1350 }, priceSource: "seed-estimate" },
+  { id: "5", name: "Mobil Ikeja", address: "Obafemi Awolowo Way, Ikeja", lat: 6.5966, lng: 3.3421, status: "inactive" },
+  { id: "6", name: "MRS Festac", address: "21/22 Rd Junction, Festac Town", lat: 6.4675, lng: 3.2836, status: "active", queueStatus: "short", prices: { petrol: 1030 }, priceSource: "seed-estimate" },
+  { id: "60", name: "Mobil (11PLC)", address: "23 Road, Festac Town", lat: 6.4607, lng: 3.2995, status: "active", queueStatus: "mild", prices: { petrol: 1040, gas: 850 }, priceSource: "seed-estimate" },
+  { id: "7", name: "NNPC Filling Station", address: "2nd Avenue, Festac Town", lat: 6.4605, lng: 3.2844, status: "active", queueStatus: "long", prices: { petrol: 1025 }, priceSource: "seed-estimate" },
+  { id: "8", name: "TotalEnergies", address: "Amuwo/Festac Link Rd", lat: 6.4600, lng: 3.2950, status: "inactive" },
+  { id: "9", name: "MRS Station", address: "770 Festac Link Rd", lat: 6.4620, lng: 3.2980, status: "active", prices: { petrol: 1035 }, priceSource: "seed-estimate" },
+  { id: "10", name: "Capital Oil", address: "Ago Palace Link Rd", lat: 6.4800, lng: 3.2900, status: "inactive" },
+  { id: "11", name: "AP (Ardova PLC)", address: "21 Road, Festac Town", lat: 6.4686, lng: 3.2932, status: "active", prices: { petrol: 1055 }, priceSource: "seed-estimate" }
 ];
 
 import { ThemeProvider } from './context/ThemeContext';
@@ -77,6 +83,8 @@ function App() {
   const [isFleetDashboardOpen, setIsFleetDashboardOpen] = useState(false);
   const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [importStatus, setImportStatus] = useState("");
+  const [fuelyPreview, setFuelyPreview] = useState([]);
+  const [fuelyMeta, setFuelyMeta] = useState(null);
   const [userStats, setUserStats] = useState({ contributions: 0, reviews: 0 });
   const [showLocationDisclosure, setShowLocationDisclosure] = useState(false);
   const [showLagosOnlyModal, setShowLagosOnlyModal] = useState(false);
@@ -298,7 +306,8 @@ function App() {
             status: 'active',
             prices: { ...station.prices, petrol: cluster.p },
             lastUpdated: now,
-            lastPriceUpdate: now
+            lastPriceUpdate: now,
+            priceSource: 'admin'
           });
           matchedClusters.add(cluster.id);
           totalUpdated++;
@@ -331,7 +340,8 @@ function App() {
             status: 'active',
             prices: { petrol: cluster.p },
             lastUpdated: now,
-            lastPriceUpdate: now
+            lastPriceUpdate: now,
+            priceSource: 'admin'
           });
           totalCreated++;
         }
@@ -365,7 +375,8 @@ function App() {
         if (station.prices?.petrol) {
           batch.update(doc(db, 'stations', station.id), {
             'prices.petrol': station.prices.petrol + amount,
-            lastPriceUpdate: new Date().toISOString()
+            lastPriceUpdate: new Date().toISOString(),
+            priceSource: 'admin'
           });
           count++;
         }
@@ -410,6 +421,43 @@ function App() {
       setTimeout(() => setImportStatus(""), 3000);
     } catch (error) {
       setImportStatus("❌ Restore failed: " + error.message);
+    }
+  };
+
+  // Fuely price sync (ADMIN-TRIGGERED ONLY - never automatic).
+  // Step 1: Preview fetches Fuely records and maps them to local stations
+  // without writing anything. Step 2: Apply writes only high-confidence
+  // matches that are newer than existing prices. Status is left visible
+  // so the admin can review the mapping before applying.
+  const handleFuelyPreview = async () => {
+    try {
+      setImportStatus("Fetching Fuely prices...");
+      const { records, meta } = await fetchFuelyRealtime({ onProgress: (s) => setImportStatus(s) });
+      setFuelyMeta(meta);
+      const rows = previewFuelySync(records, stations);
+      setFuelyPreview(rows);
+      const updatable = rows.filter(r => r.action === 'update').length;
+      setImportStatus(`Fuely (${meta?.mode || 'unknown'}) returned ${records.length} records → ${updatable} updatable, ${rows.length - updatable} skipped. Review below, then Apply. Charged: ₦${meta?.charged_amount ?? '?'}`);
+    } catch (error) {
+      setImportStatus("❌ Fuely preview failed: " + error.message);
+    }
+  };
+
+  const handleFuelyApply = async () => {
+    const rows = fuelyPreview.filter(r => r.action === 'update');
+    if (rows.length === 0) {
+      setImportStatus("Nothing to apply - run Preview Fuely Prices first.");
+      return;
+    }
+    if (!window.confirm(`Apply ${rows.length} Fuely price(s)? Only unique high-confidence matches newer than existing prices will be written.`)) return;
+    try {
+      setImportStatus(`Applying ${rows.length} Fuely prices...`);
+      const res = await applyFuelySync(rows);
+      setImportStatus(`✅ Fuely applied: ${res.updated} updated, ${res.failed} failed.`);
+      setFuelyPreview([]);
+      setTimeout(() => setImportStatus(""), 5000);
+    } catch (error) {
+      setImportStatus("❌ Fuely apply failed: " + error.message);
     }
   };
   
@@ -978,6 +1026,10 @@ function App() {
                 onUpdateMRS={handleUpdateMRSCoords}
                 onGlobalPriceUpdate={handleGlobalPriceUpdate}
                 onCleanupDuplicates={handleCleanupDuplicates}
+                onFuelyPreview={handleFuelyPreview}
+                onFuelyApply={handleFuelyApply}
+                fuelyPreview={fuelyPreview}
+                fuelyMeta={fuelyMeta}
                 importStatus={importStatus}
                 stations={stations}
                 user={user}

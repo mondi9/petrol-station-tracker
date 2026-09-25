@@ -17,11 +17,16 @@ export const subscribeToStations = (onUpdate, onError) => {
     // Initial subscribe
     const unsubscribe = onSnapshot(q, (snapshot) => {
         if (!isSubscribed) return;
-        // ... process stations ...
-        const stations = snapshot.docs.map(doc => {
-            // ... same as before ...
-        }).filter(s => {
-            // ... same as before ...
+        const stations = snapshot.docs.map(d => ({
+            id: d.id,
+            ...d.data()
+        })).filter(s => {
+            // Keep docs with usable coordinates so Leaflet markers don't crash.
+            // Allow 0 explicitly; only drop null/undefined/NaN.
+            if (!s || s.lat == null || s.lng == null) return false;
+            const lat = Number(s.lat);
+            const lng = Number(s.lng);
+            return !Number.isNaN(lat) && !Number.isNaN(lng);
         });
         onUpdate(stations);
     }, (error) => {
@@ -100,6 +105,7 @@ export const updateStationStatus = async (stationId, reportData, userId = null, 
         if (targetPrice) {
             updatePayload[`prices.${fuelType}`] = targetPrice;
             updatePayload.lastPriceUpdate = new Date().toISOString();
+            updatePayload.priceSource = 'community';
         }
     }
 
